@@ -30,8 +30,9 @@ class NoteAdapter(
             tvReview.text = DateUtil.reviewText(note.nextReviewTime, note.finished)
 
             val due = DateUtil.isDue(note.nextReviewTime, note.finished)
-            val colorRes = if (due) R.color.due else R.color.text_secondary
-            tvReview.setTextColor(root.context.getColor(colorRes))
+            tvReview.setTextColor(
+                root.context.getColor(if (due) R.color.due else R.color.text_secondary)
+            )
 
             root.setOnClickListener { onClick(note) }
             btnDelete.setOnClickListener { onDelete(note) }
