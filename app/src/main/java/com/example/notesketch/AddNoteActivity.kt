@@ -44,13 +44,8 @@ class AddNoteActivity : AppCompatActivity() {
         )
 
         lifecycleScope.launch {
-            val id = withContext(Dispatchers.IO) { dao.insert(note) }
-            ReviewScheduler.schedule(this@AddNoteActivity, note.copy(id = id))
-            Toast.makeText(
-                this@AddNoteActivity,
-                "已保存，将按艾宾浩斯曲线提醒复习",
-                Toast.LENGTH_SHORT
-            ).show()
+            withContext(Dispatchers.IO) { dao.insert(note) }
+            Toast.makeText(this@AddNoteActivity, "已保存", Toast.LENGTH_SHORT).show()
             finish()
         }
     }

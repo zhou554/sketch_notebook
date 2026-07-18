@@ -1,13 +1,8 @@
 package com.example.notesketch
 
-import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.notesketch.data.AppDatabase
@@ -23,18 +18,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val dao by lazy { AppDatabase.get(this).noteDao() }
 
-    private val notifPermLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        requestNotificationPermission()
-
         val adapter = NoteAdapter(
-            onDone = { markReviewed(it) },
+            onClick = { openDetail(it) },
             onDelete = { deleteNote(it) }
         )
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
@@ -53,38 +43,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /** 标记本次复习完成，推进到下一个艾宾浩斯阶段并重设闹钟 */
-    private fun markReviewed(note: Note) {
-        lifecycleScope.launch {
-            val nextStage = note.stage + 1
-            val nextTime = Ebbinghaus.reviewTimeFor(note.createdAt, nextStage)
-            val finished = nextTime < 0
-            val updated = note.copy(
-                stage = nextStage,
-                nextReviewTime = if (finished) note.nextReviewTime else nextTime,
-                finished = finished
-            )
-            withContext(Dispatchers.IO) { dao.update(updated) }
-            ReviewScheduler.cancel(this@MainActivity, note)
-            if (!finished) ReviewScheduler.schedule(this@MainActivity, updated)
-        }
+    private fun openDetail(note: Note) {
+        startActivity(
+            Intent(this, NoteDetailActivity::class.java)
+                .putExtra(NoteDetailActivity.EXTRA_NOTE_ID, note.id)
+        )
     }
 
     private fun deleteNote(note: Note) {
         lifecycleScope.launch {
             withContext(Dispatchers.IO) { dao.delete(note) }
-            ReviewScheduler.cancel(this@MainActivity, note)
-        }
-    }
-
-    private fun requestNotificationPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            val granted = ContextCompat.checkSelfPermission(
-                this, Manifest.permission.POST_NOTIFICATIONS
-            ) == PackageManager.PERMISSION_GRANTED
-            if (!granted) {
-                notifPermLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            }
         }
     }
 }

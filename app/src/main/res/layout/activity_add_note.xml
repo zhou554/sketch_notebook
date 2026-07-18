@@ -61,7 +61,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:backgroundTint="@color/primary"
-        android:text="保存并开启复习提醒"
+        android:text="保存"
         android:textColor="@color/white" />
 
 </LinearLayout>

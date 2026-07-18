@@ -24,8 +24,4 @@ interface NoteDao {
 
     @Query("SELECT * FROM notes WHERE id = :id LIMIT 1")
     suspend fun getById(id: Long): Note?
-
-    /** 到期(需复习)且未完成的笔记 */
-    @Query("SELECT * FROM notes WHERE finished = 0 AND nextReviewTime <= :now ORDER BY nextReviewTime ASC")
-    suspend fun getDue(now: Long): List<Note>
 }

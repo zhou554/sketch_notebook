@@ -9,7 +9,7 @@ import com.example.notesketch.data.Note
 import com.example.notesketch.databinding.ItemNoteBinding
 
 class NoteAdapter(
-    private val onDone: (Note) -> Unit,
+    private val onClick: (Note) -> Unit,
     private val onDelete: (Note) -> Unit
 ) : ListAdapter<Note, NoteAdapter.VH>(DIFF) {
 
@@ -33,8 +33,7 @@ class NoteAdapter(
             val colorRes = if (due) R.color.due else R.color.text_secondary
             tvReview.setTextColor(root.context.getColor(colorRes))
 
-            btnDone.isEnabled = !note.finished
-            btnDone.setOnClickListener { onDone(note) }
+            root.setOnClickListener { onClick(note) }
             btnDelete.setOnClickListener { onDelete(note) }
         }
     }
