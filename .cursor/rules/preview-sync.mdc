@@ -1,0 +1,23 @@
+---
+description: Keep the web UI preview in sync when NoteSketch Android app features or UI change
+globs: app/src/main/**/*
+alwaysApply: false
+---
+
+# NoteSketch 网页预览同步
+
+预览页为 **`preview/index.html`**，直接套用仓库根目录 **`line-minimal-ui.html`** 的线条动效 UI。
+
+当修改 App 的界面、文案、复习逻辑或动效时：
+
+1. 优先更新 `line-minimal-ui.html`（设计源）
+2. 再复制到 `preview/index.html`（或保持两边一致）
+3. Android 对齐：`SeaLineView`、半透明壳层、1px 墨绿左边线、描边 FAB、线条复选框、衬线标题
+
+## 视觉约定（LINE UI）
+
+- 纸面底 `#F3EDE2`，墨色 `#2C261E`，次要 `#6F675C`，线 `#C9BDB0`，强调 `#4F5D45`，待复习 `#8F3A32`
+- 背景：线条海浪（非色块 AmbientWash）
+- 壳层半透明透出海景；控件以描边为主，避免厚重实心卡片
+- 时间线：仅当前阶段可勾选
+- 尊重 `prefers-reduced-motion` / 系统动画缩放

@@ -6,12 +6,11 @@
     android:background="@drawable/bg_row_bottom_line"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:paddingTop="12dp"
-    android:paddingBottom="12dp">
+    android:paddingTop="14dp"
+    android:paddingBottom="14dp">
 
-    <!-- Left rail: vertical line + checkbox node -->
     <FrameLayout
-        android:layout_width="28dp"
+        android:layout_width="32dp"
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
         android:minHeight="48dp">
@@ -24,11 +23,11 @@
 
         <CheckBox
             android:id="@+id/checkStage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
             android:layout_gravity="center"
-            android:background="@color/bg"
-            android:buttonTint="@color/ink"
+            android:background="@drawable/bg_checkbox_line"
+            android:button="@null"
             android:minWidth="0dp"
             android:minHeight="0dp" />
     </FrameLayout>
@@ -36,7 +35,7 @@
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
+        android:layout_marginStart="12dp"
         android:layout_weight="1"
         android:orientation="vertical">
 
@@ -44,6 +43,7 @@
             android:id="@+id/tvStageLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="serif"
             android:textColor="@color/ink"
             android:textSize="14sp"
             android:textStyle="bold"
@@ -53,9 +53,10 @@
             android:id="@+id/tvStageDate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
+            android:layout_marginTop="4dp"
+            android:fontFamily="monospace"
             android:textColor="@color/text_secondary"
-            android:textSize="12sp"
+            android:textSize="11sp"
             tools:text="计划：07月19日 16:00" />
     </LinearLayout>
 

@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="bg">#FFFFFF</color>
-    <color name="ink">#1C1C1C</color>
-    <color name="text_primary">#1C1C1C</color>
-    <color name="text_secondary">#8A8A8A</color>
-    <color name="line">#E6E6E6</color>
-    <color name="due">#B33A3A</color>
-    <color name="primary">#1C1C1C</color>
-    <color name="primary_dark">#1C1C1C</color>
-    <color name="white">#FFFFFF</color>
+    <!-- 对齐 line-minimal-ui.html -->
+    <color name="bg">#F3EDE2</color>
+    <color name="ink">#2C261E</color>
+    <color name="text_primary">#2C261E</color>
+    <color name="text_secondary">#6F675C</color>
+    <color name="line">#C9BDB0</color>
+    <color name="accent">#4F5D45</color>
+    <color name="accent_soft">#124F5D45</color>
+    <color name="due">#8F3A32</color>
+    <color name="primary">#4F5D45</color>
+    <color name="primary_dark">#3D4836</color>
+    <color name="white">#FFFBF5</color>
+    <color name="surface_solid">#FFFBF5</color>
+    <!-- ~88% 半透明壳层，透出线条海 -->
+    <color name="shell_scrim">#E0FFFBF5</color>
+    <color name="surface">#E0FFFBF5</color>
 </resources>
