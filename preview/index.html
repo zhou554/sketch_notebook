@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>记忆笔记 · UI 预览</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./app.css" />
+  </head>
+  <body>
+    <div class="page">
+      <aside class="panel">
+        <p class="panel-eyebrow">NoteSketch Preview</p>
+        <h1>记忆笔记<br />功能与界面预览</h1>
+        <p class="panel-lead">
+          右侧手机框复刻当前 Android App 的黑白极简 UI 与交互：列表、新建、详情与艾宾浩斯时间线。
+        </p>
+
+        <div class="sync-card">
+          <strong>与 App 同步</strong>
+          <p>
+            改动 App 的界面、文案或复习逻辑后，请同步更新
+            <code>preview/</code> 目录（尤其是
+            <code>app-model.js</code>）。Cursor 规则会提醒 Agent 一起改。
+          </p>
+          <div class="sync-meta" id="sync-meta"></div>
+        </div>
+
+        <ul class="feature-list">
+          <li>
+            <span class="num">01</span>
+            <span>笔记列表：待复习标红、按下次复习时间排序、删除</span>
+          </li>
+          <li>
+            <span class="num">02</span>
+            <span>新建笔记：标题必填，保存后安排第 1 天复习</span>
+          </li>
+          <li>
+            <span class="num">03</span>
+            <span>复习详情：6 节点时间线，仅当前阶段可勾选</span>
+          </li>
+          <li>
+            <span class="num">04</span>
+            <span>间隔：第 1 / 2 / 4 / 7 / 15 / 30 天</span>
+          </li>
+        </ul>
+
+        <p class="hint">
+          本地打开：双击 <code>preview/index.html</code>，或在本目录执行
+          <code>npx --yes serve .</code>
+        </p>
+      </aside>
+
+      <div class="phone-wrap">
+        <div class="phone" aria-label="记忆笔记 App 预览">
+          <div class="phone-notch" aria-hidden="true"></div>
+          <div class="screen">
+            <!-- 列表 -->
+            <section class="view active" id="view-list" aria-label="笔记列表">
+              <header class="app-header" id="main-header">记忆笔记</header>
+              <div class="list-body">
+                <div class="empty-state" id="empty-state"></div>
+                <div id="note-list"></div>
+              </div>
+              <button type="button" class="fab" id="fab-add" aria-label="添加笔记">
+                +
+              </button>
+            </section>
+
+            <!-- 新建 -->
+            <section class="view" id="view-add" aria-label="新建笔记">
+              <header class="app-header" id="add-header">新建笔记</header>
+              <div class="form-scroll">
+                <input
+                  class="field"
+                  id="input-title"
+                  type="text"
+                  maxlength="80"
+                  autocomplete="off"
+                />
+                <textarea class="field field-body" id="input-content" rows="8"></textarea>
+              </div>
+              <button type="button" class="btn-save" id="btn-save">保存</button>
+            </section>
+
+            <!-- 详情 -->
+            <section class="view" id="view-detail" aria-label="复习详情">
+              <header class="app-header" id="detail-header">复习详情</header>
+              <div class="detail-scroll">
+                <div class="detail-title" id="detail-title"></div>
+                <hr class="detail-rule" />
+                <div class="detail-body" id="detail-body"></div>
+                <hr class="detail-rule spaced" />
+                <div class="timeline-title" id="timeline-title"></div>
+                <p class="timeline-helper" id="timeline-helper"></p>
+                <ul class="timeline-list" id="timeline-list"></ul>
+              </div>
+            </section>
+
+            <div class="toast" id="toast" role="status"></div>
+          </div>
+        </div>
+        <p class="phone-caption">点击「新建笔记 / 复习详情」标题可返回列表</p>
+      </div>
+    </div>
+
+    <script src="./app-model.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>

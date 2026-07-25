@@ -1,0 +1,28 @@
+---
+description: Keep the web UI preview in sync when NoteSketch Android app features or UI change
+globs: app/src/main/**/*
+alwaysApply: false
+---
+
+# NoteSketch 网页预览同步
+
+本仓库有一份可交互网页预览，路径：`preview/`。
+
+当修改 App 的**界面、文案、复习逻辑或交互流程**时，必须同步更新预览，使网页能反映最新功能与 UI。
+
+## 应对齐的文件
+
+| App 源 | 预览应对齐 |
+|--------|------------|
+| `res/values/colors.xml`、`themes.xml` | `preview/app.css` 中的 CSS 变量；`preview/app-model.js` 的 `colors` |
+| `Ebbinghaus.kt`、`DateUtil.kt` | `preview/app-model.js` 的间隔天数、文案与日期逻辑 |
+| `res/layout/*.xml` 结构与文案 | `preview/index.html` + `preview/app.css` |
+| `MainActivity` / `AddNote` / `NoteDetail` / Adapters | `preview/app.js` 交互行为 |
+| 功能增删（新屏幕、新字段等） | 在手机框内增加对应界面，并更新左侧功能列表 |
+
+## 要求
+
+1. 预览需保持 App 的黑白极简视觉：白底、`#1C1C1C` 墨色、`#8A8A8A` 次要文字、`#E6E6E6` 细线、待复习 `#B33A3A`，无圆角卡片、无阴影堆叠。
+2. 时间线必须保持「仅当前阶段可勾选、不可跳过或取消」。
+3. 更新 `app-model.js` 里的 `meta.updatedAt`（及如有需要的 `syncedFromBranch`）。
+4. 不要把预览做成与 App 无关的营销落地页；手机框内即 App 本体预览。

@@ -1,0 +1,548 @@
+/* NoteSketch 网页预览 — 对齐 Android colors.xml / layout 间距与黑白极简风 */
+
+:root {
+  --bg: #ffffff;
+  --ink: #1c1c1c;
+  --text-secondary: #8a8a8a;
+  --line: #e6e6e6;
+  --due: #b33a3a;
+  --white: #ffffff;
+  --phone-w: 360px;
+  --phone-h: 720px;
+  --gutter: 20px;
+  --page-bg: #f3f1ec;
+  --page-ink: #1a1916;
+  --page-muted: #6b6860;
+  --page-rule: #d8d4cb;
+  --accent-rail: #1c1c1c;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: "IBM Plex Sans", "Noto Sans SC", system-ui, sans-serif;
+  color: var(--page-ink);
+  background:
+    radial-gradient(ellipse 80% 50% at 10% -10%, #ebe7de 0%, transparent 55%),
+    radial-gradient(ellipse 60% 40% at 100% 100%, #e4e0d6 0%, transparent 50%),
+    var(--page-bg);
+  line-height: 1.45;
+}
+
+/* —— 页面壳：预览台 —— */
+.page {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) auto;
+  gap: 48px;
+  align-items: start;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 48px 32px 64px;
+}
+
+@media (max-width: 900px) {
+  .page {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    padding: 28px 16px 48px;
+    gap: 32px;
+  }
+}
+
+.panel {
+  max-width: 420px;
+}
+
+.panel-eyebrow {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--page-muted);
+  margin: 0 0 12px;
+}
+
+.panel h1 {
+  font-family: "Newsreader", "Noto Serif SC", Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(2rem, 4vw, 2.6rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin: 0 0 14px;
+}
+
+.panel-lead {
+  margin: 0 0 28px;
+  color: var(--page-muted);
+  font-size: 15px;
+  max-width: 36ch;
+}
+
+.sync-card {
+  border: 1px solid var(--page-rule);
+  background: rgba(255, 255, 255, 0.65);
+  padding: 16px 18px;
+  margin-bottom: 28px;
+}
+
+.sync-card strong {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.sync-card p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--page-muted);
+}
+
+.sync-meta {
+  margin-top: 10px;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 11px;
+  color: var(--page-muted);
+}
+
+.feature-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--page-rule);
+}
+
+.feature-list li {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 10px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--page-rule);
+  font-size: 14px;
+}
+
+.feature-list .num {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 12px;
+  color: var(--page-muted);
+  padding-top: 2px;
+}
+
+.hint {
+  margin-top: 24px;
+  font-size: 13px;
+  color: var(--page-muted);
+}
+
+.hint code {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 12px;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 1px 5px;
+}
+
+/* —— 手机框 —— */
+.phone-wrap {
+  position: sticky;
+  top: 24px;
+}
+
+.phone {
+  width: var(--phone-w);
+  height: var(--phone-h);
+  background: var(--bg);
+  border: 1px solid #c8c4bb;
+  border-radius: 28px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.8) inset,
+    0 24px 48px rgba(26, 25, 22, 0.12);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.phone-notch {
+  height: 28px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  border-bottom: 1px solid transparent;
+}
+
+.phone-notch::after {
+  content: "";
+  width: 88px;
+  height: 6px;
+  border-radius: 3px;
+  background: #d0cdc5;
+}
+
+.screen {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Noto Sans SC", "IBM Plex Sans", system-ui, sans-serif;
+}
+
+.view {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(12px);
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s ease;
+}
+
+.view.active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(0);
+}
+
+.app-header {
+  flex-shrink: 0;
+  padding: 20px var(--gutter) 16px;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+  background:
+    linear-gradient(var(--line), var(--line)) bottom / 100% 1px no-repeat,
+    var(--bg);
+}
+
+/* 列表 */
+.list-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px var(--gutter) 90px;
+  position: relative;
+}
+
+.empty-state {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-line;
+  display: none;
+}
+
+.empty-state.show {
+  display: block;
+}
+
+.note-row {
+  background:
+    linear-gradient(var(--ink), var(--ink)) left / 2px 100% no-repeat,
+    linear-gradient(var(--line), var(--line)) bottom / 100% 1px no-repeat,
+    var(--bg);
+  padding: 16px 4px 14px 16px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.note-row:hover {
+  background-color: #fafafa;
+}
+
+.note-row:active {
+  background-color: #f3f3f3;
+}
+
+.note-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.note-preview {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.note-footer {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.note-review {
+  font-size: 12px;
+  color: var(--text-secondary);
+  flex: 1;
+}
+
+.note-review.due {
+  color: var(--due);
+}
+
+.btn-delete {
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.btn-delete:hover {
+  color: var(--ink);
+}
+
+.fab {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 0;
+  background: var(--ink);
+  color: var(--white);
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  box-shadow: none;
+  transition: transform 0.15s ease;
+}
+
+.fab:hover {
+  transform: scale(1.04);
+}
+
+.fab:active {
+  transform: scale(0.96);
+}
+
+/* 新建 / 详情 */
+.form-scroll,
+.detail-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px var(--gutter) 28px;
+}
+
+.field {
+  width: 100%;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 15px;
+  font-family: inherit;
+  padding: 14px;
+  outline: none;
+  resize: vertical;
+}
+
+.field:focus {
+  border-color: var(--ink);
+}
+
+.field + .field {
+  margin-top: 12px;
+}
+
+.field::placeholder {
+  color: var(--text-secondary);
+}
+
+.field-body {
+  min-height: 180px;
+}
+
+.btn-save {
+  margin: 0 var(--gutter) 20px;
+  height: 48px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 15px;
+  letter-spacing: 0.06em;
+  font-family: inherit;
+  cursor: pointer;
+  border-radius: 0;
+  transition: background 0.15s ease;
+}
+
+.btn-save:hover {
+  background: #f7f7f7;
+}
+
+.detail-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.detail-rule {
+  height: 1px;
+  background: var(--line);
+  margin: 14px 0 0;
+  border: 0;
+}
+
+.detail-rule.spaced {
+  margin-top: 28px;
+}
+
+.detail-body {
+  margin-top: 14px;
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.timeline-title {
+  margin-top: 20px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+
+.timeline-helper {
+  margin-top: 6px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.timeline-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.timeline-item {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 0 10px;
+  align-items: start;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.timeline-rail {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  min-height: 40px;
+}
+
+.timeline-rail::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: -13px;
+  width: 1px;
+  background: var(--line);
+}
+
+.timeline-item:last-child .timeline-rail::before {
+  bottom: 50%;
+}
+
+.timeline-item input[type="checkbox"] {
+  position: relative;
+  z-index: 1;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: var(--ink);
+  cursor: pointer;
+  background: var(--bg);
+}
+
+.timeline-item input[type="checkbox"]:disabled {
+  cursor: default;
+  opacity: 0.85;
+}
+
+.stage-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.stage-date {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* Toast */
+.toast {
+  position: absolute;
+  left: 50%;
+  bottom: 88px;
+  transform: translateX(-50%) translateY(8px);
+  background: rgba(28, 28, 28, 0.92);
+  color: #fff;
+  font-size: 13px;
+  padding: 10px 16px;
+  border-radius: 4px;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+  white-space: nowrap;
+  z-index: 20;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.phone-caption {
+  margin-top: 14px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--page-muted);
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .view,
+  .fab,
+  .toast,
+  .note-row {
+    transition: none;
+  }
+}
