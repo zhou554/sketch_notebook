@@ -85,7 +85,9 @@
             android:importantForAutofill="no"
             android:inputType="textMultiLine"
             android:lineSpacingExtra="4dp"
+            android:overScrollMode="never"
             android:padding="4dp"
+            android:scrollbars="none"
             android:textColor="@color/ink"
             android:textColorHint="#807A6F62"
             android:textSize="15sp" />

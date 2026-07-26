@@ -38,55 +38,143 @@
 
             <TextView
                 android:id="@+id/tvHeader"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
+                android:layout_weight="1"
                 android:fontFamily="@font/patrick_hand"
                 android:text="复习详情"
                 android:textColor="@color/ink"
                 android:textSize="22sp" />
+
         </LinearLayout>
 
         <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:clipToPadding="false"
+            android:fillViewport="false"
             android:paddingStart="20dp"
-            android:paddingEnd="56dp"
-            android:paddingBottom="24dp">
+            android:paddingEnd="20dp"
+            android:paddingBottom="24dp"
+            android:scrollbars="none"
+            android:overScrollMode="never">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <LinearLayout
+                <!-- 点击便签进入编辑：固定高度，内容在框内滚动 -->
+                <FrameLayout
+                    android:id="@+id/notePaper"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="340dp"
                     android:background="@drawable/bg_detail_paper"
                     android:elevation="3dp"
-                    android:orientation="vertical"
+                    android:foreground="?attr/selectableItemBackground"
                     android:padding="16dp">
 
-                    <TextView
-                        android:id="@+id/tvTitle"
+                    <LinearLayout
+                        android:id="@+id/viewMode"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/patrick_hand"
-                        android:textColor="@color/ink"
-                        android:textSize="22sp"
-                        tools:text="标题" />
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/tvContent"
+                        <TextView
+                            android:id="@+id/tvTitle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/patrick_hand"
+                            android:textColor="@color/ink"
+                            android:textSize="22sp"
+                            tools:text="标题" />
+
+                        <TextView
+                            android:id="@+id/tvContent"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_marginTop="12dp"
+                            android:layout_weight="1"
+                            android:lineSpacingExtra="4dp"
+                            android:overScrollMode="never"
+                            android:scrollbars="none"
+                            android:textColor="@color/muted"
+                            android:textSize="15sp"
+                            tools:text="笔记正文" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:fontFamily="@font/patrick_hand"
+                            android:text="轻触便签可再次编辑"
+                            android:textColor="#997A6F62"
+                            android:textSize="13sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/editMode"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:lineSpacingExtra="4dp"
-                        android:textColor="@color/muted"
-                        android:textSize="15sp"
-                        tools:text="笔记正文" />
-                </LinearLayout>
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <EditText
+                            android:id="@+id/etTitle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@android:color/transparent"
+                            android:fontFamily="@font/patrick_hand"
+                            android:hint="标题"
+                            android:importantForAutofill="no"
+                            android:inputType="text"
+                            android:maxLines="3"
+                            android:padding="0dp"
+                            android:textColor="@color/ink"
+                            android:textColorHint="#8C7A6F62"
+                            android:textSize="22sp" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="2dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
+                            android:background="#4D7A6F62" />
+
+                        <EditText
+                            android:id="@+id/etContent"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            android:background="@android:color/transparent"
+                            android:fadeScrollbars="true"
+                            android:gravity="top"
+                            android:hint="笔记内容…"
+                            android:importantForAutofill="no"
+                            android:inputType="textMultiLine"
+                            android:lineSpacingExtra="4dp"
+                            android:nestedScrollingEnabled="true"
+                            android:overScrollMode="never"
+                            android:padding="0dp"
+                            android:scrollbars="none"
+                            android:textColor="@color/muted"
+                            android:textColorHint="#807A6F62"
+                            android:textSize="15sp" />
+
+                        <ImageButton
+                            android:id="@+id/btnSaveEdit"
+                            android:layout_width="96dp"
+                            android:layout_height="96dp"
+                            android:layout_marginTop="4dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="保存"
+                            android:padding="2dp"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/fox_deco" />
+                    </LinearLayout>
+                </FrameLayout>
 
                 <View
                     android:id="@+id/rule1"
@@ -95,40 +183,59 @@
                     android:layout_marginTop="20dp"
                     android:background="#737A6F62" />
 
-                <View
-                    android:id="@+id/rule2"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:visibility="gone" />
-
                 <TextView
                     android:id="@+id/tvTimelineTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
+                    android:layout_marginBottom="8dp"
                     android:fontFamily="@font/patrick_hand"
                     android:text="艾宾浩斯复习时间线"
                     android:textColor="@color/ink"
-                    android:textSize="19sp" />
+                    android:textSize="15sp" />
 
                 <TextView
                     android:id="@+id/tvTimelineHelper"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:visibility="gone" />
+
+                <com.example.notesketch.EbbinghausTimelineView
+                    android:id="@+id/timelineView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginBottom="8dp"
-                    android:text="按顺序勾选完成每次复习，不可跳过或取消"
-                    android:textColor="@color/muted"
-                    android:textSize="12sp" />
+                    android:layout_marginTop="4dp" />
 
+                <!-- 保留旧 id，避免其它引用崩溃；已隐藏 -->
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/timelineList"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:nestedScrollingEnabled="false"
-                    tools:itemCount="6"
-                    tools:listitem="@layout/item_timeline_stage" />
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:visibility="gone" />
+
+                <View
+                    android:id="@+id/rule2"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:visibility="gone" />
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
+
+    <!-- 右下角装饰花枝：上端右倾，隐约三角构图 -->
+    <ImageView
+        android:id="@+id/bloomCorner"
+        android:layout_width="160dp"
+        android:layout_height="160dp"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="-22dp"
+        android:layout_marginBottom="-16dp"
+        android:alpha="0.9"
+        android:contentDescription="@null"
+        android:elevation="4dp"
+        android:pivotX="100%"
+        android:pivotY="100%"
+        android:rotation="18"
+        android:scaleType="fitCenter"
+        android:src="@drawable/bloom_branch" />
 </FrameLayout>

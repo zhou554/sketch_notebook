@@ -32,6 +32,25 @@
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    /* Hide all scrollbars inside the phone mock / app; keep scroll working */
+    .spread,
+    .spread *,
+    .desk,
+    .desk * {
+      scrollbar-width: none !important;
+      -ms-overflow-style: none !important;
+    }
+
+    .spread::-webkit-scrollbar,
+    .spread *::-webkit-scrollbar,
+    .desk::-webkit-scrollbar,
+    .desk *::-webkit-scrollbar {
+      width: 0 !important;
+      height: 0 !important;
+      display: none !important;
+      background: transparent !important;
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation: none !important; transition-duration: 0.01ms !important; }
     }
@@ -330,11 +349,27 @@
       display: flex;
       flex-direction: column;
       min-height: 0;
+      overflow: hidden;
       background-color: var(--cream);
       background-image:
         linear-gradient(var(--grid) 1px, transparent 1px),
         linear-gradient(90deg, var(--grid) 1px, transparent 1px);
       background-size: 18px 18px;
+    }
+
+    .detail-bloom-corner {
+      position: absolute;
+      right: -36px;
+      bottom: -28px;
+      width: clamp(140px, 40%, 170px);
+      height: auto;
+      z-index: 6;
+      pointer-events: none;
+      user-select: none;
+      opacity: 0.9;
+      transform-origin: 100% 100%;
+      transform: rotate(18deg);
+      filter: drop-shadow(0 2px 6px rgba(61, 52, 40, 0.12));
     }
 
     .add-back {
@@ -411,6 +446,14 @@
       resize: none;
       outline: none;
       overflow-y: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .add-editor__body::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
     }
 
     .add-editor__body::placeholder {
@@ -449,14 +492,14 @@
     }
 
     .scrollbar-hidden {
-      scrollbar-width: none;
-      -ms-overflow-style: none;
+      scrollbar-width: none !important;
+      -ms-overflow-style: none !important;
     }
 
     .scrollbar-hidden::-webkit-scrollbar {
-      display: none;
-      width: 0;
-      height: 0;
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
     }
 
     .list-scroll {
@@ -469,6 +512,14 @@
       -webkit-overflow-scrolling: touch;
       overscroll-behavior: contain;
       scroll-behavior: smooth;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .list-scroll::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
     }
 
     .list-scroll.is-pulling .pull-hint {
@@ -669,6 +720,7 @@
     }
 
     .panel-head {
+      flex-shrink: 0;
       display: flex;
       align-items: center;
       gap: 10px;
@@ -693,8 +745,20 @@
 
     .panel-scroll {
       flex: 1;
+      min-height: 0;
       overflow-y: auto;
+      overflow-x: hidden;
       padding: 8px 56px 24px 20px;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+    }
+
+    .panel-scroll::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
     }
 
     .form-sticker {
@@ -729,7 +793,19 @@
 
     .field:focus { border-bottom-color: var(--tape-teal); }
 
-    .field-area { min-height: 160px; resize: vertical; }
+    .field-area {
+      min-height: 160px;
+      resize: none;
+      overflow-y: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .field-area::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
+    }
 
     .btn-save {
       margin: 16px 20px 24px;
@@ -751,23 +827,133 @@
     }
 
     .detail-paper {
+      height: 340px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
       background: #fffef8;
       border: 2px solid rgba(61, 52, 40, 0.25);
       outline: 3px solid #fff;
       padding: 16px;
       filter: drop-shadow(2px 4px 0 rgba(61, 52, 40, 0.1));
+      cursor: text;
     }
 
     .detail-paper h3 {
       font-family: var(--font-hand);
       font-size: 1.35rem;
+      flex-shrink: 0;
+    }
+
+    .detail-view {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
 
     .detail-body {
+      flex: 1;
+      min-height: 0;
       margin-top: 12px;
       color: var(--muted);
       white-space: pre-wrap;
+      word-break: break-word;
       line-height: 1.6;
+      overflow-x: hidden;
+      overflow-y: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .detail-body::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+
+    .detail-edit-hint {
+      flex-shrink: 0;
+      margin-top: 10px;
+      font-family: var(--font-hand);
+      font-size: 0.9rem;
+      color: rgba(122, 111, 98, 0.6);
+    }
+
+    .detail-paper.is-editing .detail-view { display: none; }
+    .detail-paper.is-editing .detail-edit { display: flex; }
+    .detail-edit {
+      display: none;
+      flex: 1;
+      min-height: 0;
+      flex-direction: column;
+      gap: 8px;
+      overflow: hidden;
+    }
+    .detail-edit input,
+    .detail-edit-body {
+      width: 100%;
+      border: none;
+      background: transparent;
+      font: inherit;
+      color: var(--ink);
+      outline: none;
+    }
+    .detail-edit input {
+      flex-shrink: 0;
+      font-family: var(--font-hand);
+      font-size: 1.35rem;
+      border-bottom: 2px dashed rgba(122, 111, 98, 0.35);
+      padding-bottom: 8px;
+    }
+    .detail-edit-body {
+      flex: 1;
+      min-height: 0;
+      color: var(--muted);
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-x: hidden;
+      overflow-y: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .detail-edit-body::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+    .detail-edit-body:empty::before {
+      content: attr(data-placeholder);
+      color: rgba(122, 111, 98, 0.45);
+      pointer-events: none;
+    }
+    .detail-save {
+      flex-shrink: 0;
+      align-self: flex-start;
+      margin-top: 2px;
+      border: 0;
+      background: transparent;
+      padding: 0;
+      cursor: pointer;
+      line-height: 0;
+      filter: drop-shadow(0 1px 3px rgba(61, 52, 40, 0.16));
+      transition: transform 0.18s var(--ease);
+    }
+    .detail-save:hover {
+      transform: scale(1.06) rotate(-4deg);
+    }
+    .detail-save:active {
+      transform: scale(0.96);
+    }
+    .detail-save img {
+      width: 96px;
+      height: 96px;
+      object-fit: contain;
+      display: block;
+      pointer-events: none;
     }
 
     .timeline-block {
@@ -778,7 +964,7 @@
 
     .timeline-block h4 {
       font-family: var(--font-hand);
-      font-size: 1.2rem;
+      font-size: 0.95rem;
     }
 
     .timeline-block .hint {
@@ -787,46 +973,111 @@
       margin-top: 4px;
     }
 
-    .timeline-list { list-style: none; margin-top: 12px; }
-
-    .timeline-list li {
-      display: grid;
-      grid-template-columns: 24px 1fr;
-      gap: 10px;
-      padding: 10px 0;
-      border-bottom: 1px dashed rgba(122, 111, 98, 0.35);
+    .ebbing-axis {
+      position: relative;
+      margin-top: 18px;
+      padding: 8px 4px 28px;
+      user-select: none;
+      overflow: visible;
     }
-
-    .timeline-list .rail { position: relative; display: flex; justify-content: center; }
-
-    .timeline-list .rail::before {
+    .ebbing-boxes {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      padding: 0 2px;
+    }
+    .ebbing-box {
+      width: 18px;
+      height: 18px;
+      border: 1.6px solid #c4b8a8;
+      border-radius: 3px;
+      background: rgba(255,255,255,0.7);
+      cursor: default;
+      padding: 0;
+      appearance: none;
+      position: relative;
+    }
+    .ebbing-box.done {
+      background: var(--tape-teal);
+      border-color: #5c8f82;
+    }
+    .ebbing-box.done::after {
       content: "";
       position: absolute;
-      top: 0;
-      bottom: -12px;
-      width: 1px;
-      background: var(--grid);
+      left: 4px; top: 2px;
+      width: 5px; height: 9px;
+      border: solid #fff;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
     }
-
-    .timeline-list li:last-child .rail::before { bottom: 50%; }
-
-    .chk {
-      width: 16px;
-      height: 16px;
-      margin-top: 2px;
-      appearance: none;
-      border: 1.5px solid var(--ink);
+    .ebbing-box.current {
+      border-color: #6a9fd4;
       background: #fff;
       cursor: pointer;
-      position: relative;
-      z-index: 1;
     }
+    .ebbing-box:disabled:not(.done):not(.current) { opacity: 0.55; }
 
-    .chk:checked { background: var(--tape-teal); border-color: var(--tape-teal); }
-    .chk:disabled { opacity: 0.45; cursor: default; }
-
-    .stage-label { font-family: var(--font-hand); font-size: 1.05rem; }
-    .stage-date { font-family: var(--font-mono); font-size: 10px; color: var(--muted); margin-top: 2px; }
+    .ebbing-track {
+      position: relative;
+      height: 10px;
+      border-radius: 999px;
+      background: #e8e2d8;
+      margin: 10px 6px 0;
+      overflow: visible;
+    }
+    .ebbing-fill {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #c9b8f0 0%, #8bb4e8 55%, #6a9fd4 100%);
+    }
+    .ebbing-fox {
+      position: absolute;
+      top: 50%;
+      width: 80px;
+      height: 80px;
+      margin-top: -40px;
+      margin-left: -40px;
+      left: 0%;
+      object-fit: contain;
+      filter: drop-shadow(0 1px 3px rgba(61,52,40,0.18));
+      pointer-events: none;
+      transition: left 0.35s var(--ease);
+      z-index: 2;
+    }
+    .ebbing-ticks {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      justify-content: space-between;
+      pointer-events: none;
+    }
+    .ebbing-ticks span {
+      width: 2px;
+      height: 14px;
+      margin-top: -2px;
+      background: #b8aea0;
+    }
+    .ebbing-days {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+      padding: 0 2px;
+    }
+    .ebbing-days span {
+      width: 28px;
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--ink);
+      line-height: 1.2;
+    }
+    .ebbing-days small {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+    }
 
     .field-hint {
       margin: 8px 20px 0 56px;
@@ -953,19 +1204,48 @@
         <section class="view" id="view-detail">
           <header class="panel-head" id="detail-header" tabindex="0" role="button">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6 L9 12 L15 18" /></svg>
-            <h2>复习详情</h2>
+            <div class="panel-head-text">
+              <h2>复习详情</h2>
+            </div>
           </header>
-          <div class="panel-scroll">
-            <div class="detail-paper">
-              <h3 id="detail-title"></h3>
-              <div class="detail-body" id="detail-body"></div>
+          <div class="panel-scroll scrollbar-hidden" id="detail-scroll">
+            <div class="detail-paper" id="detail-paper">
+              <div class="detail-view">
+                <h3 id="detail-title"></h3>
+                <div class="detail-body" id="detail-body"></div>
+                <p class="detail-edit-hint">轻触便签可再次编辑</p>
+              </div>
+              <div class="detail-edit">
+                <input id="detail-edit-title" type="text" maxlength="80" aria-label="编辑标题" />
+                <div
+                  id="detail-edit-body"
+                  class="detail-edit-body"
+                  contenteditable="true"
+                  role="textbox"
+                  aria-multiline="true"
+                  aria-label="编辑内容"
+                  data-placeholder="笔记内容…"
+                ></div>
+                <button type="button" class="detail-save" id="detail-save" aria-label="保存">
+                  <img src="images/stickers/fox-deco-transparent.png" width="96" height="96" alt="" decoding="async" />
+                </button>
+              </div>
             </div>
             <div class="timeline-block">
               <h4 id="timeline-title">艾宾浩斯复习时间线</h4>
-              <p class="hint" id="timeline-helper">按顺序勾选完成每次复习，不可跳过或取消</p>
-              <ul class="timeline-list" id="timeline-list"></ul>
+              <p class="hint" id="timeline-helper" hidden></p>
+              <div class="ebbing-axis" id="ebbing-axis" aria-label="复习进度时间轴"></div>
+              <ul class="timeline-list" id="timeline-list" hidden></ul>
             </div>
           </div>
+          <img
+            class="detail-bloom-corner"
+            src="images/stickers/bloom-branch.png"
+            width="168"
+            height="168"
+            alt=""
+            decoding="async"
+          />
         </section>
 
       </div>
@@ -1026,6 +1306,10 @@
       listView: document.getElementById("view-list"),
       addView: document.getElementById("view-add"),
       detailView: document.getElementById("view-detail"),
+      detailPaper: document.getElementById("detail-paper"),
+      detailEditTitle: document.getElementById("detail-edit-title"),
+      detailEditBody: document.getElementById("detail-edit-body"),
+      detailSave: document.getElementById("detail-save"),
       listScroll: document.getElementById("list-scroll"),
       pullHint: document.getElementById("pull-hint"),
       noteList: document.getElementById("note-list"),
@@ -1037,6 +1321,7 @@
       detailTitle: document.getElementById("detail-title"),
       detailBody: document.getElementById("detail-body"),
       timelineList: document.getElementById("timeline-list"),
+      ebbingAxis: document.getElementById("ebbing-axis"),
     };
 
     function loadNotes() {
@@ -1364,42 +1649,95 @@
         return;
       }
       currentNoteId = id;
+      exitDetailEdit(false);
       els.detailTitle.textContent = note.title;
       els.detailBody.textContent = note.content || NoteSketch.strings.noBody;
       renderTimeline(note);
       showView("detail");
     }
 
-    function renderTimeline(note) {
-      els.timelineList.innerHTML = "";
-      for (let i = 0; i < NoteSketch.intervalDays.length; i++) {
-        const li = document.createElement("li");
-        const rail = document.createElement("div");
-        rail.className = "rail";
-        const cb = document.createElement("input");
-        cb.type = "checkbox";
-        cb.className = "chk";
-        const done = note.finished || i < note.stage;
-        const canCheck = !note.finished && i === note.stage;
-        cb.checked = done;
-        cb.disabled = !canCheck;
-        if (canCheck) {
-          cb.addEventListener("change", () => {
-            if (cb.checked) completeStage(i);
-          });
+    function enterDetailEdit() {
+      const note = notes.find((n) => n.id === currentNoteId);
+      if (!note) return;
+      els.detailPaper.classList.add("is-editing");
+      els.detailEditTitle.value = note.title;
+      els.detailEditBody.textContent = note.content || "";
+      els.detailEditTitle.focus();
+      requestAnimationFrame(scrollDetailBodyToLatest);
+    }
+
+    function scrollDetailBodyToLatest() {
+      const el = els.detailEditBody;
+      if (!el) return;
+      el.scrollTop = el.scrollHeight;
+    }
+
+    function exitDetailEdit(save) {
+      if (save) {
+        const note = notes.find((n) => n.id === currentNoteId);
+        if (note) {
+          const title = els.detailEditTitle.value.trim();
+          if (!title) {
+            showFieldHint("标题不能为空");
+            return false;
+          }
+          note.title = title;
+          note.content = (els.detailEditBody.innerText || "").replace(/\u00a0/g, " ").trim();
+          saveNotes();
+          els.detailTitle.textContent = note.title;
+          els.detailBody.textContent = note.content || NoteSketch.strings.noBody;
+          renderList();
         }
-        rail.appendChild(cb);
-        const meta = document.createElement("div");
-        const label = document.createElement("div");
-        label.className = "stage-label";
-        label.textContent = NoteSketch.stageLabel(i);
-        const date = document.createElement("div");
-        date.className = "stage-date";
-        date.textContent = `计划：${NoteSketch.formatDateTime(NoteSketch.reviewTimeFor(note.createdAt, i))}`;
-        meta.append(label, date);
-        li.append(rail, meta);
-        els.timelineList.appendChild(li);
       }
+      els.detailPaper.classList.remove("is-editing");
+      return true;
+    }
+
+    function renderTimeline(note) {
+      const n = NoteSketch.intervalDays.length;
+      const progress = note.finished || note.stage >= n ? 100 : (note.stage / Math.max(n - 1, 1)) * 100;
+      els.ebbingAxis.innerHTML = "";
+
+      const boxes = document.createElement("div");
+      boxes.className = "ebbing-boxes";
+      for (let i = 0; i < n; i++) {
+        const done = note.finished || i < note.stage;
+        const current = !note.finished && i === note.stage;
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "ebbing-box" + (done ? " done" : "") + (current ? " current" : "");
+        btn.disabled = !current;
+        btn.title = NoteSketch.stageLabel(i);
+        if (current) {
+          btn.addEventListener("click", () => completeStage(i));
+        }
+        boxes.appendChild(btn);
+      }
+
+      const track = document.createElement("div");
+      track.className = "ebbing-track";
+      const fill = document.createElement("div");
+      fill.className = "ebbing-fill";
+      fill.style.width = progress + "%";
+      const ticks = document.createElement("div");
+      ticks.className = "ebbing-ticks";
+      for (let i = 0; i < n; i++) ticks.appendChild(document.createElement("span"));
+      const fox = document.createElement("img");
+      fox.className = "ebbing-fox";
+      fox.src = "images/stickers/fox-deco-transparent.png";
+      fox.alt = "";
+      fox.style.left = progress + "%";
+      track.append(fill, ticks, fox);
+
+      const days = document.createElement("div");
+      days.className = "ebbing-days";
+      NoteSketch.intervalDays.forEach((d) => {
+        const span = document.createElement("span");
+        span.innerHTML = `${d}<small>天</small>`;
+        days.appendChild(span);
+      });
+
+      els.ebbingAxis.append(boxes, track, days);
     }
 
     function completeStage(index) {
@@ -1438,8 +1776,18 @@
 
     bindBack(document.getElementById("add-header"), exitAddAndSave);
     bindBack(document.getElementById("detail-header"), () => {
+      if (els.detailPaper.classList.contains("is-editing")) {
+        if (!exitDetailEdit(true)) return;
+      }
       renderList();
       showView("list");
+    });
+    els.detailPaper.querySelector(".detail-view").addEventListener("click", enterDetailEdit);
+    els.detailEditBody.addEventListener("input", scrollDetailBodyToLatest);
+    els.detailEditBody.addEventListener("keyup", scrollDetailBodyToLatest);
+    els.detailSave.addEventListener("click", (e) => {
+      e.stopPropagation();
+      exitDetailEdit(true);
     });
     els.fab.addEventListener("click", openAdd);
 
