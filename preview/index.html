@@ -202,18 +202,21 @@
 
     .spread[data-paper="blank"],
     #view-detail[data-paper="blank"],
-    #view-settings[data-paper="blank"] {
+    #view-settings[data-paper="blank"],
+    #view-add[data-paper="blank"] {
       background-image: none !important;
     }
     .spread[data-paper="lined"],
     #view-detail[data-paper="lined"],
-    #view-settings[data-paper="lined"] {
+    #view-settings[data-paper="lined"],
+    #view-add[data-paper="lined"] {
       background-image: linear-gradient(var(--grid) 1px, transparent 1px) !important;
       background-size: 100% 18px !important;
     }
     .spread[data-paper="grid"],
     #view-detail[data-paper="grid"],
-    #view-settings[data-paper="grid"] {
+    #view-settings[data-paper="grid"],
+    #view-add[data-paper="grid"] {
       background-image:
         linear-gradient(var(--grid) 1px, transparent 1px),
         linear-gradient(90deg, var(--grid) 1px, transparent 1px) !important;
@@ -221,7 +224,8 @@
     }
     .spread[data-paper="dots"],
     #view-detail[data-paper="dots"],
-    #view-settings[data-paper="dots"] {
+    #view-settings[data-paper="dots"],
+    #view-add[data-paper="dots"] {
       background-image: radial-gradient(circle, var(--grid) 1.1px, transparent 1.2px) !important;
       background-size: 14px 14px !important;
     }
@@ -406,10 +410,10 @@
       display: flex;
       flex-direction: column;
       min-height: 0;
-      background-color: var(--sticker-yellow);
+      background-color: var(--add-paper, var(--cream));
       background-image:
-        linear-gradient(rgba(122, 111, 98, 0.12) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(122, 111, 98, 0.12) 1px, transparent 1px);
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px);
       background-size: 18px 18px;
       box-shadow:
         inset 0 0 0 2px rgba(61, 52, 40, 0.08),
@@ -737,7 +741,18 @@
     }
 
     .note-sticker:nth-child(even) {
-      background: var(--sticker-pink);
+      background: var(--sticker-yellow);
+    }
+
+    .add-color-block {
+      flex-shrink: 0;
+      padding: 0 20px 12px 24px;
+    }
+    .add-color-block .sub {
+      font-family: var(--font-hand);
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin-bottom: 8px;
     }
 
     .note-sticker:hover {
@@ -1347,6 +1362,10 @@
               aria-label="内容"
             ></textarea>
           </div>
+          <div class="add-color-block">
+            <p class="sub">便签颜色</p>
+            <div class="chip-row" id="add-color-row"></div>
+          </div>
           <p class="field-hint" id="field-hint" role="alert"></p>
         </section>
 
@@ -1375,6 +1394,7 @@
                   aria-label="编辑内容"
                   data-placeholder="笔记内容…"
                 ></div>
+                <div class="chip-row" id="detail-color-row" style="margin-top:6px"></div>
                 <button type="button" class="detail-save" id="detail-save" aria-label="保存">
                   <img src="images/stickers/fox-deco-transparent.png" width="96" height="96" alt="" decoding="async" />
                 </button>
@@ -1423,7 +1443,6 @@
               <p class="sub">网格 · 空白 · 横线 · 网点</p>
               <div class="chip-row" id="set-paper-row"></div>
             </div>
-            <p class="sub" style="margin-top:8px">点主页右上角狐狸头可打开此页</p>
           </div>
         </section>
 
@@ -1492,6 +1511,8 @@
       setBrightnessVal: document.getElementById("set-brightness-val"),
       setThemeRow: document.getElementById("set-theme-row"),
       setPaperRow: document.getElementById("set-paper-row"),
+      addColorRow: document.getElementById("add-color-row"),
+      detailColorRow: document.getElementById("detail-color-row"),
       detailPaper: document.getElementById("detail-paper"),
       detailEditTitle: document.getElementById("detail-edit-title"),
       detailEditBody: document.getElementById("detail-edit-body"),
@@ -1529,6 +1550,7 @@
           stage: 1,
           nextReviewTime: NoteSketch.reviewTimeFor(aCreated, 1),
           finished: false,
+          colorId: "parchment",
         },
         {
           id: 2,
@@ -1538,6 +1560,7 @@
           stage: 3,
           nextReviewTime: NoteSketch.reviewTimeFor(bCreated, 3),
           finished: false,
+          colorId: "rose",
         },
       ];
     }
@@ -1565,11 +1588,11 @@
 
     const PREFS_KEY = "notesketch-scrapbook-prefs-v1";
     const THEMES = [
-      { id: "forest", label: "森林狐狸", bg: "#F6F0E4", line: "#DDD5C8", ink: "#3D3428", muted: "#7A6F62", accent: "#7AAB9E" },
-      { id: "parchment", label: "羊皮纸", bg: "#F6F0E4", line: "#DDD5C8", ink: "#3D3428", muted: "#7A6F62", accent: "#E8A56A" },
-      { id: "sage", label: "苔绿", bg: "#F0F3E8", line: "#D0D5C8", ink: "#3D3428", muted: "#6F7A62", accent: "#5C7A54" },
-      { id: "rose", label: "蜜桃", bg: "#F6EDE8", line: "#E0D5C8", ink: "#3D3428", muted: "#7A6F62", accent: "#C45C2A" },
-      { id: "ink", label: "木纹", bg: "#F3EBE0", line: "#D5C8B8", ink: "#3D2818", muted: "#7A6F62", accent: "#5C4030" },
+      { id: "forest", label: "森林狐狸", bg: "#F6F0E4", surface: "#F8F3E9", line: "#DDD5C8", ink: "#3D3428", muted: "#7A6F62", accent: "#7AAB9E" },
+      { id: "parchment", label: "羊皮纸", bg: "#F6F0E4", surface: "#FFF3C4", line: "#DDD5C8", ink: "#3D3428", muted: "#7A6F62", accent: "#E8A56A" },
+      { id: "sage", label: "苔绿", bg: "#E8F0DE", surface: "#E2EDD4", line: "#C5D0B8", ink: "#3D3428", muted: "#6F7A62", accent: "#5C7A54" },
+      { id: "rose", label: "蜜桃", bg: "#F6EDE8", surface: "#FFE4EC", line: "#E0D5C8", ink: "#3D3428", muted: "#7A6F62", accent: "#C45C2A" },
+      { id: "ink", label: "木纹", bg: "#EBE2D4", surface: "#E6D9C6", line: "#D0C0A8", ink: "#3D2818", muted: "#7A6F62", accent: "#5C4030" },
     ];
     const PAPER_TYPES = [
       { id: "grid", label: "网格" },
@@ -1587,6 +1610,8 @@
     }
 
     let uiPrefs = loadPrefs();
+    let addColorId = uiPrefs.themeId || "parchment";
+    let detailColorId = "parchment";
 
     function savePrefs() {
       localStorage.setItem(PREFS_KEY, JSON.stringify(uiPrefs));
@@ -1594,6 +1619,14 @@
 
     function currentTheme() {
       return THEMES.find((t) => t.id === uiPrefs.themeId) || THEMES[0];
+    }
+
+    function themeById(id) {
+      return THEMES.find((t) => t.id === id) || THEMES.find((t) => t.id === "parchment") || THEMES[0];
+    }
+
+    function stickerSurface(id) {
+      return themeById(id).surface || themeById(id).bg;
     }
 
     function applyUiPrefs() {
@@ -1605,7 +1638,7 @@
       root.style.setProperty("--muted", theme.muted);
       root.style.setProperty("--tape-teal", theme.accent);
       const paper = uiPrefs.paperType || "grid";
-      [els.spread, els.detailView, els.settingsView].forEach((node) => {
+      [els.spread, els.detailView, els.settingsView, els.addView].forEach((node) => {
         if (node) node.dataset.paper = paper;
       });
       if (els.brightnessVeil) {
@@ -1682,6 +1715,7 @@
         const tilt = tilts[i % tilts.length];
         const shift = shifts[i % shifts.length];
         card.style.transform = `rotate(${tilt}deg) translateX(${shift}px)`;
+        card.style.background = stickerSurface(note.colorId || "parchment");
 
         const h3 = document.createElement("h3");
         h3.textContent = note.title;
@@ -1890,14 +1924,47 @@
       );
     }
 
+    function applyAddPageColor() {
+      const color = stickerSurface(addColorId);
+      if (els.addView) {
+        els.addView.style.backgroundColor = color;
+      }
+      document.documentElement.style.setProperty("--add-paper", color);
+    }
+
     function openAdd() {
       resetListPullState();
       els.titleInput.value = "";
       els.contentInput.value = "";
       els.fieldHint.classList.remove("show");
       els.fieldHint.textContent = "";
+      addColorId = uiPrefs.themeId || "parchment";
+      renderAddColorChips();
+      applyUiPrefs();
+      applyAddPageColor();
       showView("add");
       setTimeout(() => els.titleInput.focus(), 50);
+    }
+
+    function renderAddColorChips() {
+      if (!els.addColorRow) return;
+      const theme = currentTheme();
+      els.addColorRow.innerHTML = "";
+      THEMES.forEach((t) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "set-chip color-swatch" + (t.id === addColorId ? " is-on" : "");
+        btn.textContent = t.label;
+        btn.style.background = t.id === addColorId ? theme.accent : t.surface;
+        btn.style.borderColor = t.id === addColorId ? theme.accent : t.line;
+        if (t.id === addColorId) btn.style.color = "#fff";
+        btn.addEventListener("click", () => {
+          addColorId = t.id;
+          renderAddColorChips();
+          applyAddPageColor();
+        });
+        els.addColorRow.appendChild(btn);
+      });
     }
 
     function exitAddAndSave() {
@@ -1922,11 +1989,17 @@
         stage: 0,
         nextReviewTime: NoteSketch.reviewTimeFor(now, 0),
         finished: false,
+        colorId: addColorId || "parchment",
       });
       saveNotes();
       showView("list");
       renderList(newId);
       scrollListToBottom();
+    }
+
+    function applyDetailPaperColor(colorId) {
+      if (!els.detailPaper) return;
+      els.detailPaper.style.background = stickerSurface(colorId || "parchment");
     }
 
     function openDetail(id) {
@@ -1936,19 +2009,46 @@
         return;
       }
       currentNoteId = id;
+      detailColorId = note.colorId || "parchment";
       exitDetailEdit(false);
       els.detailTitle.textContent = note.title;
       els.detailBody.textContent = note.content || NoteSketch.strings.noBody;
+      applyDetailPaperColor(detailColorId);
       renderTimeline(note);
       showView("detail");
+    }
+
+    function renderDetailColorChips() {
+      if (!els.detailColorRow) return;
+      const theme = currentTheme();
+      els.detailColorRow.innerHTML = "";
+      THEMES.forEach((t) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "set-chip color-swatch" + (t.id === detailColorId ? " is-on" : "");
+        btn.textContent = t.label;
+        btn.style.background = t.id === detailColorId ? theme.accent : t.surface;
+        btn.style.borderColor = t.id === detailColorId ? theme.accent : t.line;
+        if (t.id === detailColorId) btn.style.color = "#fff";
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          detailColorId = t.id;
+          applyDetailPaperColor(detailColorId);
+          renderDetailColorChips();
+        });
+        els.detailColorRow.appendChild(btn);
+      });
     }
 
     function enterDetailEdit() {
       const note = notes.find((n) => n.id === currentNoteId);
       if (!note) return;
+      detailColorId = note.colorId || "parchment";
       els.detailPaper.classList.add("is-editing");
       els.detailEditTitle.value = note.title;
       els.detailEditBody.textContent = note.content || "";
+      renderDetailColorChips();
+      applyDetailPaperColor(detailColorId);
       els.detailEditTitle.focus();
       requestAnimationFrame(scrollDetailBodyToLatest);
     }
@@ -1970,9 +2070,11 @@
           }
           note.title = title;
           note.content = (els.detailEditBody.innerText || "").replace(/\u00a0/g, " ").trim();
+          note.colorId = detailColorId || note.colorId || "parchment";
           saveNotes();
           els.detailTitle.textContent = note.title;
           els.detailBody.textContent = note.content || NoteSketch.strings.noBody;
+          applyDetailPaperColor(note.colorId);
           renderList();
         }
       }

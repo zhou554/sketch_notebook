@@ -4,7 +4,7 @@
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/sticker_yellow">
+    android:background="@color/cream">
 
     <com.example.notesketch.ScrapbookPaperView
         android:id="@+id/paperBg"
@@ -93,6 +93,30 @@
             android:textSize="15sp" />
 
         <TextView
+            android:id="@+id/labelColor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/patrick_hand"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="4dp"
+            android:text="便签颜色"
+            android:textSize="15sp" />
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="8dp"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:id="@+id/colorRow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="20dp" />
+        </HorizontalScrollView>
+
+        <TextView
             android:id="@+id/labelTitle"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -107,17 +131,10 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSave"
             style="@style/Widget.Material3.Button.OutlinedButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginBottom="8dp"
-            android:background="@drawable/bg_btn_save_scrap"
-            android:fontFamily="@font/patrick_hand"
-            android:minHeight="48dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone"
             android:text="保存笔记"
-            android:textAllCaps="false"
-            android:textColor="@color/ink"
-            android:textSize="18sp"
             app:backgroundTint="@android:color/transparent"
             app:cornerRadius="0dp"
             app:strokeColor="@color/ink"

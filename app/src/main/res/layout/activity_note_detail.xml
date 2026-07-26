@@ -163,6 +163,19 @@
                             android:textColorHint="#807A6F62"
                             android:textSize="15sp" />
 
+                        <HorizontalScrollView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingTop="6dp"
+                            android:scrollbars="none">
+
+                            <LinearLayout
+                                android:id="@+id/colorRow"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal" />
+                        </HorizontalScrollView>
+
                         <ImageButton
                             android:id="@+id/btnSaveEdit"
                             android:layout_width="96dp"

@@ -1,9 +1,12 @@
 package com.example.notesketch
 
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
-import android.widget.Toast
+import android.view.Gravity
+import android.widget.LinearLayout
+import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.notesketch.data.AppDatabase
 import com.example.notesketch.data.Note
@@ -16,40 +19,104 @@ class AddNoteActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAddNoteBinding
     private val dao by lazy { AppDatabase.get(this).noteDao() }
+    private var selectedColorId: String = "parchment"
+    private var saving = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAddNoteBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.btnSave.setOnClickListener { save() }
-        binding.btnBackRow.setOnClickListener { finish() }
-        binding.tvHeader.setOnClickListener { finish() }
+
+        selectedColorId = UiPrefs.theme(this).id
+        binding.btnBackRow.setOnClickListener { saveAndFinish() }
+        binding.tvHeader.setOnClickListener { saveAndFinish() }
+        binding.btnSave.setOnClickListener { saveAndFinish() }
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                saveAndFinish()
+            }
+        })
+
         applyUi()
+        renderColorChips()
     }
 
     override fun onResume() {
         super.onResume()
         applyUi()
+        renderColorChips()
     }
 
     private fun applyUi() {
-        val theme = UiPrefs.theme(this)
-        val yellow = ContextCompat.getColor(this, R.color.sticker_yellow)
-        ThemeUi.applyScrapbook(this, binding.paperBg, paperColorOverride = yellow)
-        binding.root.setBackgroundColor(yellow)
+        val pageTheme = UiPrefs.theme(this)
+        val sticker = UiPrefs.themeById(selectedColorId)
+        ThemeUi.applyWindow(this, pageTheme)
+        ThemeUi.applyBrightness(this)
+        binding.paperBg.paperColor = sticker.surface
+        binding.paperBg.gridColor = sticker.line
+        binding.paperBg.pattern = UiPrefs.paperType(this)
+        binding.root.setBackgroundColor(sticker.surface)
         binding.contentPanel.setBackgroundColor(android.graphics.Color.TRANSPARENT)
-        ThemeUi.colorTexts(theme.ink, binding.tvHeader)
-        ThemeUi.styleButton(binding.btnSave, theme)
+        ThemeUi.colorTexts(pageTheme.ink, binding.labelColor)
+        ThemeUi.colorTexts(pageTheme.muted, binding.tvHeader)
+        binding.etTitle.setTextColor(pageTheme.ink)
+        binding.etTitle.setHintTextColor(pageTheme.muted)
+        binding.etContent.setTextColor(pageTheme.ink)
+        binding.etContent.setHintTextColor(pageTheme.muted)
+        ThemeUi.colorLines(0x597A6F62, binding.headerLine)
     }
 
-    private fun save() {
-        val title = binding.etTitle.text.toString().trim()
-        val content = binding.etContent.text.toString().trim()
-        if (title.isEmpty()) {
-            Toast.makeText(this, "请填写标题", Toast.LENGTH_SHORT).show()
+    private fun renderColorChips() {
+        binding.colorRow.removeAllViews()
+        val pageTheme = UiPrefs.theme(this)
+        val d = resources.displayMetrics.density
+        UiPrefs.themes.forEach { preset ->
+            val selected = preset.id == selectedColorId
+            val chip = TextView(this).apply {
+                text = preset.label
+                setTextColor(if (selected) pageTheme.surface else pageTheme.ink)
+                textSize = 13f
+                gravity = Gravity.CENTER
+                setPadding((12 * d).toInt(), (8 * d).toInt(), (12 * d).toInt(), (8 * d).toInt())
+                background = GradientDrawable().apply {
+                    setColor(if (selected) pageTheme.accent else preset.surface)
+                    setStroke(
+                        (2 * d).toInt().coerceAtLeast(1),
+                        if (selected) pageTheme.accent else preset.line
+                    )
+                }
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).also { it.marginEnd = (8 * d).toInt() }
+                minHeight = (40 * d).toInt()
+                isClickable = true
+                isFocusable = true
+                setOnClickListener {
+                    selectedColorId = preset.id
+                    applyUi()
+                    renderColorChips()
+                }
+            }
+            binding.colorRow.addView(chip)
+        }
+    }
+
+    private fun saveAndFinish() {
+        if (saving) return
+        val titleRaw = binding.etTitle.text?.toString()?.trim().orEmpty()
+        val content = binding.etContent.text?.toString()?.trim().orEmpty()
+        if (titleRaw.isEmpty() && content.isEmpty()) {
+            finish()
             return
         }
-
+        val title = when {
+            titleRaw.isNotEmpty() -> titleRaw
+            else -> content.lineSequence().firstOrNull()?.trim()?.take(80)
+                ?.ifEmpty { null } ?: "无标题"
+        }
+        saving = true
         val now = System.currentTimeMillis()
         val note = Note(
             title = title,
@@ -57,7 +124,8 @@ class AddNoteActivity : AppCompatActivity() {
             createdAt = now,
             stage = 0,
             nextReviewTime = Ebbinghaus.reviewTimeFor(now, 0),
-            finished = false
+            finished = false,
+            colorId = selectedColorId
         )
         lifecycleScope.launch {
             withContext(Dispatchers.IO) { dao.insert(note) }

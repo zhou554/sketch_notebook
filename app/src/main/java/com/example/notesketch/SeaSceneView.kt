@@ -96,7 +96,7 @@ class SeaSceneView @JvmOverloads constructor(
     private val fishes = mutableListOf<FishFx>()
     private val shells = mutableListOf<ShellFx>()
 
-    private val reduceMotion: Boolean
+    private val reduceMotion: Boolean = animatorDurationScale(context) == 0f
     private var startMs = 0L
     private var running = false
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -137,7 +137,6 @@ class SeaSceneView @JvmOverloads constructor(
         isClickable = true
         isFocusable = true
         contentDescription = "线条海景，点按海面可让小鱼跃起"
-        reduceMotion = animatorDurationScale(context) == 0f
         loadFromPrefs(context)
     }
 

@@ -37,7 +37,7 @@ object UiPrefs {
             id = "forest",
             label = "森林狐狸",
             bg = Color.parseColor("#F6F0E4"),
-            surface = Color.parseColor("#FFFEF8"),
+            surface = Color.parseColor("#F8F3E9"),
             ink = Color.parseColor("#3D3428"),
             muted = Color.parseColor("#7A6F62"),
             line = Color.parseColor("#DDD5C8"),
@@ -58,11 +58,11 @@ object UiPrefs {
         ThemePalette(
             id = "sage",
             label = "苔绿",
-            bg = Color.parseColor("#F0F3E8"),
-            surface = Color.parseColor("#FFFEF8"),
+            bg = Color.parseColor("#E8F0DE"),
+            surface = Color.parseColor("#E2EDD4"),
             ink = Color.parseColor("#3D3428"),
             muted = Color.parseColor("#6F7A62"),
-            line = Color.parseColor("#D0D5C8"),
+            line = Color.parseColor("#C5D0B8"),
             accent = Color.parseColor("#5C7A54"),
             due = Color.parseColor("#B03A32")
         ),
@@ -80,11 +80,11 @@ object UiPrefs {
         ThemePalette(
             id = "ink",
             label = "木纹",
-            bg = Color.parseColor("#F3EBE0"),
-            surface = Color.parseColor("#FFFEF8"),
+            bg = Color.parseColor("#EBE2D4"),
+            surface = Color.parseColor("#E6D9C6"),
             ink = Color.parseColor("#3D2818"),
             muted = Color.parseColor("#7A6F62"),
-            line = Color.parseColor("#D5C8B8"),
+            line = Color.parseColor("#D0C0A8"),
             accent = Color.parseColor("#5C4030"),
             due = Color.parseColor("#B03A32")
         )
@@ -103,6 +103,14 @@ object UiPrefs {
             ?: themes.firstOrNull { it.id == "forest" }
             ?: themes.first()
     }
+
+    fun themeById(id: String): ThemePalette =
+        themes.firstOrNull { it.id == id }
+            ?: themes.firstOrNull { it.id == "parchment" }
+            ?: themes.first()
+
+    /** 便签贴纸 / 编辑区底色 */
+    fun stickerColor(colorId: String): Int = themeById(colorId).surface
 
     fun setTheme(context: Context, id: String) {
         prefs(context).edit().putString(KEY_THEME, id).apply()

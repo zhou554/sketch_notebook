@@ -1,11 +1,15 @@
 package com.example.notesketch
 
 import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.Gravity
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -22,6 +26,7 @@ class NoteDetailActivity : AppCompatActivity() {
     private val dao by lazy { AppDatabase.get(this).noteDao() }
     private var note: Note? = null
     private var editing = false
+    private var selectedColorId: String = "parchment"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -96,6 +101,17 @@ class NoteDetailActivity : AppCompatActivity() {
         ThemeUi.colorTexts(theme.ink, binding.tvHeader, binding.tvTitle, binding.tvTimelineTitle)
         ThemeUi.colorTexts(theme.muted, binding.tvContent)
         ThemeUi.colorLines(0x737A6F62, binding.rule1)
+        applyNotePaperColor()
+    }
+
+    private fun applyNotePaperColor() {
+        val colorId = if (editing) selectedColorId else (note?.colorId ?: selectedColorId)
+        val fill = UiPrefs.stickerColor(colorId)
+        val d = resources.displayMetrics.density
+        binding.notePaper.background = GradientDrawable().apply {
+            setColor(fill)
+            setStroke((2 * d).toInt().coerceAtLeast(1), 0x403D3428)
+        }
     }
 
     private fun loadNote(noteId: Long) {
@@ -112,25 +128,64 @@ class NoteDetailActivity : AppCompatActivity() {
 
     private fun bindNote(n: Note) {
         note = n
+        selectedColorId = n.colorId
         binding.tvTitle.text = n.title
         binding.tvContent.text = n.content.ifBlank { "（无正文）" }
         binding.etTitle.setText(n.title)
         binding.etContent.setText(n.content)
         binding.timelineView.bind(n)
+        applyNotePaperColor()
     }
 
     private fun enterEditMode() {
         val n = note ?: return
         editing = true
+        selectedColorId = n.colorId
         binding.viewMode.visibility = View.GONE
         binding.editMode.visibility = View.VISIBLE
         binding.etTitle.setText(n.title)
         binding.etContent.setText(n.content)
+        renderColorChips()
         binding.etTitle.requestFocus()
         binding.etTitle.setSelection(binding.etTitle.text?.length ?: 0)
         scrollContentToLatest()
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.showSoftInput(binding.etTitle, InputMethodManager.SHOW_IMPLICIT)
+    }
+
+    private fun renderColorChips() {
+        binding.colorRow.removeAllViews()
+        val pageTheme = UiPrefs.theme(this)
+        val d = resources.displayMetrics.density
+        UiPrefs.themes.forEach { preset ->
+            val selected = preset.id == selectedColorId
+            val chip = TextView(this).apply {
+                text = preset.label
+                setTextColor(if (selected) pageTheme.surface else pageTheme.ink)
+                textSize = 12f
+                gravity = Gravity.CENTER
+                setPadding((10 * d).toInt(), (6 * d).toInt(), (10 * d).toInt(), (6 * d).toInt())
+                background = GradientDrawable().apply {
+                    setColor(if (selected) pageTheme.accent else preset.surface)
+                    setStroke(
+                        (1.5f * d).toInt().coerceAtLeast(1),
+                        if (selected) pageTheme.accent else preset.line
+                    )
+                }
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).also { it.marginEnd = (6 * d).toInt() }
+                isClickable = true
+                isFocusable = true
+                setOnClickListener {
+                    selectedColorId = preset.id
+                    applyNotePaperColor()
+                    renderColorChips()
+                }
+            }
+            binding.colorRow.addView(chip)
+        }
     }
 
     private fun scrollContentToLatest() {
@@ -155,11 +210,11 @@ class NoteDetailActivity : AppCompatActivity() {
             Toast.makeText(this, "标题不能为空", Toast.LENGTH_SHORT).show()
             return
         }
-        if (title == current.title && content == current.content) {
+        if (title == current.title && content == current.content && selectedColorId == current.colorId) {
             if (exitEdit) leaveEditMode()
             return
         }
-        val updated = current.copy(title = title, content = content)
+        val updated = current.copy(title = title, content = content, colorId = selectedColorId)
         lifecycleScope.launch {
             withContext(Dispatchers.IO) { dao.update(updated) }
             bindNote(updated)

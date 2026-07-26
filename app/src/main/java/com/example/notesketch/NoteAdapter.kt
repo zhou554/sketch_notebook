@@ -1,8 +1,8 @@
 package com.example.notesketch
 
+import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -36,18 +36,18 @@ class NoteAdapter(
             val due = DateUtil.isDue(note.nextReviewTime, note.finished)
             val ctx = root.context
             val density = ctx.resources.displayMetrics.density
+            val pageTheme = UiPrefs.theme(ctx)
+            val fill = UiPrefs.stickerColor(note.colorId)
 
-            tvTitle.setTextColor(ContextCompat.getColor(ctx, R.color.ink))
-            tvContent.setTextColor(ContextCompat.getColor(ctx, R.color.muted))
-            tvReview.setTextColor(
-                ContextCompat.getColor(ctx, if (due) R.color.due else R.color.muted)
-            )
-            btnDelete.setTextColor(ContextCompat.getColor(ctx, R.color.muted))
+            tvTitle.setTextColor(pageTheme.ink)
+            tvContent.setTextColor(pageTheme.muted)
+            tvReview.setTextColor(if (due) pageTheme.due else pageTheme.muted)
+            btnDelete.setTextColor(pageTheme.muted)
 
-            val yellow = position % 2 == 0
-            stickerCard.setBackgroundResource(
-                if (yellow) R.drawable.bg_sticker_yellow else R.drawable.bg_sticker_pink
-            )
+            stickerCard.background = GradientDrawable().apply {
+                setColor(fill)
+                setStroke((2 * density).toInt().coerceAtLeast(1), 0x523D3428)
+            }
 
             val tilt = tilts[position % tilts.size]
             val shift = shiftsDp[position % shiftsDp.size] * density
