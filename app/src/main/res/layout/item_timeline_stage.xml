@@ -43,10 +43,9 @@
             android:id="@+id/tvStageLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="serif"
+            android:fontFamily="@font/patrick_hand"
             android:textColor="@color/ink"
-            android:textSize="14sp"
-            android:textStyle="bold"
+            android:textSize="17sp"
             tools:text="第 1 次复习 (第 1 天)" />
 
         <TextView

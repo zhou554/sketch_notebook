@@ -6,17 +6,18 @@ alwaysApply: false
 
 # NoteSketch 网页预览同步
 
-预览：`preview/index.html`（海景底层 + 设置页）。
+预览：`preview/index.html`（对齐仓库根目录 `scrapbook-forest-fox-ui.html` 拼贴手账风格）。
+贴纸资源：`preview/images/stickers/`。
 
 修改 App 时同步：
 
-1. `SeaSceneView` / `UiPrefs` / `SettingsActivity`
-2. 三屏海景底层 + 半透明内容
-3. 设置项：内容透明度、海浪高度、起伏、贝壳频率、主题色
+1. 方格纸背景、丝带标题、侧栏复习间隔、狐狸 / 森林贴纸
+2. 黄 / 粉便签卡片、狐狸 FAB「新建」
+3. 新建页黄底手账编辑；详情页白纸 + 时间线
+4. 主题色写入 `UiPrefs`（默认 `forest`）
 
 ## 约定
 
-- 海景全屏底层；内容叠在上方并可调透明度
-- 主题色写入 `UiPrefs` 与预览 `NoteThemes`
-- 贝壳频率 0 = 关闭
-- 尊重 reduced-motion
+- 不再使用线条海景 `SeaSceneView` 作为主视觉
+- 主页长按丝带可进设置（切换纸张色调）
+- 尊重 reduced-motion（预览页）

@@ -3,115 +3,122 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/sticker_yellow">
 
-    <com.example.notesketch.SeaSceneView
-        android:id="@+id/seaScene"
+    <com.example.notesketch.ScrapbookPaperView
+        android:id="@+id/paperBg"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:importantForAccessibility="no" />
+        android:layout_height="match_parent" />
 
     <LinearLayout
         android:id="@+id/contentPanel"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clickable="true"
-        android:focusable="true"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingBottom="16dp">
 
-        <TextView
-            android:id="@+id/tvHeader"
+        <LinearLayout
+            android:id="@+id/btnBackRow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="‹"
+                android:textColor="@color/ink"
+                android:textSize="28sp" />
+
+            <TextView
+                android:id="@+id/tvHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:fontFamily="@font/patrick_hand"
+                android:text="返回"
+                android:textColor="@color/muted"
+                android:textSize="17sp" />
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/etTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="serif"
-            android:letterSpacing="0.06"
-            android:paddingHorizontal="16dp"
-            android:paddingTop="24dp"
-            android:paddingBottom="14dp"
-            android:text="新建笔记"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            android:layout_marginHorizontal="24dp"
+            android:background="@android:color/transparent"
+            android:fontFamily="@font/patrick_hand"
+            android:hint="例如：英语单词 Unit 3"
+            android:importantForAutofill="no"
+            android:inputType="text"
+            android:maxLines="2"
+            android:paddingTop="4dp"
+            android:paddingBottom="12dp"
+            android:textColor="@color/ink"
+            android:textColorHint="#8C7A6F62"
+            android:textSize="24sp" />
 
         <View
             android:id="@+id/headerLine"
             android:layout_width="match_parent"
-            android:layout_height="1dp" />
+            android:layout_height="2dp"
+            android:layout_marginHorizontal="24dp"
+            android:background="#597A6F62" />
 
-        <ScrollView
+        <EditText
+            android:id="@+id/etContent"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:layout_marginHorizontal="24dp"
+            android:layout_marginTop="12dp"
             android:layout_weight="1"
-            android:clipToPadding="false"
-            android:padding="20dp">
+            android:background="@android:color/transparent"
+            android:gravity="top"
+            android:hint="笔记内容 / 知识点…"
+            android:importantForAutofill="no"
+            android:inputType="textMultiLine"
+            android:lineSpacingExtra="4dp"
+            android:padding="4dp"
+            android:textColor="@color/ink"
+            android:textColorHint="#807A6F62"
+            android:textSize="15sp" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+        <TextView
+            android:id="@+id/labelTitle"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone" />
 
-                <TextView
-                    android:id="@+id/labelTitle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:fontFamily="monospace"
-                    android:letterSpacing="0.06"
-                    android:text="标题"
-                    android:textSize="11sp" />
-
-                <EditText
-                    android:id="@+id/etTitle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_stroke_rect"
-                    android:hint="例如：英语单词 Unit 3"
-                    android:importantForAutofill="no"
-                    android:inputType="text"
-                    android:maxLines="2"
-                    android:minHeight="44dp"
-                    android:padding="12dp"
-                    android:textSize="15sp" />
-
-                <TextView
-                    android:id="@+id/labelContent"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="18dp"
-                    android:layout_marginBottom="8dp"
-                    android:fontFamily="monospace"
-                    android:letterSpacing="0.06"
-                    android:text="内容"
-                    android:textSize="11sp" />
-
-                <EditText
-                    android:id="@+id/etContent"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_stroke_rect"
-                    android:gravity="top"
-                    android:hint="笔记内容 / 知识点…"
-                    android:importantForAutofill="no"
-                    android:inputType="textMultiLine"
-                    android:minLines="8"
-                    android:padding="12dp"
-                    android:textSize="15sp" />
-            </LinearLayout>
-        </ScrollView>
+        <TextView
+            android:id="@+id/labelContent"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSave"
             style="@style/Widget.Material3.Button.OutlinedButton"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
-            android:layout_marginBottom="20dp"
-            android:letterSpacing="0.04"
+            android:layout_marginStart="20dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/bg_btn_save_scrap"
+            android:fontFamily="@font/patrick_hand"
             android:minHeight="48dp"
             android:text="保存笔记"
             android:textAllCaps="false"
-            android:textSize="14sp"
+            android:textColor="@color/ink"
+            android:textSize="18sp"
             app:backgroundTint="@android:color/transparent"
             app:cornerRadius="0dp"
-            app:strokeWidth="1dp" />
+            app:strokeColor="@color/ink"
+            app:strokeWidth="2dp" />
     </LinearLayout>
 </FrameLayout>

@@ -3,99 +3,122 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/cream">
 
-    <com.example.notesketch.SeaSceneView
-        android:id="@+id/seaScene"
+    <com.example.notesketch.ScrapbookPaperView
+        android:id="@+id/paperBg"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:importantForAccessibility="no" />
+        android:layout_height="match_parent" />
 
     <LinearLayout
         android:id="@+id/contentPanel"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clickable="true"
-        android:focusable="true"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/tvHeader"
+        <LinearLayout
+            android:id="@+id/btnBackRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="serif"
-            android:letterSpacing="0.06"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
             android:paddingHorizontal="16dp"
-            android:paddingTop="24dp"
-            android:paddingBottom="14dp"
-            android:text="复习详情"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            android:paddingTop="48dp"
+            android:paddingBottom="12dp">
 
-        <View
-            android:id="@+id/headerLine"
-            android:layout_width="match_parent"
-            android:layout_height="1dp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="‹"
+                android:textColor="@color/ink"
+                android:textSize="28sp" />
+
+            <TextView
+                android:id="@+id/tvHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:fontFamily="@font/patrick_hand"
+                android:text="复习详情"
+                android:textColor="@color/ink"
+                android:textSize="22sp" />
+        </LinearLayout>
 
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
-            android:padding="20dp">
+            android:paddingStart="20dp"
+            android:paddingEnd="56dp"
+            android:paddingBottom="24dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingBottom="24dp">
+                android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/tvTitle"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:fontFamily="serif"
-                    android:textSize="22sp"
-                    android:textStyle="bold"
-                    tools:text="标题" />
+                    android:background="@drawable/bg_detail_paper"
+                    android:elevation="3dp"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/tvTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/patrick_hand"
+                        android:textColor="@color/ink"
+                        android:textSize="22sp"
+                        tools:text="标题" />
+
+                    <TextView
+                        android:id="@+id/tvContent"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:lineSpacingExtra="4dp"
+                        android:textColor="@color/muted"
+                        android:textSize="15sp"
+                        tools:text="笔记正文" />
+                </LinearLayout>
 
                 <View
                     android:id="@+id/rule1"
                     android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="14dp" />
-
-                <TextView
-                    android:id="@+id/tvContent"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
-                    android:lineSpacingExtra="4dp"
-                    android:textSize="15sp"
-                    tools:text="笔记正文" />
+                    android:layout_height="2dp"
+                    android:layout_marginTop="20dp"
+                    android:background="#737A6F62" />
 
                 <View
                     android:id="@+id/rule2"
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="24dp" />
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:visibility="gone" />
 
                 <TextView
                     android:id="@+id/tvTimelineTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="18dp"
-                    android:fontFamily="serif"
+                    android:layout_marginTop="16dp"
+                    android:fontFamily="@font/patrick_hand"
                     android:text="艾宾浩斯复习时间线"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
+                    android:textColor="@color/ink"
+                    android:textSize="19sp" />
 
                 <TextView
                     android:id="@+id/tvTimelineHelper"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
+                    android:layout_marginTop="4dp"
                     android:layout_marginBottom="8dp"
                     android:text="按顺序勾选完成每次复习，不可跳过或取消"
+                    android:textColor="@color/muted"
                     android:textSize="12sp" />
 
                 <androidx.recyclerview.widget.RecyclerView

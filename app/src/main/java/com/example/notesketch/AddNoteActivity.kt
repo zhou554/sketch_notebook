@@ -3,6 +3,7 @@ package com.example.notesketch
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.notesketch.data.AppDatabase
 import com.example.notesketch.data.Note
@@ -21,6 +22,8 @@ class AddNoteActivity : AppCompatActivity() {
         binding = ActivityAddNoteBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.btnSave.setOnClickListener { save() }
+        binding.btnBackRow.setOnClickListener { finish() }
+        binding.tvHeader.setOnClickListener { finish() }
         applyUi()
     }
 
@@ -31,16 +34,12 @@ class AddNoteActivity : AppCompatActivity() {
 
     private fun applyUi() {
         val theme = UiPrefs.theme(this)
-        val opacity = UiPrefs.contentOpacity(this)
         ThemeUi.applyWindow(this, theme)
-        binding.root.setBackgroundColor(theme.bg)
-        binding.seaScene.loadFromPrefs(this)
-        ThemeUi.setPanel(binding.contentPanel, theme, opacity)
+        binding.root.setBackgroundColor(ContextCompat.getColor(this, R.color.sticker_yellow))
+        binding.paperBg.paperColor = ContextCompat.getColor(this, R.color.sticker_yellow)
+        binding.paperBg.gridColor = 0x1F7A6F62
+        binding.contentPanel.setBackgroundColor(android.graphics.Color.TRANSPARENT)
         ThemeUi.colorTexts(theme.ink, binding.tvHeader)
-        ThemeUi.colorTexts(theme.muted, binding.labelTitle, binding.labelContent)
-        ThemeUi.colorLines(theme.line, binding.headerLine)
-        ThemeUi.styleEdit(binding.etTitle, theme)
-        ThemeUi.styleEdit(binding.etContent, theme)
         ThemeUi.styleButton(binding.btnSave, theme)
     }
 
@@ -61,10 +60,8 @@ class AddNoteActivity : AppCompatActivity() {
             nextReviewTime = Ebbinghaus.reviewTimeFor(now, 0),
             finished = false
         )
-
         lifecycleScope.launch {
             withContext(Dispatchers.IO) { dao.insert(note) }
-            Toast.makeText(this@AddNoteActivity, "已保存", Toast.LENGTH_SHORT).show()
             finish()
         }
     }

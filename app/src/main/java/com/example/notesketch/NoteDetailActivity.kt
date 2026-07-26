@@ -1,5 +1,6 @@
 package com.example.notesketch
 
+import android.graphics.Color
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -33,6 +34,8 @@ class NoteDetailActivity : AppCompatActivity() {
         timelineAdapter = TimelineAdapter(onCheckNext = { completeStage(it) })
         binding.timelineList.layoutManager = LinearLayoutManager(this)
         binding.timelineList.adapter = timelineAdapter
+        binding.btnBackRow.setOnClickListener { finish() }
+        binding.tvHeader.setOnClickListener { finish() }
 
         applyUi()
         loadNote(noteId)
@@ -45,14 +48,14 @@ class NoteDetailActivity : AppCompatActivity() {
 
     private fun applyUi() {
         val theme = UiPrefs.theme(this)
-        val opacity = UiPrefs.contentOpacity(this)
         ThemeUi.applyWindow(this, theme)
         binding.root.setBackgroundColor(theme.bg)
-        binding.seaScene.loadFromPrefs(this)
-        ThemeUi.setPanel(binding.contentPanel, theme, opacity)
+        binding.paperBg.paperColor = theme.bg
+        binding.paperBg.gridColor = theme.line
+        binding.contentPanel.setBackgroundColor(Color.TRANSPARENT)
         ThemeUi.colorTexts(theme.ink, binding.tvHeader, binding.tvTitle, binding.tvTimelineTitle)
         ThemeUi.colorTexts(theme.muted, binding.tvContent, binding.tvTimelineHelper)
-        ThemeUi.colorLines(theme.line, binding.headerLine, binding.rule1, binding.rule2)
+        ThemeUi.colorLines(0x737A6F62, binding.rule1)
     }
 
     private fun loadNote(noteId: Long) {

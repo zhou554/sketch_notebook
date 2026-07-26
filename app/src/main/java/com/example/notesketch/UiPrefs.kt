@@ -29,74 +29,77 @@ object UiPrefs {
     private const val KEY_SHELL_FREQ = "shell_freq"
     private const val KEY_THEME = "theme_id"
 
+    /** 拼贴手账森林狐狸主题（对齐 scrapbook-forest-fox-ui.html） */
     val themes = listOf(
+        ThemePalette(
+            id = "forest",
+            label = "森林狐狸",
+            bg = Color.parseColor("#F6F0E4"),
+            surface = Color.parseColor("#FFFEF8"),
+            ink = Color.parseColor("#3D3428"),
+            muted = Color.parseColor("#7A6F62"),
+            line = Color.parseColor("#DDD5C8"),
+            accent = Color.parseColor("#7AAB9E"),
+            due = Color.parseColor("#B03A32")
+        ),
         ThemePalette(
             id = "parchment",
             label = "羊皮纸",
-            bg = Color.parseColor("#F3EDE2"),
-            surface = Color.parseColor("#FFFBF5"),
-            ink = Color.parseColor("#2C261E"),
-            muted = Color.parseColor("#6F675C"),
-            line = Color.parseColor("#C9BDB0"),
-            accent = Color.parseColor("#4F5D45"),
-            due = Color.parseColor("#8F3A32")
+            bg = Color.parseColor("#F6F0E4"),
+            surface = Color.parseColor("#FFF3C4"),
+            ink = Color.parseColor("#3D3428"),
+            muted = Color.parseColor("#7A6F62"),
+            line = Color.parseColor("#DDD5C8"),
+            accent = Color.parseColor("#E8A56A"),
+            due = Color.parseColor("#B03A32")
         ),
         ThemePalette(
             id = "sage",
-            label = "鼠尾草",
-            bg = Color.parseColor("#E8F0EA"),
-            surface = Color.parseColor("#F7FBF8"),
-            ink = Color.parseColor("#243028"),
-            muted = Color.parseColor("#5F6E64"),
-            line = Color.parseColor("#B7C7BB"),
-            accent = Color.parseColor("#3E6B52"),
-            due = Color.parseColor("#8F3A32")
-        ),
-        ThemePalette(
-            id = "sky",
-            label = "淡天蓝",
-            bg = Color.parseColor("#E8EEF5"),
-            surface = Color.parseColor("#F7FAFD"),
-            ink = Color.parseColor("#1F2A38"),
-            muted = Color.parseColor("#5C6B7A"),
-            line = Color.parseColor("#B8C4D1"),
-            accent = Color.parseColor("#3D5A73"),
-            due = Color.parseColor("#8F3A32")
+            label = "苔绿",
+            bg = Color.parseColor("#F0F3E8"),
+            surface = Color.parseColor("#FFFEF8"),
+            ink = Color.parseColor("#3D3428"),
+            muted = Color.parseColor("#6F7A62"),
+            line = Color.parseColor("#D0D5C8"),
+            accent = Color.parseColor("#5C7A54"),
+            due = Color.parseColor("#B03A32")
         ),
         ThemePalette(
             id = "rose",
-            label = "浅玫瑰",
-            bg = Color.parseColor("#F3E9EA"),
-            surface = Color.parseColor("#FCF7F7"),
-            ink = Color.parseColor("#322428"),
-            muted = Color.parseColor("#746066"),
-            line = Color.parseColor("#D0C0C3"),
-            accent = Color.parseColor("#7A4E57"),
-            due = Color.parseColor("#8F3A32")
+            label = "蜜桃",
+            bg = Color.parseColor("#F6EDE8"),
+            surface = Color.parseColor("#FFE4EC"),
+            ink = Color.parseColor("#3D3428"),
+            muted = Color.parseColor("#7A6F62"),
+            line = Color.parseColor("#E0D5C8"),
+            accent = Color.parseColor("#C45C2A"),
+            due = Color.parseColor("#B03A32")
         ),
         ThemePalette(
             id = "ink",
-            label = "暖墨",
-            bg = Color.parseColor("#EDE8E0"),
-            surface = Color.parseColor("#F8F4ED"),
-            ink = Color.parseColor("#1A1814"),
-            muted = Color.parseColor("#6A6358"),
-            line = Color.parseColor("#C4B9A8"),
-            accent = Color.parseColor("#3A3630"),
-            due = Color.parseColor("#8F3A32")
+            label = "木纹",
+            bg = Color.parseColor("#F3EBE0"),
+            surface = Color.parseColor("#FFFEF8"),
+            ink = Color.parseColor("#3D2818"),
+            muted = Color.parseColor("#7A6F62"),
+            line = Color.parseColor("#D5C8B8"),
+            accent = Color.parseColor("#5C4030"),
+            due = Color.parseColor("#B03A32")
         )
     )
 
     fun theme(context: Context): ThemePalette {
-        val id = prefs(context).getString(KEY_THEME, "parchment") ?: "parchment"
-        return themes.firstOrNull { it.id == id } ?: themes.first()
+        val id = prefs(context).getString(KEY_THEME, "forest") ?: "forest"
+        return themes.firstOrNull { it.id == id }
+            ?: themes.firstOrNull { it.id == "forest" }
+            ?: themes.first()
     }
 
     fun setTheme(context: Context, id: String) {
         prefs(context).edit().putString(KEY_THEME, id).apply()
     }
 
-    fun contentOpacity(context: Context) = prefs(context).getInt(KEY_OPACITY, 88)
+    fun contentOpacity(context: Context) = prefs(context).getInt(KEY_OPACITY, 100)
     fun setContentOpacity(context: Context, v: Int) =
         prefs(context).edit().putInt(KEY_OPACITY, v.coerceIn(20, 100)).apply()
 

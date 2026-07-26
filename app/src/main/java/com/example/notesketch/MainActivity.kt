@@ -1,13 +1,11 @@
 package com.example.notesketch
 
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
-import android.view.MotionEvent
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.notesketch.data.AppDatabase
 import com.example.notesketch.data.Note
 import com.example.notesketch.databinding.ActivityMainBinding
@@ -35,35 +33,25 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerView.adapter = adapter
         binding.recyclerView.setHasFixedSize(false)
 
-        // 点列表空白处 → 小鱼跃起（海景在列表下层收不到触摸）
-        binding.recyclerView.addOnItemTouchListener(object : RecyclerView.SimpleOnItemTouchListener() {
-            override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
-                if (e.actionMasked == MotionEvent.ACTION_UP &&
-                    rv.findChildViewUnder(e.x, e.y) == null
-                ) {
-                    val loc = IntArray(2)
-                    binding.seaScene.getLocationOnScreen(loc)
-                    binding.seaScene.spawnFishAt(e.rawX - loc[0])
-                }
-                return false
-            }
-        })
-        binding.emptyView.setOnClickListener {
-            binding.seaScene.spawnFishAt(binding.seaScene.width / 2f)
-        }
-
         binding.fabAdd.setOnClickListener {
             startActivity(Intent(this, AddNoteActivity::class.java))
+        }
+        binding.ribbon.setOnLongClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
+            true
         }
         binding.btnSettings.setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
 
+        val days = Ebbinghaus.INTERVAL_DAYS.joinToString("\n") { it.toString() }
+        binding.intervalDays.text = days
+
         lifecycleScope.launch {
             dao.observeAll().collectLatest { notes ->
                 adapter.submitList(notes)
                 binding.emptyView.visibility =
-                    if (notes.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
+                    if (notes.isEmpty()) View.VISIBLE else View.GONE
             }
         }
     }
@@ -78,14 +66,8 @@ class MainActivity : AppCompatActivity() {
         val theme = UiPrefs.theme(this)
         ThemeUi.applyWindow(this, theme)
         binding.root.setBackgroundColor(theme.bg)
-        binding.seaScene.loadFromPrefs(this)
-        // 顶栏不透明；列表区域透明，让底部海景透出；列表格自身半透明
-        binding.headerBar.setBackgroundColor(theme.surface)
-        binding.recyclerView.setBackgroundColor(Color.TRANSPARENT)
-        ThemeUi.colorTexts(theme.ink, binding.header)
-        ThemeUi.colorTexts(theme.muted, binding.emptyView, binding.btnSettings)
-        ThemeUi.colorLines(theme.line, binding.headerLine)
-        ThemeUi.styleFab(binding.fabAdd, theme)
+        binding.paperBg.paperColor = theme.bg
+        binding.paperBg.gridColor = theme.line
     }
 
     private fun openDetail(note: Note) {
