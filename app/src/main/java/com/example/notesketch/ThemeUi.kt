@@ -81,4 +81,47 @@ object ThemeUi {
             isFocusable = true
         }
     }
+
+    fun patternChip(activity: Activity, pattern: PaperPattern, selected: Boolean, theme: ThemePalette): TextView {
+        val d = activity.resources.displayMetrics.density
+        return TextView(activity).apply {
+            text = pattern.label
+            setTextColor(if (selected) theme.surface else theme.ink)
+            textSize = 13f
+            setPadding((14 * d).toInt(), (8 * d).toInt(), (14 * d).toInt(), (8 * d).toInt())
+            background = GradientDrawable().apply {
+                setColor(if (selected) theme.accent else theme.surface)
+                setStroke((1 * d).toInt().coerceAtLeast(1), theme.line)
+            }
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).also { it.marginEnd = (8 * d).toInt() }
+            minHeight = (40 * d).toInt()
+            gravity = Gravity.CENTER
+            isClickable = true
+            isFocusable = true
+        }
+    }
+
+    /** 应用窗口亮度 + 纸张色与背景类型 */
+    fun applyScrapbook(
+        activity: Activity,
+        paperBg: ScrapbookPaperView,
+        paperColorOverride: Int? = null
+    ) {
+        val theme = UiPrefs.theme(activity)
+        applyWindow(activity, theme)
+        applyBrightness(activity)
+        paperBg.paperColor = paperColorOverride ?: theme.bg
+        paperBg.gridColor = theme.line
+        paperBg.pattern = UiPrefs.paperType(activity)
+    }
+
+    fun applyBrightness(activity: Activity) {
+        val b = UiPrefs.brightness(activity) / 100f
+        val lp = activity.window.attributes
+        lp.screenBrightness = b.coerceIn(0.3f, 1f)
+        activity.window.attributes = lp
+    }
 }

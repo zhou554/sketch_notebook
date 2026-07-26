@@ -90,10 +90,8 @@ class NoteDetailActivity : AppCompatActivity() {
 
     private fun applyUi() {
         val theme = UiPrefs.theme(this)
-        ThemeUi.applyWindow(this, theme)
+        ThemeUi.applyScrapbook(this, binding.paperBg)
         binding.root.setBackgroundColor(theme.bg)
-        binding.paperBg.paperColor = theme.bg
-        binding.paperBg.gridColor = theme.line
         binding.contentPanel.setBackgroundColor(Color.TRANSPARENT)
         ThemeUi.colorTexts(theme.ink, binding.tvHeader, binding.tvTitle, binding.tvTimelineTitle)
         ThemeUi.colorTexts(theme.muted, binding.tvContent)

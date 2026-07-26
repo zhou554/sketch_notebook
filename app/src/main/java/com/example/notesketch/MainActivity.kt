@@ -64,10 +64,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun applyUi() {
         val theme = UiPrefs.theme(this)
-        ThemeUi.applyWindow(this, theme)
+        ThemeUi.applyScrapbook(this, binding.paperBg)
         binding.root.setBackgroundColor(theme.bg)
-        binding.paperBg.paperColor = theme.bg
-        binding.paperBg.gridColor = theme.line
     }
 
     private fun openDetail(note: Note) {

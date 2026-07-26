@@ -28,6 +28,8 @@ object UiPrefs {
     private const val KEY_SEA_AMP = "sea_amp"
     private const val KEY_SHELL_FREQ = "shell_freq"
     private const val KEY_THEME = "theme_id"
+    private const val KEY_BRIGHTNESS = "page_brightness"
+    private const val KEY_PAPER_TYPE = "paper_type"
 
     /** 拼贴手账森林狐狸主题（对齐 scrapbook-forest-fox-ui.html） */
     val themes = listOf(
@@ -88,6 +90,13 @@ object UiPrefs {
         )
     )
 
+    val paperTypes = listOf(
+        PaperPattern.GRID,
+        PaperPattern.BLANK,
+        PaperPattern.LINED,
+        PaperPattern.DOTS
+    )
+
     fun theme(context: Context): ThemePalette {
         val id = prefs(context).getString(KEY_THEME, "forest") ?: "forest"
         return themes.firstOrNull { it.id == id }
@@ -97,6 +106,19 @@ object UiPrefs {
 
     fun setTheme(context: Context, id: String) {
         prefs(context).edit().putString(KEY_THEME, id).apply()
+    }
+
+    /** 页面亮度 30–100，默认 100 */
+    fun brightness(context: Context) = prefs(context).getInt(KEY_BRIGHTNESS, 100).coerceIn(30, 100)
+
+    fun setBrightness(context: Context, v: Int) =
+        prefs(context).edit().putInt(KEY_BRIGHTNESS, v.coerceIn(30, 100)).apply()
+
+    fun paperType(context: Context): PaperPattern =
+        PaperPattern.fromId(prefs(context).getString(KEY_PAPER_TYPE, "grid"))
+
+    fun setPaperType(context: Context, type: PaperPattern) {
+        prefs(context).edit().putString(KEY_PAPER_TYPE, type.id).apply()
     }
 
     fun contentOpacity(context: Context) = prefs(context).getInt(KEY_OPACITY, 100)

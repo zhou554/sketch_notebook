@@ -132,7 +132,7 @@
       width: 100px;
       height: 22px;
       top: 12px;
-      right: 72px;
+      right: 56px;
       background: var(--tape-teal);
       transform: rotate(2deg);
       border-radius: 1px;
@@ -160,6 +160,67 @@
       letter-spacing: 0.06em;
       box-shadow: 0 2px 0 rgba(92, 64, 48, 0.2);
       clip-path: polygon(8% 0, 92% 0, 100% 50%, 92% 100%, 8% 100%, 0 50%);
+    }
+
+    .settings-fox-btn {
+      position: absolute;
+      top: 14px;
+      right: 6px;
+      z-index: 12;
+      width: 48px;
+      height: 48px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      line-height: 0;
+      filter: drop-shadow(0 1px 3px rgba(61, 52, 40, 0.2));
+      transition: transform 0.18s var(--ease);
+    }
+    .settings-fox-btn:hover { transform: scale(1.08) rotate(6deg); }
+    .settings-fox-btn:active { transform: scale(0.96); }
+    .settings-fox-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      pointer-events: none;
+    }
+
+    .spread[data-paper="blank"],
+    #view-detail[data-paper="blank"],
+    #view-settings[data-paper="blank"] {
+      background-image: none !important;
+    }
+    .spread[data-paper="lined"],
+    #view-detail[data-paper="lined"],
+    #view-settings[data-paper="lined"] {
+      background-image: linear-gradient(var(--grid) 1px, transparent 1px) !important;
+      background-size: 100% 18px !important;
+    }
+    .spread[data-paper="grid"],
+    #view-detail[data-paper="grid"],
+    #view-settings[data-paper="grid"] {
+      background-image:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px) !important;
+      background-size: 18px 18px !important;
+    }
+    .spread[data-paper="dots"],
+    #view-detail[data-paper="dots"],
+    #view-settings[data-paper="dots"] {
+      background-image: radial-gradient(circle, var(--grid) 1.1px, transparent 1.2px) !important;
+      background-size: 14px 14px !important;
+    }
+
+    .brightness-veil {
+      position: absolute;
+      inset: 0;
+      z-index: 20;
+      pointer-events: none;
+      background: #1a120c;
+      opacity: 0;
+      transition: opacity 0.2s var(--ease);
     }
 
     .side-board {
@@ -355,6 +416,75 @@
         linear-gradient(var(--grid) 1px, transparent 1px),
         linear-gradient(90deg, var(--grid) 1px, transparent 1px);
       background-size: 18px 18px;
+    }
+
+    #view-settings.active {
+      position: absolute;
+      inset: 0;
+      z-index: 9;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+      background-color: var(--cream);
+      background-image:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+      background-size: 18px 18px;
+    }
+
+    .settings-block {
+      margin-bottom: 22px;
+    }
+    .settings-block h3 {
+      font-family: var(--font-hand);
+      font-size: 1.2rem;
+      color: var(--ink);
+    }
+    .settings-block .sub {
+      font-family: var(--font-hand);
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-top: 2px;
+      margin-bottom: 10px;
+    }
+    .settings-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .settings-row input[type="range"] {
+      flex: 1;
+      accent-color: var(--tape-teal);
+    }
+    .settings-val {
+      font-family: var(--font-hand);
+      min-width: 2.2em;
+      text-align: right;
+      color: var(--ink);
+    }
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .set-chip {
+      font-family: var(--font-hand);
+      font-size: 0.95rem;
+      border: 1.5px solid rgba(61, 52, 40, 0.28);
+      background: #fffef8;
+      color: var(--ink);
+      padding: 6px 12px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .set-chip.is-on {
+      background: var(--tape-teal);
+      border-color: var(--tape-teal);
+      color: #fff;
+    }
+    .set-chip.color-swatch {
+      min-width: 4.5em;
     }
 
     .detail-bloom-corner {
@@ -1100,7 +1230,8 @@
 </head>
 <body>
   <div class="desk">
-    <div class="spread" aria-label="记忆笔记手账页">
+    <div class="spread" aria-label="记忆笔记手账页" data-paper="grid">
+      <div class="brightness-veil" id="brightness-veil" aria-hidden="true"></div>
       <div class="collage-deco" aria-hidden="true">
         <div class="tape tape-v"></div>
         <div class="tape tape-h"></div>
@@ -1119,6 +1250,10 @@
           <path d="M4 8 Q12 2 20 8" stroke-dasharray="2 3" />
         </svg>
       </div>
+
+      <button type="button" class="settings-fox-btn" id="settings-fox-btn" aria-label="手账设置">
+        <img src="images/stickers/fox-deco-transparent.png" width="48" height="48" alt="" decoding="async" />
+      </button>
 
       <img
         class="side-fox side-fox--left"
@@ -1248,6 +1383,36 @@
           />
         </section>
 
+        <section class="view" id="view-settings">
+          <header class="panel-head" id="settings-header" tabindex="0" role="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6 L9 12 L15 18" /></svg>
+            <div class="panel-head-text">
+              <h2>手账设置</h2>
+            </div>
+          </header>
+          <div class="panel-scroll scrollbar-hidden" id="settings-scroll">
+            <div class="settings-block">
+              <h3>页面亮度</h3>
+              <p class="sub">调节手账页显示明暗</p>
+              <div class="settings-row">
+                <input type="range" id="set-brightness" min="30" max="100" value="100" aria-label="页面亮度" />
+                <span class="settings-val" id="set-brightness-val">100</span>
+              </div>
+            </div>
+            <div class="settings-block">
+              <h3>背景颜色</h3>
+              <p class="sub">选择纸张底色</p>
+              <div class="chip-row" id="set-theme-row"></div>
+            </div>
+            <div class="settings-block">
+              <h3>背景类型</h3>
+              <p class="sub">网格 · 空白 · 横线 · 网点</p>
+              <div class="chip-row" id="set-paper-row"></div>
+            </div>
+            <p class="sub" style="margin-top:8px">点主页右上角狐狸头可打开此页</p>
+          </div>
+        </section>
+
       </div>
     </div>
   </div>
@@ -1306,6 +1471,13 @@
       listView: document.getElementById("view-list"),
       addView: document.getElementById("view-add"),
       detailView: document.getElementById("view-detail"),
+      settingsView: document.getElementById("view-settings"),
+      settingsFoxBtn: document.getElementById("settings-fox-btn"),
+      brightnessVeil: document.getElementById("brightness-veil"),
+      setBrightness: document.getElementById("set-brightness"),
+      setBrightnessVal: document.getElementById("set-brightness-val"),
+      setThemeRow: document.getElementById("set-theme-row"),
+      setPaperRow: document.getElementById("set-paper-row"),
       detailPaper: document.getElementById("detail-paper"),
       detailEditTitle: document.getElementById("detail-edit-title"),
       detailEditBody: document.getElementById("detail-edit-body"),
@@ -1322,6 +1494,7 @@
       detailBody: document.getElementById("detail-body"),
       timelineList: document.getElementById("timeline-list"),
       ebbingAxis: document.getElementById("ebbing-axis"),
+      spread: document.querySelector(".spread"),
     };
 
     function loadNotes() {
@@ -1370,6 +1543,106 @@
       els.listView.classList.toggle("active", name === "list");
       els.addView.classList.toggle("active", name === "add");
       els.detailView.classList.toggle("active", name === "detail");
+      els.settingsView.classList.toggle("active", name === "settings");
+      if (els.settingsFoxBtn) {
+        els.settingsFoxBtn.hidden = name !== "list";
+      }
+    }
+
+    const PREFS_KEY = "notesketch-scrapbook-prefs-v1";
+    const THEMES = [
+      { id: "forest", label: "森林狐狸", bg: "#F6F0E4", line: "#DDD5C8", ink: "#3D3428", muted: "#7A6F62", accent: "#7AAB9E" },
+      { id: "parchment", label: "羊皮纸", bg: "#F6F0E4", line: "#DDD5C8", ink: "#3D3428", muted: "#7A6F62", accent: "#E8A56A" },
+      { id: "sage", label: "苔绿", bg: "#F0F3E8", line: "#D0D5C8", ink: "#3D3428", muted: "#6F7A62", accent: "#5C7A54" },
+      { id: "rose", label: "蜜桃", bg: "#F6EDE8", line: "#E0D5C8", ink: "#3D3428", muted: "#7A6F62", accent: "#C45C2A" },
+      { id: "ink", label: "木纹", bg: "#F3EBE0", line: "#D5C8B8", ink: "#3D2818", muted: "#7A6F62", accent: "#5C4030" },
+    ];
+    const PAPER_TYPES = [
+      { id: "grid", label: "网格" },
+      { id: "blank", label: "空白" },
+      { id: "lined", label: "横线" },
+      { id: "dots", label: "网点" },
+    ];
+
+    function loadPrefs() {
+      try {
+        const raw = localStorage.getItem(PREFS_KEY);
+        if (raw) return { brightness: 100, themeId: "forest", paperType: "grid", ...JSON.parse(raw) };
+      } catch (_) {}
+      return { brightness: 100, themeId: "forest", paperType: "grid" };
+    }
+
+    let uiPrefs = loadPrefs();
+
+    function savePrefs() {
+      localStorage.setItem(PREFS_KEY, JSON.stringify(uiPrefs));
+    }
+
+    function currentTheme() {
+      return THEMES.find((t) => t.id === uiPrefs.themeId) || THEMES[0];
+    }
+
+    function applyUiPrefs() {
+      const theme = currentTheme();
+      const root = document.documentElement;
+      root.style.setProperty("--cream", theme.bg);
+      root.style.setProperty("--grid", theme.line);
+      root.style.setProperty("--ink", theme.ink);
+      root.style.setProperty("--muted", theme.muted);
+      root.style.setProperty("--tape-teal", theme.accent);
+      const paper = uiPrefs.paperType || "grid";
+      [els.spread, els.detailView, els.settingsView].forEach((node) => {
+        if (node) node.dataset.paper = paper;
+      });
+      if (els.brightnessVeil) {
+        els.brightnessVeil.style.opacity = String(((100 - uiPrefs.brightness) / 100) * 0.55);
+      }
+      if (els.setBrightness) {
+        els.setBrightness.value = String(uiPrefs.brightness);
+        els.setBrightnessVal.textContent = String(uiPrefs.brightness);
+      }
+      renderSettingsChips();
+    }
+
+    function renderSettingsChips() {
+      if (!els.setThemeRow || !els.setPaperRow) return;
+      const theme = currentTheme();
+      els.setThemeRow.innerHTML = "";
+      THEMES.forEach((t) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "set-chip color-swatch" + (t.id === uiPrefs.themeId ? " is-on" : "");
+        btn.textContent = t.label;
+        btn.style.borderBottom = `4px solid ${t.bg}`;
+        btn.addEventListener("click", () => {
+          uiPrefs.themeId = t.id;
+          savePrefs();
+          applyUiPrefs();
+        });
+        els.setThemeRow.appendChild(btn);
+      });
+      els.setPaperRow.innerHTML = "";
+      PAPER_TYPES.forEach((p) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "set-chip" + (p.id === uiPrefs.paperType ? " is-on" : "");
+        btn.textContent = p.label;
+        if (p.id === uiPrefs.paperType) {
+          btn.style.background = theme.accent;
+          btn.style.borderColor = theme.accent;
+        }
+        btn.addEventListener("click", () => {
+          uiPrefs.paperType = p.id;
+          savePrefs();
+          applyUiPrefs();
+        });
+        els.setPaperRow.appendChild(btn);
+      });
+    }
+
+    function openSettings() {
+      applyUiPrefs();
+      showView("settings");
     }
 
     function sortedNotes() {
@@ -1782,6 +2055,14 @@
       renderList();
       showView("list");
     });
+    bindBack(document.getElementById("settings-header"), () => showView("list"));
+    els.settingsFoxBtn.addEventListener("click", openSettings);
+    els.setBrightness.addEventListener("input", () => {
+      uiPrefs.brightness = Number(els.setBrightness.value);
+      els.setBrightnessVal.textContent = String(uiPrefs.brightness);
+      savePrefs();
+      applyUiPrefs();
+    });
     els.detailPaper.querySelector(".detail-view").addEventListener("click", enterDetailEdit);
     els.detailEditBody.addEventListener("input", scrollDetailBodyToLatest);
     els.detailEditBody.addEventListener("keyup", scrollDetailBodyToLatest);
@@ -1793,6 +2074,7 @@
 
     initListPageScroll();
     initListPullToAdd();
+    applyUiPrefs();
     renderList();
     showView("list");
   </script>

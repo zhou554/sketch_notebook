@@ -15,8 +15,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true"
-        android:scrollbars="none"
-        android:overScrollMode="never">
+        android:overScrollMode="never"
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -61,14 +61,62 @@
                 android:layout_marginHorizontal="16dp"
                 android:background="#597A6F62" />
 
+            <!-- 页面亮度 -->
+            <TextView
+                android:id="@+id/sectionBrightness"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/patrick_hand"
+                android:paddingHorizontal="20dp"
+                android:paddingTop="20dp"
+                android:text="页面亮度"
+                android:textSize="18sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp"
+                android:paddingTop="6dp">
+
+                <SeekBar
+                    android:id="@+id/seekBrightness"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:max="70"
+                    android:progress="70" />
+
+                <TextView
+                    android:id="@+id/valBrightness"
+                    android:layout_width="48dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/patrick_hand"
+                    android:gravity="end"
+                    android:text="100"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/labelBrightness"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/patrick_hand"
+                android:paddingHorizontal="20dp"
+                android:paddingTop="2dp"
+                android:text="调节手账页显示明暗"
+                android:textSize="13sp" />
+
+            <!-- 背景颜色 -->
             <TextView
                 android:id="@+id/sectionLook"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/patrick_hand"
                 android:paddingHorizontal="20dp"
-                android:paddingTop="20dp"
-                android:text="纸张色调"
+                android:paddingTop="22dp"
+                android:text="背景颜色"
                 android:textSize="18sp" />
 
             <TextView
@@ -77,9 +125,9 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/patrick_hand"
                 android:paddingHorizontal="20dp"
-                android:paddingTop="8dp"
-                android:text="选择手账主题"
-                android:textSize="14sp" />
+                android:paddingTop="4dp"
+                android:text="选择纸张底色"
+                android:textSize="13sp" />
 
             <HorizontalScrollView
                 android:layout_width="match_parent"
@@ -95,17 +143,46 @@
                     android:paddingHorizontal="16dp" />
             </HorizontalScrollView>
 
+            <!-- 背景类型 -->
+            <TextView
+                android:id="@+id/sectionPaper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/patrick_hand"
+                android:paddingHorizontal="20dp"
+                android:paddingTop="12dp"
+                android:text="背景类型"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/labelPaper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/patrick_hand"
+                android:paddingHorizontal="20dp"
+                android:paddingTop="4dp"
+                android:text="网格 · 空白 · 横线 · 网点"
+                android:textSize="13sp" />
+
+            <LinearLayout
+                android:id="@+id/paperTypeRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp"
+                android:paddingTop="10dp" />
+
             <TextView
                 android:id="@+id/hintOpacity"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/patrick_hand"
                 android:paddingHorizontal="20dp"
-                android:paddingTop="12dp"
-                android:text="长按主页丝带标题可打开此页"
+                android:paddingTop="20dp"
+                android:text="点主页右上角狐狸头可打开此页"
                 android:textSize="15sp" />
 
-            <!-- 保留旧控件 id，隐藏海景相关 -->
+            <!-- 保留旧控件 id，避免残留 binding 引用崩溃 -->
             <SeekBar
                 android:id="@+id/seekOpacity"
                 android:layout_width="0dp"

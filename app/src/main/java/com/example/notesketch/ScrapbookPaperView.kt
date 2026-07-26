@@ -6,8 +6,40 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
 
+enum class PaperPattern {
+    GRID,
+    BLANK,
+    LINED,
+    DOTS;
+
+    companion object {
+        fun fromId(id: String?): PaperPattern = when (id) {
+            "blank" -> BLANK
+            "lined" -> LINED
+            "dots" -> DOTS
+            else -> GRID
+        }
+    }
+
+    val id: String
+        get() = when (this) {
+            GRID -> "grid"
+            BLANK -> "blank"
+            LINED -> "lined"
+            DOTS -> "dots"
+        }
+
+    val label: String
+        get() = when (this) {
+            GRID -> "网格"
+            BLANK -> "空白"
+            LINED -> "横线"
+            DOTS -> "网点"
+        }
+}
+
 /**
- * 拼贴手账方格纸背景（对齐 scrapbook-forest-fox-ui）。
+ * 拼贴手账纸张背景：网格 / 空白 / 横线 / 网点。
  */
 class ScrapbookPaperView @JvmOverloads constructor(
     context: Context,
@@ -19,10 +51,14 @@ class ScrapbookPaperView @JvmOverloads constructor(
         style = Paint.Style.FILL
         color = 0xFFF6F0E4.toInt()
     }
-    private val gridPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    private val linePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         color = 0xFFDDD5C8.toInt()
         strokeWidth = 1f
+    }
+    private val dotPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+        color = 0xFFDDD5C8.toInt()
     }
 
     var paperColor: Int
@@ -33,9 +69,16 @@ class ScrapbookPaperView @JvmOverloads constructor(
         }
 
     var gridColor: Int
-        get() = gridPaint.color
+        get() = linePaint.color
         set(value) {
-            gridPaint.color = value
+            linePaint.color = value
+            dotPaint.color = value
+            invalidate()
+        }
+
+    var pattern: PaperPattern = PaperPattern.GRID
+        set(value) {
+            field = value
             invalidate()
         }
 
@@ -45,16 +88,42 @@ class ScrapbookPaperView @JvmOverloads constructor(
         val h = height.toFloat()
         if (w <= 0f || h <= 0f) return
         canvas.drawRect(0f, 0f, w, h, fillPaint)
-        val step = 18f * resources.displayMetrics.density
-        var x = 0f
-        while (x <= w) {
-            canvas.drawLine(x, 0f, x, h, gridPaint)
-            x += step
-        }
-        var y = 0f
-        while (y <= h) {
-            canvas.drawLine(0f, y, w, y, gridPaint)
-            y += step
+        when (pattern) {
+            PaperPattern.BLANK -> Unit
+            PaperPattern.DOTS -> {
+                val step = 14f * resources.displayMetrics.density
+                val radius = 1.1f * resources.displayMetrics.density
+                var y = step / 2f
+                while (y <= h) {
+                    var x = step / 2f
+                    while (x <= w) {
+                        canvas.drawCircle(x, y, radius, dotPaint)
+                        x += step
+                    }
+                    y += step
+                }
+            }
+            PaperPattern.GRID -> {
+                val step = 18f * resources.displayMetrics.density
+                var x = 0f
+                while (x <= w) {
+                    canvas.drawLine(x, 0f, x, h, linePaint)
+                    x += step
+                }
+                var y = 0f
+                while (y <= h) {
+                    canvas.drawLine(0f, y, w, y, linePaint)
+                    y += step
+                }
+            }
+            PaperPattern.LINED -> {
+                val step = 18f * resources.displayMetrics.density
+                var y = 0f
+                while (y <= h) {
+                    canvas.drawLine(0f, y, w, y, linePaint)
+                    y += step
+                }
+            }
         }
     }
 }

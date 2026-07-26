@@ -27,7 +27,7 @@
         android:layout_height="22dp"
         android:layout_gravity="end"
         android:layout_marginTop="12dp"
-        android:layout_marginEnd="72dp"
+        android:layout_marginEnd="56dp"
         android:background="@drawable/bg_tape_h"
         android:elevation="1dp"
         android:rotation="2" />
@@ -241,12 +241,20 @@
         android:scaleX="-1"
         android:src="@drawable/forest_deco" />
 
-    <!-- 隐藏旧设置入口（长按丝带可开） -->
-    <TextView
+    <!-- 右上角狐狸头：设置入口 -->
+    <ImageButton
         android:id="@+id/btnSettings"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:visibility="gone" />
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="18dp"
+        android:layout_marginEnd="8dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="手账设置"
+        android:elevation="6dp"
+        android:padding="2dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/fox_deco" />
 
     <View
         android:id="@+id/headerBar"

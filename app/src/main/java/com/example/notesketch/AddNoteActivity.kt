@@ -34,10 +34,9 @@ class AddNoteActivity : AppCompatActivity() {
 
     private fun applyUi() {
         val theme = UiPrefs.theme(this)
-        ThemeUi.applyWindow(this, theme)
-        binding.root.setBackgroundColor(ContextCompat.getColor(this, R.color.sticker_yellow))
-        binding.paperBg.paperColor = ContextCompat.getColor(this, R.color.sticker_yellow)
-        binding.paperBg.gridColor = 0x1F7A6F62
+        val yellow = ContextCompat.getColor(this, R.color.sticker_yellow)
+        ThemeUi.applyScrapbook(this, binding.paperBg, paperColorOverride = yellow)
+        binding.root.setBackgroundColor(yellow)
         binding.contentPanel.setBackgroundColor(android.graphics.Color.TRANSPARENT)
         ThemeUi.colorTexts(theme.ink, binding.tvHeader)
         ThemeUi.styleButton(binding.btnSave, theme)
