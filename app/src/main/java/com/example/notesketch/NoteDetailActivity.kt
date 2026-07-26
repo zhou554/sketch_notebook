@@ -34,7 +34,25 @@ class NoteDetailActivity : AppCompatActivity() {
         binding.timelineList.layoutManager = LinearLayoutManager(this)
         binding.timelineList.adapter = timelineAdapter
 
+        applyUi()
         loadNote(noteId)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        applyUi()
+    }
+
+    private fun applyUi() {
+        val theme = UiPrefs.theme(this)
+        val opacity = UiPrefs.contentOpacity(this)
+        ThemeUi.applyWindow(this, theme)
+        binding.root.setBackgroundColor(theme.bg)
+        binding.seaScene.loadFromPrefs(this)
+        ThemeUi.setPanel(binding.contentPanel, theme, opacity)
+        ThemeUi.colorTexts(theme.ink, binding.tvHeader, binding.tvTitle, binding.tvTimelineTitle)
+        ThemeUi.colorTexts(theme.muted, binding.tvContent, binding.tvTimelineHelper)
+        ThemeUi.colorLines(theme.line, binding.headerLine, binding.rule1, binding.rule2)
     }
 
     private fun loadNote(noteId: Long) {

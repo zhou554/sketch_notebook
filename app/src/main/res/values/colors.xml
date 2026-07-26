@@ -6,6 +6,7 @@
     <color name="text_primary">#2C261E</color>
     <color name="text_secondary">#6F675C</color>
     <color name="line">#C9BDB0</color>
+    <color name="line_faint">#D9D0C4</color>
     <color name="accent">#4F5D45</color>
     <color name="accent_soft">#124F5D45</color>
     <color name="due">#8F3A32</color>

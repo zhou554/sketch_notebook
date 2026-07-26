@@ -6,18 +6,17 @@ alwaysApply: false
 
 # NoteSketch 网页预览同步
 
-预览页为 **`preview/index.html`**，直接套用仓库根目录 **`line-minimal-ui.html`** 的线条动效 UI。
+预览：`preview/index.html`（海景底层 + 设置页）。
 
-当修改 App 的界面、文案、复习逻辑或动效时：
+修改 App 时同步：
 
-1. 优先更新 `line-minimal-ui.html`（设计源）
-2. 再复制到 `preview/index.html`（或保持两边一致）
-3. Android 对齐：`SeaLineView`、半透明壳层、1px 墨绿左边线、描边 FAB、线条复选框、衬线标题
+1. `SeaSceneView` / `UiPrefs` / `SettingsActivity`
+2. 三屏海景底层 + 半透明内容
+3. 设置项：内容透明度、海浪高度、起伏、贝壳频率、主题色
 
-## 视觉约定（LINE UI）
+## 约定
 
-- 纸面底 `#F3EDE2`，墨色 `#2C261E`，次要 `#6F675C`，线 `#C9BDB0`，强调 `#4F5D45`，待复习 `#8F3A32`
-- 背景：线条海浪（非色块 AmbientWash）
-- 壳层半透明透出海景；控件以描边为主，避免厚重实心卡片
-- 时间线：仅当前阶段可勾选
-- 尊重 `prefers-reduced-motion` / 系统动画缩放
+- 海景全屏底层；内容叠在上方并可调透明度
+- 主题色写入 `UiPrefs` 与预览 `NoteThemes`
+- 贝壳频率 0 = 关闭
+- 尊重 reduced-motion

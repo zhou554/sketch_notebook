@@ -20,8 +20,28 @@ class AddNoteActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityAddNoteBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         binding.btnSave.setOnClickListener { save() }
+        applyUi()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        applyUi()
+    }
+
+    private fun applyUi() {
+        val theme = UiPrefs.theme(this)
+        val opacity = UiPrefs.contentOpacity(this)
+        ThemeUi.applyWindow(this, theme)
+        binding.root.setBackgroundColor(theme.bg)
+        binding.seaScene.loadFromPrefs(this)
+        ThemeUi.setPanel(binding.contentPanel, theme, opacity)
+        ThemeUi.colorTexts(theme.ink, binding.tvHeader)
+        ThemeUi.colorTexts(theme.muted, binding.labelTitle, binding.labelContent)
+        ThemeUi.colorLines(theme.line, binding.headerLine)
+        ThemeUi.styleEdit(binding.etTitle, theme)
+        ThemeUi.styleEdit(binding.etContent, theme)
+        ThemeUi.styleButton(binding.btnSave, theme)
     }
 
     private fun save() {
@@ -33,13 +53,12 @@ class AddNoteActivity : AppCompatActivity() {
         }
 
         val now = System.currentTimeMillis()
-        val firstReview = Ebbinghaus.reviewTimeFor(now, 0)
         val note = Note(
             title = title,
             content = content,
             createdAt = now,
             stage = 0,
-            nextReviewTime = firstReview,
+            nextReviewTime = Ebbinghaus.reviewTimeFor(now, 0),
             finished = false
         )
 
