@@ -184,7 +184,7 @@
                 android:padding="32dp"
                 android:text="这一页还空着\n点下方狐狸，或滑到底写下便签"
                 android:textColor="@color/muted"
-                android:textSize="20sp"
+                android:textSize="14sp"
                 android:visibility="gone" />
         </FrameLayout>
 
@@ -241,7 +241,43 @@
         android:scaleX="-1"
         android:src="@drawable/forest_deco" />
 
-    <!-- 右上角狐狸头：设置入口（贴顶靠右，文字贴近图标，不落入列表） -->
+    <!-- 左上角狐狸头：记账入口（与右上角设置对称） -->
+    <LinearLayout
+        android:id="@+id/btnLedger"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|start"
+        android:layout_marginTop="2dp"
+        android:layout_marginStart="0dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:contentDescription="记账"
+        android:elevation="10dp"
+        android:focusable="true"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="0dp">
+
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:contentDescription="@null"
+            android:scaleType="fitCenter"
+            android:scaleX="-1"
+            android:src="@drawable/fox_deco" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-10dp"
+            android:fontFamily="@font/patrick_hand"
+            android:includeFontPadding="false"
+            android:text="记账"
+            android:textColor="@color/muted"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <!-- 右上角狐狸头：设置入口 -->
     <LinearLayout
         android:id="@+id/btnSettings"
         android:layout_width="wrap_content"
@@ -251,6 +287,7 @@
         android:layout_marginEnd="0dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:clickable="true"
+        android:contentDescription="设置"
         android:elevation="10dp"
         android:focusable="true"
         android:gravity="center_horizontal"
@@ -267,12 +304,12 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="-12dp"
+            android:layout_marginTop="-10dp"
             android:fontFamily="@font/patrick_hand"
             android:includeFontPadding="false"
             android:text="设置"
             android:textColor="@color/muted"
-            android:textSize="14sp" />
+            android:textSize="12sp" />
     </LinearLayout>
 
     <View

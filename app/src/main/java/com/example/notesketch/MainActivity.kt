@@ -43,6 +43,9 @@ class MainActivity : AppCompatActivity() {
         binding.btnSettings.setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
+        binding.btnLedger.setOnClickListener {
+            startActivity(Intent(this, LedgerActivity::class.java))
+        }
 
         val days = Ebbinghaus.INTERVAL_DAYS.joinToString("\n") { it.toString() }
         binding.intervalDays.text = days

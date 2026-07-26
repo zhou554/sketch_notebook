@@ -50,7 +50,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:fontFamily="@font/patrick_hand"
-                    android:text="手账设置"
+                    android:gravity="end"
+                    android:text="设置"
                     android:textSize="22sp" />
             </LinearLayout>
 
