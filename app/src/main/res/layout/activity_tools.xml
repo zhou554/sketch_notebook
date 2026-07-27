@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/cream">
+
+    <com.example.notesketch.ScrapbookPaperView
+        android:id="@+id/paperBg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- 彩色手账铺满全屏 -->
+    <ImageView
+        android:id="@+id/boardBg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@null"
+        android:scaleType="fitXY"
+        android:src="@drawable/tools_board" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/contentPanel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/btnBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/patrick_hand"
+            android:gravity="center_vertical"
+            android:minHeight="44dp"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="40dp"
+            android:paddingBottom="8dp"
+            android:text="‹ 返回"
+            android:textSize="18sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidePaperStart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.12" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidePaperEnd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.88" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidePaperTop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.14" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidePaperBottom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.76" />
+
+        <GridLayout
+            android:id="@+id/toolsGrid"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:alignmentMode="alignBounds"
+            android:columnCount="3"
+            android:useDefaultMargins="false"
+            app:layout_constraintBottom_toTopOf="@id/guidePaperBottom"
+            app:layout_constraintEnd_toStartOf="@id/guidePaperEnd"
+            app:layout_constraintStart_toStartOf="@id/guidePaperStart"
+            app:layout_constraintTop_toTopOf="@id/guidePaperTop">
+
+            <LinearLayout
+                android:id="@+id/btnLedger"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_gravity="fill_horizontal|top"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:contentDescription="记账"
+                android:focusable="true"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:paddingTop="2dp"
+                android:paddingBottom="6dp">
+
+                <ImageView
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
+                    android:contentDescription="@null"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/fox_deco" />
+
+                <TextView
+                    android:id="@+id/tvLedgerLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="-4dp"
+                    android:fontFamily="@font/patrick_hand"
+                    android:includeFontPadding="false"
+                    android:text="记账"
+                    android:textSize="15sp" />
+            </LinearLayout>
+        </GridLayout>
+
+        <!-- 「工具」：原 22sp，移入橙色贴纸中央并与贴纸同向倾斜 -->
+        <TextView
+            android:id="@+id/tvHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/patrick_hand"
+            android:includeFontPadding="false"
+            android:rotation="22"
+            android:text="工具"
+            android:textColor="#3D2818"
+            android:textSize="22sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.72"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.855" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>

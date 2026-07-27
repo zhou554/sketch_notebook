@@ -241,9 +241,9 @@
         android:scaleX="-1"
         android:src="@drawable/forest_deco" />
 
-    <!-- 左上角狐狸头：记账入口（与右上角设置对称） -->
+    <!-- 左上角狐狸头：工具入口（与右上角设置对称） -->
     <LinearLayout
-        android:id="@+id/btnLedger"
+        android:id="@+id/btnTools"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="top|start"
@@ -251,7 +251,7 @@
         android:layout_marginStart="0dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:clickable="true"
-        android:contentDescription="记账"
+        android:contentDescription="工具"
         android:elevation="10dp"
         android:focusable="true"
         android:gravity="center_horizontal"
@@ -272,7 +272,7 @@
             android:layout_marginTop="-10dp"
             android:fontFamily="@font/patrick_hand"
             android:includeFontPadding="false"
-            android:text="记账"
+            android:text="工具"
             android:textColor="@color/muted"
             android:textSize="12sp" />
     </LinearLayout>

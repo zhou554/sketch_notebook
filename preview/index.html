@@ -182,15 +182,15 @@
     .settings-fox-btn[hidden] {
       display: none !important;
     }
-    .settings-fox-btn.ledger-fox-btn {
+    .settings-fox-btn.tools-fox-btn {
       right: auto;
       left: 0;
     }
-    .settings-fox-btn.ledger-fox-btn img {
+    .settings-fox-btn.tools-fox-btn img {
       transform: scaleX(-1);
     }
     .settings-fox-btn:hover { transform: scale(1.06) rotate(4deg); }
-    .settings-fox-btn.ledger-fox-btn:hover { transform: scale(1.06) rotate(-4deg); }
+    .settings-fox-btn.tools-fox-btn:hover { transform: scale(1.06) rotate(-4deg); }
     .settings-fox-btn:active { transform: scale(0.96); }
     .settings-fox-btn img {
       width: 80px;
@@ -457,6 +457,7 @@
     .spread[data-paper="blank"],
     #view-detail[data-paper="blank"],
     #view-settings[data-paper="blank"],
+    #view-tools[data-paper="blank"],
     #view-ledger[data-paper="blank"],
     #view-add[data-paper="blank"] {
       background-image: none !important;
@@ -464,6 +465,7 @@
     .spread[data-paper="lined"],
     #view-detail[data-paper="lined"],
     #view-settings[data-paper="lined"],
+    #view-tools[data-paper="lined"],
     #view-ledger[data-paper="lined"],
     #view-add[data-paper="lined"] {
       background-image: linear-gradient(var(--grid) 1px, transparent 1px) !important;
@@ -472,6 +474,7 @@
     .spread[data-paper="grid"],
     #view-detail[data-paper="grid"],
     #view-settings[data-paper="grid"],
+    #view-tools[data-paper="grid"],
     #view-ledger[data-paper="grid"],
     #view-add[data-paper="grid"] {
       background-image:
@@ -482,6 +485,7 @@
     .spread[data-paper="dots"],
     #view-detail[data-paper="dots"],
     #view-settings[data-paper="dots"],
+    #view-tools[data-paper="dots"],
     #view-ledger[data-paper="dots"],
     #view-add[data-paper="dots"] {
       background-image: radial-gradient(circle, var(--grid) 1.1px, transparent 1.2px) !important;
@@ -708,10 +712,128 @@
       background-size: 18px 18px;
     }
 
-    #view-ledger.active {
+    #view-tools.active {
       position: absolute;
       inset: 0;
       z-index: 9;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+      background-color: #5c4030;
+    }
+
+    #view-tools .panel-head {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 3;
+      padding: 48px 16px 12px;
+      background: transparent;
+    }
+
+    .tools-board-wrap {
+      position: absolute;
+      inset: 0;
+      margin: 0;
+      display: block;
+      overflow: hidden;
+    }
+    .tools-board-wrap > img.tools-board {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      max-height: none;
+      object-fit: fill;
+      display: block;
+      filter: none;
+      pointer-events: none;
+      user-select: none;
+    }
+    .tools-board-stage {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      max-height: none;
+      aspect-ratio: auto;
+      transform: none;
+      left: 0;
+      top: 0;
+      pointer-events: none;
+    }
+    .tools-title-stamp {
+      position: absolute;
+      left: 58%;
+      top: 80%;
+      width: 26%;
+      height: 9%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-hand);
+      font-size: 1.375rem; /* ~22sp */
+      color: #3d2818;
+      line-height: 1;
+      letter-spacing: 0.06em;
+      transform: rotate(22deg);
+      transform-origin: center center;
+      pointer-events: none;
+      user-select: none;
+    }
+    .tools-grid {
+      position: absolute;
+      left: 12%;
+      right: 12%;
+      top: 14%;
+      bottom: 26%;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-auto-rows: min-content;
+      align-content: start;
+      justify-items: center;
+      gap: 10px 6px;
+      overflow: auto;
+      pointer-events: auto;
+      scrollbar-width: none;
+    }
+    .tools-grid::-webkit-scrollbar { display: none; }
+    .tools-tile {
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 96px;
+      filter: drop-shadow(0 2px 3px rgba(61, 52, 40, 0.14));
+      transition: transform 0.18s var(--ease);
+      padding: 4px 2px;
+      pointer-events: auto;
+    }
+    .tools-tile:hover { transform: scale(1.06) rotate(-3deg); }
+    .tools-tile:active { transform: scale(0.96); }
+    .tools-tile img {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+      display: block;
+      pointer-events: none;
+    }
+    .tools-tile .tools-tile-label {
+      font-family: var(--font-hand);
+      font-size: 0.95rem;
+      color: var(--ink);
+      margin-top: -4px;
+      line-height: 1;
+    }
+
+    #view-ledger.active {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
       display: flex;
       flex-direction: column;
       min-height: 0;
@@ -1567,9 +1689,9 @@
         </svg>
       </div>
 
-      <button type="button" class="settings-fox-btn ledger-fox-btn" id="ledger-fox-btn" aria-label="记账">
+      <button type="button" class="settings-fox-btn tools-fox-btn" id="tools-fox-btn" aria-label="工具">
         <img src="images/stickers/fox-deco-transparent.png" width="80" height="80" alt="" decoding="async" />
-        <span class="settings-label">记账</span>
+        <span class="settings-label">工具</span>
       </button>
 
       <button type="button" class="settings-fox-btn" id="settings-fox-btn" aria-label="设置">
@@ -1737,6 +1859,24 @@
           </div>
         </section>
 
+        <section class="view" id="view-tools">
+          <header class="panel-head" id="tools-header" tabindex="0" role="button" aria-label="返回">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6 L9 12 L15 18" /></svg>
+          </header>
+          <div class="tools-board-wrap" id="tools-scroll">
+            <img class="tools-board" src="images/stickers/tools-board.png" width="575" height="1024" alt="" decoding="async" />
+            <div class="tools-board-stage" aria-hidden="false">
+              <div class="tools-grid" id="tools-grid">
+                <button type="button" class="tools-tile" id="tools-ledger-btn" aria-label="记账">
+                  <img src="images/stickers/fox-deco-transparent.png" width="72" height="72" alt="" decoding="async" />
+                  <span class="tools-tile-label">记账</span>
+                </button>
+              </div>
+              <div class="tools-title-stamp" aria-hidden="true">工具</div>
+            </div>
+          </div>
+        </section>
+
         <section class="view" id="view-ledger">
           <header class="panel-head panel-head--corner-title" id="ledger-header" tabindex="0" role="button" aria-label="返回">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6 L9 12 L15 18" /></svg>
@@ -1842,8 +1982,11 @@
       detailView: document.getElementById("view-detail"),
       settingsView: document.getElementById("view-settings"),
       settingsFoxBtn: document.getElementById("settings-fox-btn"),
+      toolsView: document.getElementById("view-tools"),
+      toolsFoxBtn: document.getElementById("tools-fox-btn"),
+      toolsLedgerBtn: document.getElementById("tools-ledger-btn"),
       ledgerView: document.getElementById("view-ledger"),
-      ledgerFoxBtn: document.getElementById("ledger-fox-btn"),
+      ledgerFoxBtn: null,
       ledgerBalance: document.getElementById("ledger-balance"),
       ledgerIncome: document.getElementById("ledger-income"),
       ledgerExpense: document.getElementById("ledger-expense"),
@@ -1931,15 +2074,16 @@
       els.addView.classList.toggle("active", name === "add");
       els.detailView.classList.toggle("active", name === "detail");
       els.settingsView.classList.toggle("active", name === "settings");
+      if (els.toolsView) els.toolsView.classList.toggle("active", name === "tools");
       if (els.ledgerView) els.ledgerView.classList.toggle("active", name === "ledger");
       const onList = name === "list";
       if (els.settingsFoxBtn) {
         els.settingsFoxBtn.hidden = !onList;
         els.settingsFoxBtn.style.pointerEvents = onList ? "" : "none";
       }
-      if (els.ledgerFoxBtn) {
-        els.ledgerFoxBtn.hidden = !onList;
-        els.ledgerFoxBtn.style.pointerEvents = onList ? "" : "none";
+      if (els.toolsFoxBtn) {
+        els.toolsFoxBtn.hidden = !onList;
+        els.toolsFoxBtn.style.pointerEvents = onList ? "" : "none";
       }
     }
 
@@ -1995,7 +2139,7 @@
       root.style.setProperty("--muted", theme.muted);
       root.style.setProperty("--tape-teal", theme.accent);
       const paper = uiPrefs.paperType || "grid";
-      [els.spread, els.detailView, els.settingsView, els.ledgerView, els.addView].forEach((node) => {
+      [els.spread, els.detailView, els.settingsView, els.toolsView, els.ledgerView, els.addView].forEach((node) => {
         if (node) node.dataset.paper = paper;
       });
       if (els.brightnessVeil) {
@@ -2047,6 +2191,11 @@
     function openSettings() {
       applyUiPrefs();
       showView("settings");
+    }
+
+    function openTools() {
+      applyUiPrefs();
+      showView("tools");
     }
 
     const LEDGER_KEY = "notesketch-scrapbook-ledger-v1";
@@ -2722,9 +2871,11 @@
       showView("list");
     });
     bindBack(document.getElementById("settings-header"), () => showView("list"));
-    bindBack(document.getElementById("ledger-header"), () => showView("list"));
+    bindBack(document.getElementById("tools-header"), () => showView("list"));
+    bindBack(document.getElementById("ledger-header"), () => showView("tools"));
     els.settingsFoxBtn.addEventListener("click", openSettings);
-    if (els.ledgerFoxBtn) els.ledgerFoxBtn.addEventListener("click", openLedger);
+    if (els.toolsFoxBtn) els.toolsFoxBtn.addEventListener("click", openTools);
+    if (els.toolsLedgerBtn) els.toolsLedgerBtn.addEventListener("click", openLedger);
     if (els.ledgerTagBtn) {
       els.ledgerTagBtn.addEventListener("click", (e) => {
         e.stopPropagation();
