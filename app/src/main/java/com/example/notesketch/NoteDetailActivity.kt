@@ -111,10 +111,8 @@ class NoteDetailActivity : AppCompatActivity() {
         ThemeUi.colorTexts(
             theme.ink,
             binding.tvHeader,
-            binding.tvTitle,
             binding.tvTimelineTitle
         )
-        ThemeUi.colorTexts(theme.muted, binding.tvContent)
         ThemeUi.colorLines(0x737A6F62, binding.rule1)
         applyNotePaperColor()
     }
@@ -127,6 +125,14 @@ class NoteDetailActivity : AppCompatActivity() {
             setColor(fill)
             setStroke((2 * d).toInt().coerceAtLeast(1), 0x403D3428)
         }
+        val ink = ThemeUi.contrastText(fill)
+        val muted = ThemeUi.contrastMuted(fill)
+        binding.tvTitle.setTextColor(ink)
+        binding.tvContent.setTextColor(muted)
+        binding.etTitle.setTextColor(ink)
+        binding.etTitle.setHintTextColor(muted)
+        binding.etContent.setTextColor(ink)
+        binding.etContent.setHintTextColor(muted)
     }
 
     private fun loadNote(noteId: Long) {
@@ -188,12 +194,13 @@ class NoteDetailActivity : AppCompatActivity() {
             val selected = preset.id == selectedColorId
             val chip = TextView(this).apply {
                 text = preset.label
-                setTextColor(if (selected) pageTheme.surface else pageTheme.ink)
+                val fill = if (selected) pageTheme.accent else preset.surface
+                setTextColor(ThemeUi.contrastText(fill))
                 textSize = 11f
                 gravity = Gravity.CENTER
                 setPadding((8 * d).toInt(), (5 * d).toInt(), (8 * d).toInt(), (5 * d).toInt())
                 background = GradientDrawable().apply {
-                    setColor(if (selected) pageTheme.accent else preset.surface)
+                    setColor(fill)
                     setStroke(
                         (1.5f * d).toInt().coerceAtLeast(1),
                         if (selected) pageTheme.accent else preset.line

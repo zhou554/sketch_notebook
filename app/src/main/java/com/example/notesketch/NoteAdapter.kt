@@ -38,13 +38,14 @@ class NoteAdapter(
             val due = DateUtil.isDue(note.nextReviewTime, note.finished)
             val ctx = root.context
             val density = ctx.resources.displayMetrics.density
-            val pageTheme = UiPrefs.theme(ctx)
             val fill = UiPrefs.stickerColor(note.colorId)
+            val ink = ThemeUi.contrastText(fill)
+            val muted = ThemeUi.contrastMuted(fill)
 
-            tvTitle.setTextColor(pageTheme.ink)
-            tvContent.setTextColor(pageTheme.muted)
-            tvReview.setTextColor(if (due) pageTheme.due else pageTheme.muted)
-            btnDelete.setTextColor(pageTheme.muted)
+            tvTitle.setTextColor(ink)
+            tvContent.setTextColor(muted)
+            tvReview.setTextColor(if (due) UiPrefs.theme(ctx).due else muted)
+            btnDelete.setTextColor(muted)
 
             stickerCard.background = GradientDrawable().apply {
                 setColor(fill)

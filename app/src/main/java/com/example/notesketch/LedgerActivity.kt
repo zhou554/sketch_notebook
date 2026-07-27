@@ -84,34 +84,34 @@ class LedgerActivity : AppCompatActivity() {
         ThemeUi.applyScrapbook(this, binding.paperBg)
         binding.root.setBackgroundColor(theme.bg)
         binding.contentPanel.setBackgroundColor(Color.TRANSPARENT)
+        val card = ThemeUi.stickerPanelColor(theme)
+        val cardInk = ThemeUi.contrastText(card)
+        val cardMuted = ThemeUi.contrastMuted(card)
         ThemeUi.colorTexts(
             theme.ink,
             binding.tvHeader,
             binding.sectionAdd,
             binding.sectionList,
-            binding.tvBalance,
-            binding.labelBalance,
-            binding.tvSaveLabel,
-            binding.btnTag
+            binding.tvSaveLabel
         )
         ThemeUi.colorTexts(
             theme.muted,
             binding.btnBack,
-            binding.labelIncome,
-            binding.labelExpense,
             binding.emptyView
         )
+        ThemeUi.colorTexts(cardInk, binding.tvBalance, binding.labelBalance, binding.btnTag)
+        ThemeUi.colorTexts(cardMuted, binding.labelIncome, binding.labelExpense)
         ThemeUi.colorTexts(theme.accent, binding.tvIncome)
         ThemeUi.colorTexts(theme.due, binding.tvExpense)
-        binding.etAmount.setTextColor(theme.ink)
-        binding.etAmount.setHintTextColor(theme.muted)
-        binding.etMemo.setTextColor(theme.ink)
-        binding.etMemo.setHintTextColor(theme.muted)
+        binding.etAmount.setTextColor(cardInk)
+        binding.etAmount.setHintTextColor(cardMuted)
+        binding.etMemo.setTextColor(cardInk)
+        binding.etMemo.setHintTextColor(cardMuted)
         ThemeUi.colorLines(0x597A6F62, binding.headerLine)
         val d = resources.displayMetrics.density
         val inkGreen = Color.parseColor("#3D5C4A")
         binding.summaryCard.background = GradientDrawable().apply {
-            setColor(theme.surface)
+            setColor(card)
             setStroke((2 * d).toInt().coerceAtLeast(1), 0x403D3428)
         }
         val fill = Color.parseColor("#FFFEF8")
@@ -155,7 +155,7 @@ class LedgerActivity : AppCompatActivity() {
         d: Float,
         left: Boolean
     ) {
-        tv.setTextColor(if (on) Color.parseColor("#FFFEF8") else theme.ink)
+        tv.setTextColor(if (on) Color.parseColor("#FFFEF8") else ThemeUi.contrastText(Color.parseColor("#FFFEF8")))
         val r = 999 * d
         val radii = if (left) {
             floatArrayOf(r, r, 0f, 0f, 0f, 0f, r, r)

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/patrick_hand"
+        android:text="自定义背景色"
+        android:textColor="@color/ink"
+        android:textSize="20sp" />
+
+    <com.example.notesketch.ColorPickerView
+        android:id="@+id/colorPicker"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp" />
+
+    <View
+        android:id="@+id/previewSwatch"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:layout_marginTop="12dp"
+        android:background="@color/cream" />
+
+    <EditText
+        android:id="@+id/etColorName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:background="@android:color/transparent"
+        android:fontFamily="@font/patrick_hand"
+        android:hint="颜色名称，例如：秋日暖沙"
+        android:importantForAutofill="no"
+        android:inputType="text"
+        android:maxLength="16"
+        android:paddingVertical="8dp"
+        android:textColor="@color/ink"
+        android:textColorHint="#8C7A6F62"
+        android:textSize="16sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:orientation="horizontal"
+        android:paddingTop="8dp">
+
+        <TextView
+            android:id="@+id/btnCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/patrick_hand"
+            android:padding="12dp"
+            android:text="取消"
+            android:textColor="@color/muted"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/btnSaveColor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/patrick_hand"
+            android:padding="12dp"
+            android:text="保存并应用"
+            android:textColor="@color/ink"
+            android:textSize="16sp" />
+    </LinearLayout>
+</LinearLayout>

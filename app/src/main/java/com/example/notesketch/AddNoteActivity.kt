@@ -71,12 +71,14 @@ class AddNoteActivity : AppCompatActivity() {
         binding.paperBg.pattern = UiPrefs.paperType(this)
         binding.root.setBackgroundColor(sticker.surface)
         binding.contentPanel.setBackgroundColor(android.graphics.Color.TRANSPARENT)
-        ThemeUi.colorTexts(pageTheme.ink, binding.labelColor)
-        ThemeUi.colorTexts(pageTheme.muted, binding.tvHeader)
-        binding.etTitle.setTextColor(pageTheme.ink)
-        binding.etTitle.setHintTextColor(pageTheme.muted)
-        binding.etContent.setTextColor(pageTheme.ink)
-        binding.etContent.setHintTextColor(pageTheme.muted)
+        ThemeUi.colorTexts(ThemeUi.contrastMuted(sticker.surface), binding.labelColor)
+        ThemeUi.colorTexts(ThemeUi.contrastMuted(sticker.surface), binding.tvHeader)
+        val ink = ThemeUi.contrastText(sticker.surface)
+        val muted = ThemeUi.contrastMuted(sticker.surface)
+        binding.etTitle.setTextColor(ink)
+        binding.etTitle.setHintTextColor(muted)
+        binding.etContent.setTextColor(ink)
+        binding.etContent.setHintTextColor(muted)
         ThemeUi.colorLines(0x597A6F62, binding.headerLine)
     }
 
@@ -88,12 +90,13 @@ class AddNoteActivity : AppCompatActivity() {
             val selected = preset.id == selectedColorId
             val chip = TextView(this).apply {
                 text = preset.label
-                setTextColor(if (selected) pageTheme.surface else pageTheme.ink)
+                val fill = if (selected) pageTheme.accent else preset.surface
+                setTextColor(ThemeUi.contrastText(fill))
                 textSize = 12f
                 gravity = Gravity.CENTER
                 setPadding((10 * d).toInt(), (6 * d).toInt(), (10 * d).toInt(), (6 * d).toInt())
                 background = GradientDrawable().apply {
-                    setColor(if (selected) pageTheme.accent else preset.surface)
+                    setColor(fill)
                     setStroke(
                         (2 * d).toInt().coerceAtLeast(1),
                         if (selected) pageTheme.accent else preset.line

@@ -33,10 +33,13 @@ class LedgerAdapter(
         with(holder.binding) {
             val kind = if (entry.isExpense) "支出" else "收入"
             tvCategory.text = "${entry.category} · $kind"
-            tvCategory.setTextColor(theme.ink)
+            val fill = ThemeUi.stickerPanelColor(theme)
+            val ink = ThemeUi.contrastText(fill)
+            val muted = ThemeUi.contrastMuted(fill)
+            tvCategory.setTextColor(ink)
             val time = fmt.format(Date(entry.createdAt))
             tvMemo.text = if (entry.memo.isNotBlank()) "${entry.memo} · $time" else time
-            tvMemo.setTextColor(theme.muted)
+            tvMemo.setTextColor(muted)
             tvTime.visibility = View.GONE
             val yuan = entry.amountCents / 100.0
             tvAmount.text = if (entry.isExpense) {
@@ -45,10 +48,10 @@ class LedgerAdapter(
                 String.format(Locale.CHINA, "+¥%.2f", yuan)
             }
             tvAmount.setTextColor(if (entry.isExpense) theme.due else theme.accent)
-            btnDelete.setTextColor(theme.muted)
+            btnDelete.setTextColor(muted)
             btnDelete.setOnClickListener { onDelete(entry) }
             rowCard.background = GradientDrawable().apply {
-                setColor(theme.surface)
+                setColor(fill)
                 setStroke((2 * d).toInt().coerceAtLeast(1), 0x403D3428)
             }
         }

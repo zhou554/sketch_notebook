@@ -2,6 +2,7 @@ package com.example.notesketch
 
 import android.app.Activity
 import android.content.res.ColorStateList
+import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.view.Gravity
 import android.view.View
@@ -9,17 +10,36 @@ import android.view.WindowManager
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.graphics.ColorUtils
 import androidx.core.view.WindowCompat
 import com.google.android.material.button.MaterialButton
 
 object ThemeUi {
+
+    private val inkDark = Color.parseColor("#3D3428")
+    private val inkLight = Color.parseColor("#F4EFE6")
+    private val mutedDark = Color.parseColor("#7A6F62")
+    private val mutedLight = Color.parseColor("#D2C6B8")
+
+    /** 按底色亮度选可读字色，避免深色主题 ink 画在浅色芯片上发虚。 */
+    fun contrastText(background: Int): Int =
+        if (ColorUtils.calculateLuminance(background) < 0.45) inkLight else inkDark
+
+    fun contrastMuted(background: Int): Int =
+        if (ColorUtils.calculateLuminance(background) < 0.45) mutedLight else mutedDark
+
+    /** 深色纸页上的浅色贴纸底，保证便签/卡片始终可读。 */
+    fun stickerPanelColor(theme: ThemePalette): Int =
+        if (ColorUtils.calculateLuminance(theme.bg) < 0.45) Color.parseColor("#FFFEF8")
+        else theme.surface
 
     fun applyWindow(activity: Activity, theme: ThemePalette) {
         val window = activity.window
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
         window.statusBarColor = theme.bg
         window.navigationBarColor = theme.bg
-        WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = true
+        WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars =
+            ColorUtils.calculateLuminance(theme.bg) >= 0.45
     }
 
     fun setPanel(panel: View, theme: ThemePalette, opacity: Int) {
@@ -62,13 +82,14 @@ object ThemeUi {
 
     fun themeChip(activity: Activity, theme: ThemePalette, selected: Boolean): TextView {
         val d = activity.resources.displayMetrics.density
+        val fill = if (selected) theme.accent else theme.surface
         return TextView(activity).apply {
             text = theme.label
-            setTextColor(if (selected) theme.surface else theme.ink)
+            setTextColor(contrastText(fill))
             textSize = 12f
             setPadding((12 * d).toInt(), (8 * d).toInt(), (12 * d).toInt(), (8 * d).toInt())
             background = GradientDrawable().apply {
-                setColor(if (selected) theme.accent else theme.surface)
+                setColor(fill)
                 setStroke((1 * d).toInt().coerceAtLeast(1), theme.line)
             }
             layoutParams = LinearLayout.LayoutParams(
@@ -84,14 +105,19 @@ object ThemeUi {
 
     fun patternChip(activity: Activity, pattern: PaperPattern, selected: Boolean, theme: ThemePalette): TextView {
         val d = activity.resources.displayMetrics.density
+        // 未选中用浅色纸片底，避免深色主题 surface 把芯片字色带偏
+        val fill = if (selected) theme.accent else Color.parseColor("#FFFEF8")
         return TextView(activity).apply {
             text = pattern.label
-            setTextColor(if (selected) theme.surface else theme.ink)
+            setTextColor(contrastText(fill))
             textSize = 13f
             setPadding((14 * d).toInt(), (8 * d).toInt(), (14 * d).toInt(), (8 * d).toInt())
             background = GradientDrawable().apply {
-                setColor(if (selected) theme.accent else theme.surface)
-                setStroke((1 * d).toInt().coerceAtLeast(1), theme.line)
+                setColor(fill)
+                setStroke(
+                    (1 * d).toInt().coerceAtLeast(1),
+                    if (selected) theme.accent else Color.parseColor("#483D3428")
+                )
             }
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,

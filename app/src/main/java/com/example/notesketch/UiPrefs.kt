@@ -3,6 +3,9 @@ package com.example.notesketch
 import android.content.Context
 import android.graphics.Color
 import androidx.core.graphics.ColorUtils
+import org.json.JSONArray
+import org.json.JSONObject
+import java.util.UUID
 
 data class ThemePalette(
     val id: String,
@@ -13,11 +16,75 @@ data class ThemePalette(
     val muted: Int,
     val line: Int,
     val accent: Int,
-    val due: Int
+    val due: Int,
+    val custom: Boolean = false
 ) {
     fun surfaceWithAlpha(opacityPercent: Int): Int {
         val a = (opacityPercent.coerceIn(20, 100) * 255 / 100)
         return ColorUtils.setAlphaComponent(surface, a)
+    }
+
+    companion object {
+        fun fromCustomBg(id: String, label: String, bg: Int): ThemePalette {
+            val hsl = FloatArray(3)
+            ColorUtils.colorToHSL(bg, hsl)
+            val dark = ColorUtils.calculateLuminance(bg) < 0.45
+            val surface = if (dark) {
+                ColorUtils.HSLToColor(
+                    floatArrayOf(
+                        hsl[0],
+                        (hsl[1] * 0.45f).coerceIn(0f, 1f),
+                        (hsl[2] + 0.1f).coerceIn(0.16f, 0.38f)
+                    )
+                )
+            } else {
+                ColorUtils.HSLToColor(
+                    floatArrayOf(
+                        hsl[0],
+                        (hsl[1] * 0.75f).coerceIn(0f, 1f),
+                        (hsl[2] + 0.05f).coerceIn(0.86f, 0.98f)
+                    )
+                )
+            }
+            val line = if (dark) {
+                ColorUtils.HSLToColor(
+                    floatArrayOf(
+                        hsl[0],
+                        (hsl[1] * 0.3f).coerceIn(0f, 1f),
+                        (hsl[2] + 0.18f).coerceIn(0.28f, 0.55f)
+                    )
+                )
+            } else {
+                ColorUtils.HSLToColor(
+                    floatArrayOf(
+                        hsl[0],
+                        (hsl[1] * 0.35f).coerceIn(0f, 1f),
+                        (hsl[2] - 0.14f).coerceIn(0.55f, 0.9f)
+                    )
+                )
+            }
+            val accent = ColorUtils.HSLToColor(
+                floatArrayOf(
+                    hsl[0],
+                    (hsl[1] + 0.22f).coerceIn(0.28f, 1f),
+                    if (dark) 0.48f else 0.42f
+                )
+            )
+            val ink = if (dark) Color.parseColor("#F4EFE6") else Color.parseColor("#3D3428")
+            val muted = if (dark) Color.parseColor("#D2C6B8") else Color.parseColor("#7A6F62")
+            return ThemePalette(
+                id = id,
+                label = label,
+                bg = bg,
+                surface = surface,
+                ink = ink,
+                muted = muted,
+                line = line,
+                accent = accent,
+                due = Color.parseColor("#B03A32"),
+                custom = true
+            )
+        }
     }
 }
 
@@ -30,8 +97,10 @@ object UiPrefs {
     private const val KEY_THEME = "theme_id"
     private const val KEY_BRIGHTNESS = "page_brightness"
     private const val KEY_PAPER_TYPE = "paper_type"
+    private const val KEY_CUSTOM_THEMES = "custom_themes_json"
+    private const val KEY_HIDDEN_THEMES = "hidden_theme_ids"
+    private const val MAX_CUSTOM = 12
 
-    /** 拼贴手账森林狐狸主题（对齐 scrapbook-forest-fox-ui.html） */
     val themes = listOf(
         ThemePalette(
             id = "forest",
@@ -97,26 +166,110 @@ object UiPrefs {
         PaperPattern.DOTS
     )
 
+    fun customThemes(context: Context): List<ThemePalette> {
+        val raw = prefs(context).getString(KEY_CUSTOM_THEMES, "[]") ?: "[]"
+        return try {
+            val arr = JSONArray(raw)
+            buildList {
+                for (i in 0 until arr.length()) {
+                    val o = arr.getJSONObject(i)
+                    add(
+                        ThemePalette.fromCustomBg(
+                            o.getString("id"),
+                            o.getString("label"),
+                            o.getInt("bg")
+                        )
+                    )
+                }
+            }
+        } catch (_: Exception) {
+            emptyList()
+        }
+    }
+
+    fun hiddenThemeIds(context: Context): Set<String> {
+        val raw = prefs(context).getString(KEY_HIDDEN_THEMES, "") ?: ""
+        if (raw.isBlank()) return emptySet()
+        return raw.split(',').map { it.trim() }.filter { it.isNotEmpty() }.toSet()
+    }
+
+    fun allThemes(context: Context): List<ThemePalette> {
+        val hidden = hiddenThemeIds(context)
+        return themes.filterNot { it.id in hidden } + customThemes(context)
+    }
+
     fun theme(context: Context): ThemePalette {
         val id = prefs(context).getString(KEY_THEME, "forest") ?: "forest"
-        return themes.firstOrNull { it.id == id }
-            ?: themes.firstOrNull { it.id == "forest" }
+        return allThemes(context).firstOrNull { it.id == id }
+            ?: allThemes(context).firstOrNull()
             ?: themes.first()
     }
+
+    fun themeById(context: Context, id: String): ThemePalette =
+        customThemes(context).firstOrNull { it.id == id }
+            ?: themes.firstOrNull { it.id == id }
+            ?: themes.firstOrNull { it.id == "parchment" }
+            ?: themes.first()
 
     fun themeById(id: String): ThemePalette =
         themes.firstOrNull { it.id == id }
             ?: themes.firstOrNull { it.id == "parchment" }
             ?: themes.first()
 
-    /** 便签贴纸 / 编辑区底色 */
+    fun stickerColor(context: Context, colorId: String): Int =
+        themeById(context, colorId).surface
+
     fun stickerColor(colorId: String): Int = themeById(colorId).surface
 
     fun setTheme(context: Context, id: String) {
         prefs(context).edit().putString(KEY_THEME, id).apply()
     }
 
-    /** 页面亮度 30–100，默认 100 */
+    fun addCustomTheme(context: Context, label: String, bg: Int): ThemePalette? {
+        val list = customThemes(context).toMutableList()
+        if (list.size >= MAX_CUSTOM) return null
+        val name = label.trim().ifEmpty { "自定义色" }.take(16)
+        val palette = ThemePalette.fromCustomBg("custom_${UUID.randomUUID()}", name, bg)
+        list.add(palette)
+        saveCustomThemes(context, list)
+        return palette
+    }
+
+    /** 删除任意背景色：自定义色移除；预设色隐藏。至少保留 1 个。 */
+    fun removeTheme(context: Context, id: String): Boolean {
+        val remaining = allThemes(context).filterNot { it.id == id }
+        if (remaining.isEmpty()) return false
+        val target = allThemes(context).firstOrNull { it.id == id } ?: return false
+        if (target.custom) {
+            saveCustomThemes(context, customThemes(context).filterNot { it.id == id })
+        } else {
+            val hidden = hiddenThemeIds(context).toMutableSet()
+            hidden.add(id)
+            prefs(context).edit().putString(KEY_HIDDEN_THEMES, hidden.joinToString(",")).apply()
+        }
+        if ((prefs(context).getString(KEY_THEME, "forest") ?: "forest") == id) {
+            setTheme(context, remaining.first().id)
+        }
+        return true
+    }
+
+    fun removeCustomTheme(context: Context, id: String) {
+        removeTheme(context, id)
+    }
+
+    private fun saveCustomThemes(context: Context, list: List<ThemePalette>) {
+        val arr = JSONArray()
+        list.forEach { t ->
+            arr.put(
+                JSONObject()
+                    .put("id", t.id)
+                    .put("label", t.label)
+                    .put("bg", t.bg)
+            )
+        }
+        prefs(context).edit().putString(KEY_CUSTOM_THEMES, arr.toString()).apply()
+    }
+
     fun brightness(context: Context) = prefs(context).getInt(KEY_BRIGHTNESS, 100).coerceIn(30, 100)
 
     fun setBrightness(context: Context, v: Int) =
