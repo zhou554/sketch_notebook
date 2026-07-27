@@ -1,12 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="bg">#FFFFFF</color>
-    <color name="ink">#1C1C1C</color>
-    <color name="text_primary">#1C1C1C</color>
-    <color name="text_secondary">#8A8A8A</color>
-    <color name="line">#E6E6E6</color>
-    <color name="due">#B33A3A</color>
-    <color name="primary">#1C1C1C</color>
-    <color name="primary_dark">#1C1C1C</color>
+    <!-- scrapbook-forest-fox-ui.html -->
+    <color name="cream">#F6F0E4</color>
+    <color name="grid">#DDD5C8</color>
+    <color name="bg">#F6F0E4</color>
+    <color name="ink">#3D3428</color>
+    <color name="text_primary">#3D3428</color>
+    <color name="text_secondary">#7A6F62</color>
+    <color name="muted">#7A6F62</color>
+    <color name="wood">#5C4030</color>
+    <color name="wood_light">#7A5844</color>
+    <color name="tape_teal">#7AAB9E</color>
+    <color name="tape_orange">#E8A56A</color>
+    <color name="fox">#C45C2A</color>
+    <color name="due">#B03A32</color>
+    <color name="sticker_yellow">#FFF3C4</color>
+    <color name="sticker_pink">#FFE4EC</color>
+    <color name="line">#DDD5C8</color>
+    <color name="line_faint">#E8E0D4</color>
+    <color name="accent">#7AAB9E</color>
+    <color name="accent_soft">#337AAB9E</color>
+    <color name="primary">#5C4030</color>
+    <color name="primary_dark">#3D2818</color>
     <color name="white">#FFFFFF</color>
+    <color name="surface_solid">#FFFEF8</color>
+    <color name="shell_scrim">#E0F6F0E4</color>
+    <color name="surface">#FFFEF8</color>
+    <color name="desk">#3A2E26</color>
 </resources>

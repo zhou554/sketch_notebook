@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "motion-ref": {
+      "source": "joepUI/motion-ref-skill",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "15443796887b162b2973145aad17506ce3c11eb3e4a643abefd5a9c05bd76cfc"
+    },
+    "ui-design-brain": {
+      "source": "carmahhawwari/ui-design-brain",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "a51816925376721c7bd63cf8ff97905146f596e481c3c7598bfa0722ca75b1f4"
+    }
+  }
+}

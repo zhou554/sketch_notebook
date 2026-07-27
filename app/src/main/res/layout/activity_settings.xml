@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/cream">
+
+    <com.example.notesketch.ScrapbookPaperView
+        android:id="@+id/paperBg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <ScrollView
+        android:id="@+id/contentPanel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:overScrollMode="never"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="28dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp"
+                android:paddingTop="40dp"
+                android:paddingBottom="14dp">
+
+                <TextView
+                    android:id="@+id/btnBack"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/patrick_hand"
+                    android:gravity="center_vertical"
+                    android:minHeight="44dp"
+                    android:paddingEnd="12dp"
+                    android:text="‹ 返回"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/tvHeader"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/patrick_hand"
+                    android:gravity="end"
+                    android:text="设置"
+                    android:textSize="22sp" />
+            </LinearLayout>
+
+            <View
+                android:id="@+id/headerLine"
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginHorizontal="16dp"
+                android:background="#597A6F62" />
+
+            <!-- 页面亮度 -->
+            <TextView
+                android:id="@+id/sectionBrightness"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/patrick_hand"
+                android:paddingHorizontal="20dp"
+                android:paddingTop="20dp"
+                android:text="页面亮度"
+                android:textSize="18sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp"
+                android:paddingTop="6dp">
+
+                <SeekBar
+                    android:id="@+id/seekBrightness"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:max="70"
+                    android:progress="70" />
+
+                <TextView
+                    android:id="@+id/valBrightness"
+                    android:layout_width="48dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/patrick_hand"
+                    android:gravity="end"
+                    android:text="100"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/labelBrightness"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/patrick_hand"
+                android:paddingHorizontal="20dp"
+                android:paddingTop="2dp"
+                android:text="调节手账页显示明暗"
+                android:textSize="13sp" />
+
+            <!-- 背景颜色 -->
+            <TextView
+                android:id="@+id/sectionLook"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/patrick_hand"
+                android:paddingHorizontal="20dp"
+                android:paddingTop="22dp"
+                android:text="背景颜色"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/labelTheme"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/patrick_hand"
+                android:paddingHorizontal="20dp"
+                android:paddingTop="4dp"
+                android:text="选择纸张底色"
+                android:textSize="13sp" />
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingVertical="10dp"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:id="@+id/themeRow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="16dp" />
+            </HorizontalScrollView>
+
+            <!-- 背景类型 -->
+            <TextView
+                android:id="@+id/sectionPaper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/patrick_hand"
+                android:paddingHorizontal="20dp"
+                android:paddingTop="12dp"
+                android:text="背景类型"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/labelPaper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/patrick_hand"
+                android:paddingHorizontal="20dp"
+                android:paddingTop="4dp"
+                android:text="网格 · 空白 · 横线 · 网点"
+                android:textSize="13sp" />
+
+            <LinearLayout
+                android:id="@+id/paperTypeRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp"
+                android:paddingTop="10dp" />
+
+            <TextView
+                android:id="@+id/hintOpacity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/patrick_hand"
+                android:paddingHorizontal="20dp"
+                android:paddingTop="20dp"
+                android:text="点主页右上角狐狸头可打开此页"
+                android:textSize="15sp" />
+
+            <!-- 保留旧控件 id，避免残留 binding 引用崩溃 -->
+            <SeekBar
+                android:id="@+id/seekOpacity"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone" />
+            <TextView
+                android:id="@+id/valOpacity"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone" />
+            <TextView
+                android:id="@+id/labelOpacity"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone" />
+            <TextView
+                android:id="@+id/sectionSea"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone" />
+            <SeekBar
+                android:id="@+id/seekSeaHeight"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone" />
+            <TextView
+                android:id="@+id/valSeaHeight"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone" />
+            <TextView
+                android:id="@+id/labelSeaHeight"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone" />
+            <SeekBar
+                android:id="@+id/seekSeaAmp"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone" />
+            <TextView
+                android:id="@+id/valSeaAmp"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone" />
+            <TextView
+                android:id="@+id/labelSeaAmp"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone" />
+            <SeekBar
+                android:id="@+id/seekShell"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone" />
+            <TextView
+                android:id="@+id/valShell"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone" />
+            <TextView
+                android:id="@+id/labelShell"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone" />
+            <TextView
+                android:id="@+id/hintShell"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone" />
+        </LinearLayout>
+    </ScrollView>
+</FrameLayout>

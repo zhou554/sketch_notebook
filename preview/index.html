@@ -1,115 +1,2781 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>记忆笔记 · UI 预览</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@500&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="./app.css" />
-  </head>
-  <body>
-    <div class="page">
-      <aside class="panel">
-        <p class="panel-eyebrow">NoteSketch Preview</p>
-        <h1>记忆笔记<br />功能与界面预览</h1>
-        <p class="panel-lead">
-          右侧手机框复刻当前 Android App 的黑白极简 UI 与交互：列表、新建、详情与艾宾浩斯时间线。
-        </p>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>记忆笔记 · 拼贴手账 · 森林狐狸</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=IBM+Plex+Mono:wght@400&family=Noto+Sans+SC:wght@400;500&family=Patrick+Hand&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --cream: #f6f0e4;
+      --grid: #ddd5c8;
+      --ink: #3d3428;
+      --muted: #7a6f62;
+      --wood: #5c4030;
+      --wood-light: #7a5844;
+      --tape-teal: #7aab9e;
+      --tape-orange: #e8a56a;
+      --fox: #c45c2a;
+      --due: #b03a32;
+      --sticker-yellow: #fff3c4;
+      --sticker-pink: #ffe4ec;
+      --font-hand: "Patrick Hand", "Caveat", cursive;
+      --font-sans: "Noto Sans SC", system-ui, sans-serif;
+      --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+      --spread-w: 390px;
+      --phone-ratio-w: 9;
+      --phone-ratio-h: 16;
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
 
-        <div class="sync-card">
-          <strong>与 App 同步</strong>
-          <p>
-            改动 App 的界面、文案或复习逻辑后，请同步更新
-            <code>preview/</code> 目录（尤其是
-            <code>app-model.js</code>）。Cursor 规则会提醒 Agent 一起改。
-          </p>
-          <div class="sync-meta" id="sync-meta"></div>
-        </div>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        <ul class="feature-list">
-          <li>
-            <span class="num">01</span>
-            <span>笔记列表：待复习标红、按下次复习时间排序、删除</span>
-          </li>
-          <li>
-            <span class="num">02</span>
-            <span>新建笔记：标题必填，保存后安排第 1 天复习</span>
-          </li>
-          <li>
-            <span class="num">03</span>
-            <span>复习详情：6 节点时间线，仅当前阶段可勾选</span>
-          </li>
-          <li>
-            <span class="num">04</span>
-            <span>间隔：第 1 / 2 / 4 / 7 / 15 / 30 天</span>
-          </li>
-        </ul>
+    /* Hide all scrollbars inside the phone mock / app; keep scroll working */
+    .spread,
+    .spread *,
+    .desk,
+    .desk * {
+      scrollbar-width: none !important;
+      -ms-overflow-style: none !important;
+    }
 
-        <p class="hint">
-          本地打开：双击 <code>preview/index.html</code>，或在本目录执行
-          <code>npx --yes serve .</code>
-        </p>
-      </aside>
+    .spread::-webkit-scrollbar,
+    .spread *::-webkit-scrollbar,
+    .desk::-webkit-scrollbar,
+    .desk *::-webkit-scrollbar {
+      width: 0 !important;
+      height: 0 !important;
+      display: none !important;
+      background: transparent !important;
+    }
 
-      <div class="phone-wrap">
-        <div class="phone" aria-label="记忆笔记 App 预览">
-          <div class="phone-notch" aria-hidden="true"></div>
-          <div class="screen">
-            <!-- 列表 -->
-            <section class="view active" id="view-list" aria-label="笔记列表">
-              <header class="app-header" id="main-header">记忆笔记</header>
-              <div class="list-body">
-                <div class="empty-state" id="empty-state"></div>
-                <div id="note-list"></div>
-              </div>
-              <button type="button" class="fab" id="fab-add" aria-label="添加笔记">
-                +
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition-duration: 0.01ms !important; }
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: var(--font-sans);
+      font-size: 15px;
+      color: var(--ink);
+      line-height: 1.5;
+      background: #3a2e26;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px 12px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .desk {
+      width: min(var(--spread-w), 100%);
+      padding: 14px;
+      background: linear-gradient(145deg, #4a3828 0%, #3a2e26 100%);
+      border-radius: 4px;
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
+    }
+
+    .spread {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: min(
+        calc(var(--spread-w) * var(--phone-ratio-h) / var(--phone-ratio-w)),
+        calc(100vh - 32px)
+      );
+      max-height: min(
+        calc(var(--spread-w) * var(--phone-ratio-h) / var(--phone-ratio-w)),
+        calc(100vh - 32px)
+      );
+      min-height: 0;
+      background-color: var(--cream);
+      background-image:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+      background-size: 18px 18px;
+      overflow: hidden;
+      border: 2px solid rgba(92, 64, 48, 0.25);
+    }
+
+    .collage-deco {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .tape {
+      position: absolute;
+      opacity: 0.88;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+    }
+
+    .tape-v {
+      width: 28px;
+      height: 110px;
+      top: 48px;
+      left: 6px;
+      background: repeating-linear-gradient(
+        180deg,
+        var(--tape-orange),
+        var(--tape-orange) 8px,
+        rgba(255, 255, 255, 0.35) 8px,
+        rgba(255, 255, 255, 0.35) 10px
+      );
+      transform: rotate(-4deg);
+    }
+
+    .tape-h {
+      width: 100px;
+      height: 22px;
+      top: 12px;
+      right: 56px;
+      background: var(--tape-teal);
+      transform: rotate(2deg);
+      border-radius: 1px;
+    }
+
+    .tape-h::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 1px);
+      background-size: 6px 6px;
+    }
+
+    .ribbon {
+      position: absolute;
+      top: 28px;
+      left: 50%;
+      transform: translateX(-50%) rotate(-0.8deg);
+      z-index: 2;
+      padding: 8px 36px 10px;
+      background: var(--tape-orange);
+      color: var(--ink);
+      font-family: var(--font-hand);
+      font-size: 1.45rem;
+      letter-spacing: 0.06em;
+      box-shadow: 0 2px 0 rgba(92, 64, 48, 0.2);
+      clip-path: polygon(8% 0, 92% 0, 100% 50%, 92% 100%, 8% 100%, 0 50%);
+    }
+
+    .settings-fox-btn {
+      position: absolute;
+      top: 2px;
+      right: 0;
+      z-index: 14;
+      width: auto;
+      height: auto;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      filter: drop-shadow(0 1px 3px rgba(61, 52, 40, 0.2));
+      transition: transform 0.18s var(--ease);
+    }
+    .settings-fox-btn[hidden] {
+      display: none !important;
+    }
+    .settings-fox-btn.ledger-fox-btn {
+      right: auto;
+      left: 0;
+    }
+    .settings-fox-btn.ledger-fox-btn img {
+      transform: scaleX(-1);
+    }
+    .settings-fox-btn:hover { transform: scale(1.06) rotate(4deg); }
+    .settings-fox-btn.ledger-fox-btn:hover { transform: scale(1.06) rotate(-4deg); }
+    .settings-fox-btn:active { transform: scale(0.96); }
+    .settings-fox-btn img {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      display: block;
+      pointer-events: none;
+    }
+    .settings-fox-btn .settings-label {
+      display: block;
+      font-family: var(--font-hand);
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-align: center;
+      margin-top: -10px;
+      line-height: 1;
+      position: relative;
+      z-index: 1;
+      letter-spacing: 0.04em;
+    }
+
+    .ledger-summary {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      padding: 12px;
+      background: #fffef8;
+      border: 2px solid rgba(61, 52, 40, 0.22);
+      outline: 2px solid #fff;
+    }
+    .ledger-summary > div {
+      flex: 1;
+      text-align: center;
+    }
+    .ledger-summary .lab {
+      font-family: var(--font-hand);
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .ledger-summary .val {
+      font-family: var(--font-hand);
+      font-size: 1.15rem;
+      color: var(--ink);
+    }
+    .ledger-summary .val.income { color: var(--tape-teal); }
+    .ledger-summary .val.expense { color: var(--due); }
+    .ledger-form .amount-row {
+      display: flex;
+      align-items: stretch;
+      gap: 8px;
+      margin: 8px 0 4px;
+      position: relative;
+    }
+    .ledger-form .amount-input {
+      flex: 1 1 auto;
+      min-width: 0;
+      width: auto;
+      height: 30px;
+      box-sizing: border-box;
+      border: 1.5px solid #3d5c4a;
+      border-radius: 999px;
+      background: #fffef8;
+      font-family: var(--font-hand);
+      font-size: 1rem;
+      color: var(--ink);
+      outline: none;
+      padding: 0 14px;
+      margin: 0;
+      text-align: center;
+      line-height: 1;
+    }
+    .ledger-form .amount-input::placeholder {
+      color: var(--muted);
+      text-align: center;
+    }
+    .ledger-tag-btn {
+      flex: 0 0 auto;
+      min-width: 3.8em;
+      max-width: 5.2em;
+      height: 30px;
+      border: 1.5px solid #3d5c4a;
+      border-radius: 999px;
+      background: #fffef8;
+      font-family: var(--font-hand);
+      font-size: 0.95rem;
+      color: var(--ink);
+      padding: 0 12px;
+      cursor: pointer;
+      line-height: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .ledger-tag-btn:hover {
+      background: color-mix(in srgb, var(--tape-teal) 16%, #fffef8);
+    }
+    .ledger-tag-menu {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: calc(100% + 4px);
+      z-index: 8;
+      min-width: 7.5em;
+      max-height: 220px;
+      overflow-y: auto;
+      padding: 4px;
+      border: 1.5px solid #3d5c4a;
+      border-radius: 12px;
+      background: #fffef8;
+      font-family: var(--font-hand);
+      box-shadow: 0 4px 12px rgba(61, 52, 40, 0.12);
+    }
+    .ledger-tag-menu.open { display: block; }
+    .ledger-tag-menu button {
+      display: block;
+      width: 100%;
+      border: none;
+      background: transparent;
+      font-family: var(--font-hand);
+      font-size: 0.95rem;
+      color: var(--ink);
+      text-align: left;
+      padding: 6px 10px;
+      cursor: pointer;
+      border-radius: 8px;
+    }
+    .ledger-tag-menu button:hover,
+    .ledger-tag-menu button.is-on {
+      background: var(--tape-teal);
+      color: #fffef8;
+    }
+    .ledger-type-row {
+      display: inline-grid;
+      grid-template-columns: 1fr 1fr;
+      width: 8.6em;
+      height: 28px;
+      margin-top: 6px;
+      border: 1.5px solid #3d5c4a;
+      border-radius: 999px;
+      overflow: hidden;
+      box-sizing: border-box;
+      background: #fffef8;
+    }
+    .ledger-type-row button {
+      width: 100%;
+      min-width: 0;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      border: none;
+      border-radius: 0;
+      background: transparent;
+      font-family: var(--font-hand);
+      font-size: 0.95rem;
+      color: var(--ink);
+      cursor: pointer;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      writing-mode: horizontal-tb;
+      text-orientation: mixed;
+    }
+    .ledger-type-row button + button {
+      border-left: 1.5px solid #3d5c4a;
+    }
+    .ledger-type-row button.is-on {
+      background: linear-gradient(180deg, #8bb8ab 0%, var(--tape-teal) 55%, #5f9084 100%);
+      color: #fffef8;
+      text-shadow: 0 1px 0 rgba(61, 52, 40, 0.18);
+    }
+    .ledger-form .memo-input {
+      display: none;
+      width: 100%;
+      box-sizing: border-box;
+      height: 30px;
+      margin: 6px 0 2px;
+      border: 1.5px solid #3d5c4a;
+      border-radius: 999px;
+      background: #fffef8;
+      font-family: var(--font-hand);
+      font-size: 0.95rem;
+      color: var(--ink);
+      outline: none;
+      padding: 0 14px;
+      text-align: left;
+      line-height: 1;
+    }
+    .ledger-form .memo-input.show {
+      display: block;
+    }
+    .ledger-form .memo-input::placeholder {
+      color: var(--muted);
+    }
+    .ledger-add-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 6px;
+      padding: 2px 4px 2px 0;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      filter: drop-shadow(0 1px 2px rgba(61, 52, 40, 0.18));
+      transition: transform 0.18s var(--ease);
+    }
+    .ledger-add-btn:hover { transform: scale(1.05) rotate(-3deg); }
+    .ledger-add-btn:active { transform: scale(0.96); }
+    .ledger-add-btn img {
+      width: 88px;
+      height: 88px;
+      object-fit: contain;
+      display: block;
+      pointer-events: none;
+    }
+    .ledger-add-btn .save-label {
+      font-family: var(--font-hand);
+      font-size: 1rem;
+      color: var(--ink);
+      line-height: 1;
+      letter-spacing: 0.04em;
+    }
+    .ledger-list {
+      list-style: none;
+      margin-top: 8px;
+      padding: 0;
+    }
+    .ledger-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      background: #fffef8;
+      border: 2px solid rgba(61, 52, 40, 0.2);
+    }
+    .ledger-item .meta {
+      flex: 1;
+      min-width: 0;
+    }
+    .ledger-item .cat {
+      font-family: var(--font-hand);
+      font-size: 1rem;
+      color: var(--ink);
+    }
+    .ledger-item .sub {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .ledger-item .amt {
+      font-family: var(--font-hand);
+      font-size: 1.05rem;
+      white-space: nowrap;
+    }
+    .ledger-item .amt.out { color: var(--due); }
+    .ledger-item .amt.in { color: var(--tape-teal); }
+    .ledger-empty {
+      font-family: var(--font-hand);
+      color: var(--muted);
+      text-align: center;
+      padding: 20px 8px;
+    }
+
+    .spread[data-paper="blank"],
+    #view-detail[data-paper="blank"],
+    #view-settings[data-paper="blank"],
+    #view-ledger[data-paper="blank"],
+    #view-add[data-paper="blank"] {
+      background-image: none !important;
+    }
+    .spread[data-paper="lined"],
+    #view-detail[data-paper="lined"],
+    #view-settings[data-paper="lined"],
+    #view-ledger[data-paper="lined"],
+    #view-add[data-paper="lined"] {
+      background-image: linear-gradient(var(--grid) 1px, transparent 1px) !important;
+      background-size: 100% 18px !important;
+    }
+    .spread[data-paper="grid"],
+    #view-detail[data-paper="grid"],
+    #view-settings[data-paper="grid"],
+    #view-ledger[data-paper="grid"],
+    #view-add[data-paper="grid"] {
+      background-image:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px) !important;
+      background-size: 18px 18px !important;
+    }
+    .spread[data-paper="dots"],
+    #view-detail[data-paper="dots"],
+    #view-settings[data-paper="dots"],
+    #view-ledger[data-paper="dots"],
+    #view-add[data-paper="dots"] {
+      background-image: radial-gradient(circle, var(--grid) 1.1px, transparent 1.2px) !important;
+      background-size: 14px 14px !important;
+    }
+
+    .brightness-veil {
+      position: absolute;
+      inset: 0;
+      z-index: 20;
+      pointer-events: none;
+      background: #1a120c;
+      opacity: 0;
+      transition: opacity 0.2s var(--ease);
+    }
+
+    .side-board {
+      position: absolute;
+      top: 100px;
+      right: 8px;
+      width: 52px;
+      padding: 12px 6px;
+      background: linear-gradient(180deg, var(--wood-light), var(--wood));
+      border: 2px solid #3d2818;
+      border-radius: 3px;
+      box-shadow: 2px 3px 0 rgba(0, 0, 0, 0.15);
+      transform: rotate(1.5deg);
+      z-index: 1;
+    }
+
+    .side-board p {
+      font-family: var(--font-hand);
+      font-size: 0.85rem;
+      color: #f6e8dc;
+      text-align: center;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+
+    .side-board .days {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .side-board .days span {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: #ffe8d4;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 2px 6px;
+      border-radius: 2px;
+    }
+
+    .scatter {
+      position: absolute;
+      color: var(--muted);
+      opacity: 0.45;
+    }
+
+    .scatter-1 { top: 200px; left: 24px; width: 20px; }
+    .scatter-2 { top: 320px; right: 68px; width: 16px; }
+    .scatter-3 { bottom: 140px; left: 40px; width: 18px; }
+
+    .side-fox {
+      position: absolute;
+      z-index: 2;
+      width: clamp(56px, 18vw, 72px);
+      height: auto;
+      opacity: 0.9;
+      pointer-events: none;
+      user-select: none;
+      filter: drop-shadow(0 2px 5px rgba(61, 52, 40, 0.14));
+    }
+
+    .side-fox--left {
+      left: 4px;
+      top: 36%;
+      transform: rotate(-10deg);
+    }
+
+    .side-fox--right {
+      right: 58px;
+      top: 54%;
+      transform: rotate(8deg) scaleX(-1);
+    }
+
+    .side-fox--left-alt {
+      left: 8px;
+      top: 62%;
+      width: clamp(44px, 14vw, 56px);
+      opacity: 0.72;
+      transform: rotate(6deg);
+    }
+
+    .side-fox--right-alt {
+      right: 64px;
+      top: 28%;
+      width: clamp(44px, 14vw, 56px);
+      opacity: 0.72;
+      transform: rotate(-6deg) scaleX(-1);
+    }
+
+    .forest-peep {
+      position: absolute;
+      z-index: 2;
+      bottom: 0;
+      width: 46%;
+      height: 21%;
+      max-height: 118px;
+      overflow: hidden;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .forest-peep--left {
+      left: 0;
+    }
+
+    .forest-peep--right {
+      right: 0;
+    }
+
+    .forest-peep img {
+      position: absolute;
+      bottom: 0;
+      height: 100%;
+      width: auto;
+      max-width: none;
+      opacity: 0.88;
+      filter: drop-shadow(0 -1px 4px rgba(45, 70, 55, 0.08));
+    }
+
+    .forest-peep--left img {
+      left: 0;
+    }
+
+    .forest-peep--right img {
+      right: 0;
+    }
+
+    .app-layer {
+      position: relative;
+      z-index: 3;
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .view {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      min-height: 0;
+      animation: viewIn 0.35s var(--ease);
+    }
+
+    .view.active { display: flex; }
+
+    @keyframes viewIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    #view-list {
+      background: transparent;
+      overflow: hidden;
+    }
+
+    #view-list.active {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #view-add.active {
+      position: absolute;
+      inset: 0;
+      z-index: 8;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      background-color: var(--add-paper, var(--cream));
+      background-image:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+      background-size: 18px 18px;
+      box-shadow:
+        inset 0 0 0 2px rgba(61, 52, 40, 0.08),
+        inset 0 0 0 6px rgba(255, 255, 255, 0.45);
+    }
+
+    #view-detail.active {
+      position: absolute;
+      inset: 0;
+      z-index: 8;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+      background-color: var(--cream);
+      background-image:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+      background-size: 18px 18px;
+    }
+
+    #view-settings.active {
+      position: absolute;
+      inset: 0;
+      z-index: 9;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+      background-color: var(--cream);
+      background-image:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+      background-size: 18px 18px;
+    }
+
+    #view-ledger.active {
+      position: absolute;
+      inset: 0;
+      z-index: 9;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+      background-color: var(--cream);
+      background-image:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+      background-size: 18px 18px;
+    }
+
+    .settings-block {
+      margin-bottom: 22px;
+    }
+    .settings-block h3 {
+      font-family: var(--font-hand);
+      font-size: 1.2rem;
+      color: var(--ink);
+    }
+    .settings-block .sub {
+      font-family: var(--font-hand);
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-top: 2px;
+      margin-bottom: 10px;
+    }
+    .settings-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .settings-row input[type="range"] {
+      flex: 1;
+      accent-color: var(--tape-teal);
+    }
+    .settings-val {
+      font-family: var(--font-hand);
+      min-width: 2.2em;
+      text-align: right;
+      color: var(--ink);
+    }
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .set-chip {
+      font-family: var(--font-hand);
+      font-size: 0.95rem;
+      border: 1.5px solid rgba(61, 52, 40, 0.28);
+      background: #fffef8;
+      color: var(--ink);
+      padding: 6px 12px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .set-chip.is-on {
+      background: var(--tape-teal);
+      border-color: var(--tape-teal);
+      color: #fff;
+    }
+    .set-chip.color-swatch {
+      min-width: 4.5em;
+    }
+
+    .detail-bloom-corner {
+      position: absolute;
+      right: -36px;
+      bottom: -28px;
+      width: clamp(140px, 40%, 170px);
+      height: auto;
+      z-index: 6;
+      pointer-events: none;
+      user-select: none;
+      opacity: 0.9;
+      transform-origin: 100% 100%;
+      transform: rotate(18deg);
+      filter: drop-shadow(0 2px 6px rgba(61, 52, 40, 0.12));
+    }
+
+    .add-back {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      padding: 52px 16px 8px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      color: var(--ink);
+      font: inherit;
+      text-align: left;
+    }
+
+    .add-back-label {
+      font-family: var(--font-hand);
+      font-size: 1.05rem;
+      color: var(--muted);
+    }
+
+    .add-back svg {
+      width: 22px;
+      height: 22px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.4;
+      flex-shrink: 0;
+    }
+
+    .add-editor {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 0 20px 28px 24px;
+    }
+
+    .add-editor__title {
+      flex-shrink: 0;
+      width: 100%;
+      border: none;
+      border-bottom: 2px dashed rgba(122, 111, 98, 0.35);
+      background: transparent;
+      font-family: var(--font-hand);
+      font-size: clamp(1.35rem, 4vw, 1.65rem);
+      color: var(--ink);
+      padding: 4px 2px 12px;
+      outline: none;
+    }
+
+    .add-editor__title:focus {
+      border-bottom-color: var(--tape-teal);
+    }
+
+    .add-editor__title::placeholder {
+      color: rgba(122, 111, 98, 0.55);
+    }
+
+    .add-editor__body {
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      margin-top: 12px;
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      font-size: 15px;
+      line-height: 1.65;
+      color: var(--ink);
+      padding: 4px 2px;
+      resize: none;
+      outline: none;
+      overflow-y: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .add-editor__body::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+
+    .add-editor__body::placeholder {
+      color: rgba(122, 111, 98, 0.5);
+    }
+
+    #view-add .field-hint {
+      position: absolute;
+      left: 24px;
+      bottom: 16px;
+      right: 24px;
+      margin: 0;
+    }
+
+    .journal-frame {
+      flex: 1;
+      min-height: 0;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      margin: 88px 10px 10px;
+      border: 2px solid rgba(92, 64, 48, 0.22);
+      border-radius: 12px;
+      background: transparent;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+      overflow: hidden;
+    }
+
+    .journal-foot {
+      flex-shrink: 0;
+      display: flex;
+      justify-content: center;
+      padding: 2px 8px 10px;
+      background: transparent;
+      z-index: 12;
+    }
+
+    .scrollbar-hidden {
+      scrollbar-width: none !important;
+      -ms-overflow-style: none !important;
+    }
+
+    .scrollbar-hidden::-webkit-scrollbar {
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
+    }
+
+    .list-scroll {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 10px 24px 12px;
+      background: transparent;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      scroll-behavior: smooth;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .list-scroll::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+
+    .list-scroll.is-pulling .pull-hint {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .pull-hint {
+      position: sticky;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      margin-top: 8px;
+      padding: 8px 12px;
+      text-align: center;
+      font-family: var(--font-hand);
+      font-size: 1rem;
+      color: var(--muted);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.15s, transform 0.15s;
+      pointer-events: none;
+    }
+
+    .pull-hint.ready {
+      color: var(--fox);
+    }
+
+    #note-list {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      padding: 4px 4px 8px;
+    }
+
+    .empty {
+      display: none;
+      text-align: center;
+      padding: 32px 16px;
+      font-family: var(--font-hand);
+      font-size: 14px;
+      color: var(--muted);
+      white-space: pre-line;
+      line-height: 1.6;
+    }
+
+    .empty.show { display: block; }
+
+    .note-sticker {
+      display: block;
+      width: calc(100% - 4px);
+      max-width: 100%;
+      text-align: left;
+      font: inherit;
+      color: inherit;
+      cursor: pointer;
+      border: 2px solid rgba(61, 52, 40, 0.32);
+      padding: 14px 14px 12px;
+      margin-bottom: 12px;
+      position: relative;
+      flex-shrink: 0;
+      scroll-snap-align: none;
+      background: var(--sticker-yellow);
+      box-shadow:
+        1px 2px 0 rgba(255, 255, 255, 0.85) inset,
+        2px 5px 0 rgba(61, 52, 40, 0.1),
+        0 8px 20px rgba(61, 52, 40, 0.14);
+      outline: 2px solid rgba(255, 255, 255, 0.92);
+      outline-offset: -1px;
+      transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
+    }
+
+    .note-sticker:nth-child(even) {
+      background: var(--sticker-yellow);
+    }
+
+    .add-color-block {
+      flex-shrink: 0;
+      padding: 0 20px 12px 24px;
+    }
+    .add-color-block .sub {
+      font-family: var(--font-hand);
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .note-sticker:hover {
+      box-shadow:
+        1px 2px 0 rgba(255, 255, 255, 0.85) inset,
+        3px 6px 0 rgba(61, 52, 40, 0.12),
+        0 14px 28px rgba(61, 52, 40, 0.18);
+    }
+
+    .note-sticker.note-sticker--new {
+      animation: noteLand 0.45s var(--ease);
+    }
+
+    @keyframes noteLand {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .note-sticker:focus-visible {
+      outline: 3px solid var(--tape-teal);
+      outline-offset: 2px;
+    }
+
+    .note-sticker h3 {
+      font-family: var(--font-hand);
+      font-size: 1.25rem;
+    }
+
+    .note-sticker .preview {
+      margin-top: 6px;
+      font-size: 13px;
+      color: var(--muted);
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .note-sticker .meta {
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .note-sticker .when {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .note-sticker .when.due { color: var(--due); font-weight: 500; }
+
+    .btn-tear {
+      font-family: var(--font-hand);
+      font-size: 1rem;
+      border: 1px dashed var(--muted);
+      background: rgba(255, 255, 255, 0.4);
+      padding: 2px 8px;
+      cursor: pointer;
+      color: var(--muted);
+    }
+
+    .btn-tear:hover { color: var(--ink); border-color: var(--ink); }
+
+    .fab-fox {
+      position: relative;
+      left: auto;
+      bottom: auto;
+      transform: none;
+      z-index: 12;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      padding: 0;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12));
+      transition: transform 0.2s var(--ease);
+      pointer-events: auto;
+    }
+
+    .fab-fox .sticker-wrap {
+      display: block;
+      padding: 0;
+      background: transparent;
+    }
+
+    .fab-fox img {
+      width: 52px;
+      height: auto;
+      display: block;
+      object-fit: contain;
+    }
+
+    .fab-fox:hover { transform: translateY(-3px) scale(1.03); }
+    .fab-fox:active { transform: scale(0.98); }
+
+    .fab-fox:focus-visible {
+      outline: 2px solid var(--tape-teal);
+      outline-offset: 4px;
+    }
+
+    .fab-fox .fab-label {
+      display: block;
+      font-family: var(--font-hand);
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 2px;
+    }
+
+    .panel-head h2 {
+      font-family: var(--font-hand);
+      font-size: 1.4rem;
+    }
+
+    .panel-head .panel-sub {
+      font-family: var(--font-hand);
+      font-size: 0.95rem;
+      color: var(--muted);
+      font-weight: normal;
+      margin-top: 2px;
+    }
+
+    .panel-head {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 56px 16px 12px;
+      cursor: pointer;
+    }
+
+    .panel-head:hover { color: var(--wood); }
+
+    .panel-head svg {
+      width: 22px;
+      height: 22px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.4;
+      flex-shrink: 0;
+    }
+
+    .panel-head-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-head.panel-head--corner-title {
+      justify-content: space-between;
+    }
+
+    .panel-head .panel-corner-title {
+      margin-left: auto;
+      font-family: var(--font-hand);
+      font-size: 1.35rem;
+      font-weight: normal;
+      color: var(--ink);
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .panel-scroll {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 8px 56px 24px 20px;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+    }
+
+    .panel-scroll::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+
+    .form-sticker {
+      background: var(--sticker-yellow);
+      border: 2px solid rgba(61, 52, 40, 0.3);
+      outline: 3px solid #fff;
+      padding: 16px;
+      filter: drop-shadow(2px 3px 0 rgba(61, 52, 40, 0.1));
+      transform: rotate(-0.4deg);
+    }
+
+    .field-label {
+      font-family: var(--font-hand);
+      font-size: 1.15rem;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .field-label + .field-label { margin-top: 14px; }
+
+    .field {
+      width: 100%;
+      border: none;
+      border-bottom: 2px dashed rgba(122, 111, 98, 0.5);
+      background: transparent;
+      font-size: 15px;
+      font-family: inherit;
+      padding: 8px 4px;
+      outline: none;
+    }
+
+    .field:focus { border-bottom-color: var(--tape-teal); }
+
+    .field-area {
+      min-height: 160px;
+      resize: none;
+      overflow-y: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .field-area::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+
+    .btn-save {
+      margin: 16px 20px 24px;
+      align-self: flex-start;
+      padding: 10px 24px;
+      font-family: var(--font-hand);
+      font-size: 1.15rem;
+      border: 2px solid var(--ink);
+      background: #fff;
+      cursor: pointer;
+      transform: rotate(-0.5deg);
+      filter: drop-shadow(2px 2px 0 rgba(0,0,0,0.08));
+    }
+
+    .btn-save:hover {
+      background: var(--tape-teal);
+      border-color: var(--tape-teal);
+      color: #fff;
+    }
+
+    .detail-paper {
+      height: 340px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: #fffef8;
+      border: 2px solid rgba(61, 52, 40, 0.25);
+      outline: 3px solid #fff;
+      padding: 16px;
+      filter: drop-shadow(2px 4px 0 rgba(61, 52, 40, 0.1));
+      cursor: text;
+    }
+
+    .detail-paper h3 {
+      font-family: var(--font-hand);
+      font-size: 1.35rem;
+      flex-shrink: 0;
+    }
+
+    .detail-view {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .detail-body {
+      flex: 1;
+      min-height: 0;
+      margin-top: 12px;
+      color: var(--muted);
+      white-space: pre-wrap;
+      word-break: break-word;
+      line-height: 1.6;
+      overflow-x: hidden;
+      overflow-y: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .detail-body::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+
+    .detail-edit-hint {
+      flex-shrink: 0;
+      margin-top: 10px;
+      font-family: var(--font-hand);
+      font-size: 0.9rem;
+      color: rgba(122, 111, 98, 0.6);
+    }
+
+    .detail-paper.is-editing .detail-view { display: none; }
+    .detail-paper.is-editing .detail-edit { display: flex; }
+    .detail-edit {
+      display: none;
+      flex: 1;
+      min-height: 0;
+      flex-direction: column;
+      gap: 8px;
+      overflow: hidden;
+    }
+    .detail-edit input,
+    .detail-edit-body {
+      width: 100%;
+      border: none;
+      background: transparent;
+      font: inherit;
+      color: var(--ink);
+      outline: none;
+    }
+    .detail-edit input {
+      flex-shrink: 0;
+      font-family: var(--font-hand);
+      font-size: 1.35rem;
+      border-bottom: 2px dashed rgba(122, 111, 98, 0.35);
+      padding-bottom: 8px;
+    }
+    .detail-edit-body {
+      flex: 1;
+      min-height: 0;
+      color: var(--muted);
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-x: hidden;
+      overflow-y: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .detail-edit-body::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+    .detail-edit-body:empty::before {
+      content: attr(data-placeholder);
+      color: rgba(122, 111, 98, 0.45);
+      pointer-events: none;
+    }
+    .detail-save {
+      flex-shrink: 0;
+      align-self: flex-start;
+      margin-top: 2px;
+      border: 0;
+      background: transparent;
+      padding: 0;
+      cursor: pointer;
+      line-height: 0;
+      filter: drop-shadow(0 1px 3px rgba(61, 52, 40, 0.16));
+      transition: transform 0.18s var(--ease);
+    }
+    .detail-save:hover {
+      transform: scale(1.06) rotate(-4deg);
+    }
+    .detail-save:active {
+      transform: scale(0.96);
+    }
+    .detail-save img {
+      width: 96px;
+      height: 96px;
+      object-fit: contain;
+      display: block;
+      pointer-events: none;
+    }
+
+    .timeline-block {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 2px dotted rgba(122, 111, 98, 0.45);
+    }
+
+    .timeline-block h4 {
+      font-family: var(--font-hand);
+      font-size: 0.95rem;
+    }
+
+    .timeline-block .hint {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .ebbing-axis {
+      position: relative;
+      margin-top: 18px;
+      padding: 8px 4px 28px;
+      user-select: none;
+      overflow: visible;
+    }
+    .ebbing-boxes {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      padding: 0 2px;
+    }
+    .ebbing-box {
+      width: 18px;
+      height: 18px;
+      border: 1.6px solid #c4b8a8;
+      border-radius: 3px;
+      background: rgba(255,255,255,0.7);
+      cursor: default;
+      padding: 0;
+      appearance: none;
+      position: relative;
+    }
+    .ebbing-box.done {
+      background: var(--tape-teal);
+      border-color: #5c8f82;
+    }
+    .ebbing-box.done::after {
+      content: "";
+      position: absolute;
+      left: 4px; top: 2px;
+      width: 5px; height: 9px;
+      border: solid #fff;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+    .ebbing-box.current {
+      border-color: #6a9fd4;
+      background: #fff;
+      cursor: pointer;
+    }
+    .ebbing-box:disabled:not(.done):not(.current) { opacity: 0.55; }
+
+    .ebbing-track {
+      position: relative;
+      height: 10px;
+      border-radius: 999px;
+      background: #e8e2d8;
+      margin: 10px 6px 0;
+      overflow: visible;
+    }
+    .ebbing-fill {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #c9b8f0 0%, #8bb4e8 55%, #6a9fd4 100%);
+    }
+    .ebbing-fox {
+      position: absolute;
+      top: 50%;
+      width: 80px;
+      height: 80px;
+      margin-top: -40px;
+      margin-left: -40px;
+      left: 0%;
+      object-fit: contain;
+      filter: drop-shadow(0 1px 3px rgba(61,52,40,0.18));
+      pointer-events: none;
+      transition: left 0.35s var(--ease);
+      z-index: 2;
+    }
+    .ebbing-ticks {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      justify-content: space-between;
+      pointer-events: none;
+    }
+    .ebbing-ticks span {
+      width: 2px;
+      height: 14px;
+      margin-top: -2px;
+      background: #b8aea0;
+    }
+    .ebbing-days {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+      padding: 0 2px;
+    }
+    .ebbing-days span {
+      width: 28px;
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--ink);
+      line-height: 1.2;
+    }
+    .ebbing-days small {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .field-hint {
+      margin: 8px 20px 0 56px;
+      font-family: var(--font-hand);
+      font-size: 1rem;
+      color: var(--due);
+      min-height: 1.25em;
+      visibility: hidden;
+    }
+
+    .field-hint.show { visibility: visible; }
+
+    @media (max-width: 400px) {
+      .side-board { width: 44px; right: 4px; }
+      .list-scroll { padding: 10px 44px 12px 24px; }
+      .panel-scroll { padding-right: 52px; }
+      .ribbon { font-size: 1.25rem; padding-inline: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="desk">
+    <div class="spread" aria-label="记忆笔记手账页" data-paper="grid">
+      <div class="brightness-veil" id="brightness-veil" aria-hidden="true"></div>
+      <div class="collage-deco" aria-hidden="true">
+        <div class="tape tape-v"></div>
+        <div class="tape tape-h"></div>
+        <div class="ribbon" id="ribbon-title">记忆笔记</div>
+        <aside class="side-board">
+          <p>复习<br />间隔</p>
+          <div class="days" id="interval-days"></div>
+        </aside>
+        <svg class="scatter scatter-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+          <path d="M12 2 C8 10 4 14 12 22 C20 14 16 10 12 2 Z" />
+        </svg>
+        <svg class="scatter scatter-2" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1">
+          <ellipse cx="10" cy="12" rx="5" ry="6" /><path d="M10 6 L10 2" />
+        </svg>
+        <svg class="scatter scatter-3" viewBox="0 0 24 16" fill="none" stroke="currentColor" stroke-width="1">
+          <path d="M4 8 Q12 2 20 8" stroke-dasharray="2 3" />
+        </svg>
+      </div>
+
+      <button type="button" class="settings-fox-btn ledger-fox-btn" id="ledger-fox-btn" aria-label="记账">
+        <img src="images/stickers/fox-deco-transparent.png" width="80" height="80" alt="" decoding="async" />
+        <span class="settings-label">记账</span>
+      </button>
+
+      <button type="button" class="settings-fox-btn" id="settings-fox-btn" aria-label="设置">
+        <img src="images/stickers/fox-deco-transparent.png" width="80" height="80" alt="" decoding="async" />
+        <span class="settings-label">设置</span>
+      </button>
+
+      <img
+        class="side-fox side-fox--left"
+        src="images/stickers/fox-deco-transparent.png"
+        width="72"
+        height="72"
+        alt=""
+        decoding="async"
+      />
+      <img
+        class="side-fox side-fox--right"
+        src="images/stickers/fox-deco-transparent.png"
+        width="72"
+        height="72"
+        alt=""
+        decoding="async"
+      />
+      <img
+        class="side-fox side-fox--left-alt"
+        src="images/stickers/fox-deco-transparent.png"
+        width="56"
+        height="56"
+        alt=""
+        decoding="async"
+      />
+      <img
+        class="side-fox side-fox--right-alt"
+        src="images/stickers/fox-deco-transparent.png"
+        width="56"
+        height="56"
+        alt=""
+        decoding="async"
+      />
+      <div class="forest-peep forest-peep--left" aria-hidden="true">
+        <img src="images/stickers/forest-deco-transparent.png" alt="" decoding="async" />
+      </div>
+      <div class="forest-peep forest-peep--right" aria-hidden="true">
+        <img src="images/stickers/forest-deco-transparent.png" alt="" decoding="async" />
+      </div>
+
+      <div class="app-layer">
+        <section class="view active" id="view-list">
+          <div class="journal-frame">
+            <div class="list-scroll scrollbar-hidden" id="list-scroll">
+              <div class="empty" id="empty-state"></div>
+              <div id="note-list"></div>
+              <p class="pull-hint" id="pull-hint" aria-hidden="true">滑到底后，继续上拉并按住片刻</p>
+            </div>
+            <div class="journal-foot">
+              <button type="button" class="fab-fox" id="fab-fox" aria-label="新建笔记">
+                <span class="sticker-wrap">
+                  <img src="images/stickers/fox-sticker-transparent.png" width="52" height="52" alt="" />
+                </span>
+                <span class="fab-label">新建</span>
               </button>
-            </section>
-
-            <!-- 新建 -->
-            <section class="view" id="view-add" aria-label="新建笔记">
-              <header class="app-header" id="add-header">新建笔记</header>
-              <div class="form-scroll">
-                <input
-                  class="field"
-                  id="input-title"
-                  type="text"
-                  maxlength="80"
-                  autocomplete="off"
-                />
-                <textarea class="field field-body" id="input-content" rows="8"></textarea>
-              </div>
-              <button type="button" class="btn-save" id="btn-save">保存</button>
-            </section>
-
-            <!-- 详情 -->
-            <section class="view" id="view-detail" aria-label="复习详情">
-              <header class="app-header" id="detail-header">复习详情</header>
-              <div class="detail-scroll">
-                <div class="detail-title" id="detail-title"></div>
-                <hr class="detail-rule" />
-                <div class="detail-body" id="detail-body"></div>
-                <hr class="detail-rule spaced" />
-                <div class="timeline-title" id="timeline-title"></div>
-                <p class="timeline-helper" id="timeline-helper"></p>
-                <ul class="timeline-list" id="timeline-list"></ul>
-              </div>
-            </section>
-
-            <div class="toast" id="toast" role="status"></div>
+            </div>
           </div>
-        </div>
-        <p class="phone-caption">点击「新建笔记 / 复习详情」标题可返回列表</p>
+        </section>
+
+        <section class="view" id="view-add">
+          <button type="button" class="add-back" id="add-header" aria-label="返回并保存">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6 L9 12 L15 18" /></svg>
+            <span class="add-back-label">返回</span>
+          </button>
+          <div class="add-editor">
+            <input
+              class="add-editor__title"
+              id="input-title"
+              type="text"
+              maxlength="80"
+              autocomplete="off"
+              aria-label="标题"
+            />
+            <textarea
+              class="add-editor__body scrollbar-hidden"
+              id="input-content"
+              aria-label="内容"
+            ></textarea>
+          </div>
+          <div class="add-color-block">
+            <p class="sub">便签颜色</p>
+            <div class="chip-row" id="add-color-row"></div>
+          </div>
+          <p class="field-hint" id="field-hint" role="alert"></p>
+        </section>
+
+        <section class="view" id="view-detail">
+          <header class="panel-head" id="detail-header" tabindex="0" role="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6 L9 12 L15 18" /></svg>
+            <div class="panel-head-text">
+              <h2>复习详情</h2>
+            </div>
+          </header>
+          <div class="panel-scroll scrollbar-hidden" id="detail-scroll">
+            <div class="detail-paper" id="detail-paper">
+              <div class="detail-view">
+                <h3 id="detail-title"></h3>
+                <div class="detail-body" id="detail-body"></div>
+                <p class="detail-edit-hint">轻触便签可再次编辑</p>
+              </div>
+              <div class="detail-edit">
+                <input id="detail-edit-title" type="text" maxlength="80" aria-label="编辑标题" />
+                <div
+                  id="detail-edit-body"
+                  class="detail-edit-body"
+                  contenteditable="true"
+                  role="textbox"
+                  aria-multiline="true"
+                  aria-label="编辑内容"
+                  data-placeholder="笔记内容…"
+                ></div>
+                <div class="chip-row" id="detail-color-row" style="margin-top:6px"></div>
+                <button type="button" class="detail-save" id="detail-save" aria-label="保存">
+                  <img src="images/stickers/fox-deco-transparent.png" width="96" height="96" alt="" decoding="async" />
+                </button>
+              </div>
+            </div>
+            <div class="timeline-block">
+              <h4 id="timeline-title">艾宾浩斯复习时间线</h4>
+              <p class="hint" id="timeline-helper" hidden></p>
+              <div class="ebbing-axis" id="ebbing-axis" aria-label="复习进度时间轴"></div>
+              <ul class="timeline-list" id="timeline-list" hidden></ul>
+            </div>
+          </div>
+          <img
+            class="detail-bloom-corner"
+            src="images/stickers/bloom-branch.png"
+            width="168"
+            height="168"
+            alt=""
+            decoding="async"
+          />
+        </section>
+
+        <section class="view" id="view-settings">
+          <header class="panel-head panel-head--corner-title" id="settings-header" tabindex="0" role="button" aria-label="返回">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6 L9 12 L15 18" /></svg>
+            <span class="panel-corner-title">设置</span>
+          </header>
+          <div class="panel-scroll scrollbar-hidden" id="settings-scroll">
+            <div class="settings-block">
+              <h3>页面亮度</h3>
+              <p class="sub">调节手账页显示明暗</p>
+              <div class="settings-row">
+                <input type="range" id="set-brightness" min="30" max="100" value="100" aria-label="页面亮度" />
+                <span class="settings-val" id="set-brightness-val">100</span>
+              </div>
+            </div>
+            <div class="settings-block">
+              <h3>背景颜色</h3>
+              <p class="sub">选择纸张底色</p>
+              <div class="chip-row" id="set-theme-row"></div>
+            </div>
+            <div class="settings-block">
+              <h3>背景类型</h3>
+              <p class="sub">网格 · 空白 · 横线 · 网点</p>
+              <div class="chip-row" id="set-paper-row"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="view-ledger">
+          <header class="panel-head panel-head--corner-title" id="ledger-header" tabindex="0" role="button" aria-label="返回">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6 L9 12 L15 18" /></svg>
+            <span class="panel-corner-title">记账</span>
+          </header>
+          <div class="panel-scroll scrollbar-hidden" id="ledger-scroll">
+            <div class="ledger-summary" id="ledger-summary">
+              <div>
+                <div class="lab">结余</div>
+                <div class="val" id="ledger-balance">¥0.00</div>
+              </div>
+              <div>
+                <div class="lab">收入</div>
+                <div class="val income" id="ledger-income">¥0.00</div>
+              </div>
+              <div>
+                <div class="lab">支出</div>
+                <div class="val expense" id="ledger-expense">¥0.00</div>
+              </div>
+            </div>
+            <div class="settings-block ledger-form">
+              <h3>记一笔</h3>
+              <div class="ledger-type-row" id="ledger-type-row">
+                <button type="button" class="is-on" data-expense="1" id="ledger-type-expense">支出</button>
+                <button type="button" data-expense="0" id="ledger-type-income">收入</button>
+              </div>
+              <div class="amount-row" id="ledger-amount-row">
+                <input class="amount-input" id="ledger-amount" type="number" min="0" step="0.01" placeholder="金额" inputmode="decimal" aria-label="金额" />
+                <button type="button" class="ledger-tag-btn" id="ledger-tag-btn" aria-haspopup="listbox" aria-expanded="false">用途</button>
+                <div class="ledger-tag-menu" id="ledger-tag-menu" role="listbox" hidden></div>
+              </div>
+              <input class="memo-input" id="ledger-memo" type="text" maxlength="40" placeholder="备注（写点什么…）" aria-label="备注" />
+              <button type="button" class="ledger-add-btn" id="ledger-add-btn" aria-label="保存">
+                <img src="images/stickers/fox-deco-transparent.png" width="88" height="88" alt="" decoding="async" />
+                <span class="save-label">保存</span>
+              </button>
+            </div>
+            <div class="settings-block">
+              <h3>流水</h3>
+              <ul class="ledger-list" id="ledger-list"></ul>
+              <p class="ledger-empty" id="ledger-empty">还没有记账<br />写下第一笔吧</p>
+            </div>
+          </div>
+        </section>
+
       </div>
     </div>
+  </div>
 
-    <script src="./app-model.js"></script>
-    <script src="./app.js"></script>
-  </body>
+  <script>
+    const NoteSketch = {
+      intervalDays: [1, 2, 4, 7, 15, 30],
+      strings: {
+        empty: "这一页还空着\n点下方狐狸，或滑到底后上拉按住\n进入新建页编辑便签",
+        pullHint: "滑到底后，继续上拉并按住片刻",
+        pullHintProgress: "继续按住…",
+        pullHintReady: "即将进入新建页…",
+        titleHint: "例如：英语单词 Unit 3",
+        contentHint: "笔记内容 / 知识点…",
+        untitled: "无标题",
+        finishedAll: "已完成全部复习",
+        due: "待复习",
+        noBody: "（无正文）",
+        delete: "撕掉",
+      },
+      stageLabel(stage) {
+        if (stage >= this.intervalDays.length) return this.strings.finishedAll;
+        return `第 ${stage + 1} 次复习 (第 ${this.intervalDays[stage]} 天)`;
+      },
+      reviewTimeFor(createdAt, stage) {
+        if (stage >= this.intervalDays.length) return -1;
+        return createdAt + this.intervalDays[stage] * 86400000;
+      },
+      formatDateTime(timeMs) {
+        if (timeMs <= 0) return "—";
+        const d = new Date(timeMs);
+        return `${String(d.getMonth() + 1).padStart(2, "0")}月${String(d.getDate()).padStart(2, "0")}日 ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+      },
+      reviewText(nextReviewTime, finished) {
+        if (finished) return this.strings.finishedAll;
+        const diff = nextReviewTime - Date.now();
+        const dayMs = 86400000;
+        if (diff <= 0) return this.strings.due;
+        if (diff < dayMs) return `下次：今天 ${this.formatDateTime(nextReviewTime)}`;
+        if (diff < 2 * dayMs) return "下次：明天";
+        return `下次：${this.formatDateTime(nextReviewTime)}`;
+      },
+      isDue(nextReviewTime, finished) {
+        return !finished && nextReviewTime <= Date.now();
+      },
+    };
+
+    const STORAGE_KEY = "notesketch-scrapbook-forest-v1";
+    let notes = loadNotes();
+    let nextId = notes.reduce((m, n) => Math.max(m, n.id), 0) + 1;
+    let currentNoteId = null;
+    let hintTimer = null;
+    let resetListPullState = () => {};
+
+    const els = {
+      listView: document.getElementById("view-list"),
+      addView: document.getElementById("view-add"),
+      detailView: document.getElementById("view-detail"),
+      settingsView: document.getElementById("view-settings"),
+      settingsFoxBtn: document.getElementById("settings-fox-btn"),
+      ledgerView: document.getElementById("view-ledger"),
+      ledgerFoxBtn: document.getElementById("ledger-fox-btn"),
+      ledgerBalance: document.getElementById("ledger-balance"),
+      ledgerIncome: document.getElementById("ledger-income"),
+      ledgerExpense: document.getElementById("ledger-expense"),
+      ledgerAmount: document.getElementById("ledger-amount"),
+      ledgerTagBtn: document.getElementById("ledger-tag-btn"),
+      ledgerTagMenu: document.getElementById("ledger-tag-menu"),
+      ledgerMemo: document.getElementById("ledger-memo"),
+      ledgerList: document.getElementById("ledger-list"),
+      ledgerEmpty: document.getElementById("ledger-empty"),
+      ledgerAddBtn: document.getElementById("ledger-add-btn"),
+      ledgerTypeExpense: document.getElementById("ledger-type-expense"),
+      ledgerTypeIncome: document.getElementById("ledger-type-income"),
+      brightnessVeil: document.getElementById("brightness-veil"),
+      setBrightness: document.getElementById("set-brightness"),
+      setBrightnessVal: document.getElementById("set-brightness-val"),
+      setThemeRow: document.getElementById("set-theme-row"),
+      setPaperRow: document.getElementById("set-paper-row"),
+      addColorRow: document.getElementById("add-color-row"),
+      detailColorRow: document.getElementById("detail-color-row"),
+      detailPaper: document.getElementById("detail-paper"),
+      detailEditTitle: document.getElementById("detail-edit-title"),
+      detailEditBody: document.getElementById("detail-edit-body"),
+      detailSave: document.getElementById("detail-save"),
+      listScroll: document.getElementById("list-scroll"),
+      pullHint: document.getElementById("pull-hint"),
+      noteList: document.getElementById("note-list"),
+      emptyState: document.getElementById("empty-state"),
+      fab: document.getElementById("fab-fox"),
+      titleInput: document.getElementById("input-title"),
+      contentInput: document.getElementById("input-content"),
+      fieldHint: document.getElementById("field-hint"),
+      detailTitle: document.getElementById("detail-title"),
+      detailBody: document.getElementById("detail-body"),
+      timelineList: document.getElementById("timeline-list"),
+      ebbingAxis: document.getElementById("ebbing-axis"),
+      spread: document.querySelector(".spread"),
+    };
+
+    function loadNotes() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) return JSON.parse(raw);
+      } catch (_) {}
+      const now = Date.now();
+      const day = 86400000;
+      const aCreated = now - 2 * day;
+      const bCreated = now - 8 * day;
+      return [
+        {
+          id: 1,
+          title: "英语单词 Unit 3",
+          content: "acquire / retain / recall — 主动回忆比反复阅读更有效。",
+          createdAt: aCreated,
+          stage: 1,
+          nextReviewTime: NoteSketch.reviewTimeFor(aCreated, 1),
+          finished: false,
+          colorId: "parchment",
+        },
+        {
+          id: 2,
+          title: "艾宾浩斯曲线要点",
+          content: "间隔重复：1、2、4、7、15、30 天六个节点。",
+          createdAt: bCreated,
+          stage: 3,
+          nextReviewTime: NoteSketch.reviewTimeFor(bCreated, 3),
+          finished: false,
+          colorId: "rose",
+        },
+      ];
+    }
+
+    function saveNotes() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+    }
+
+    function showFieldHint(msg) {
+      els.fieldHint.textContent = msg;
+      els.fieldHint.classList.add("show");
+      clearTimeout(hintTimer);
+      hintTimer = setTimeout(() => els.fieldHint.classList.remove("show"), 3200);
+    }
+
+    function showView(name) {
+      els.listView.classList.toggle("active", name === "list");
+      els.addView.classList.toggle("active", name === "add");
+      els.detailView.classList.toggle("active", name === "detail");
+      els.settingsView.classList.toggle("active", name === "settings");
+      if (els.ledgerView) els.ledgerView.classList.toggle("active", name === "ledger");
+      const onList = name === "list";
+      if (els.settingsFoxBtn) {
+        els.settingsFoxBtn.hidden = !onList;
+        els.settingsFoxBtn.style.pointerEvents = onList ? "" : "none";
+      }
+      if (els.ledgerFoxBtn) {
+        els.ledgerFoxBtn.hidden = !onList;
+        els.ledgerFoxBtn.style.pointerEvents = onList ? "" : "none";
+      }
+    }
+
+    const PREFS_KEY = "notesketch-scrapbook-prefs-v1";
+    const THEMES = [
+      { id: "forest", label: "森林狐狸", bg: "#F6F0E4", surface: "#F8F3E9", line: "#DDD5C8", ink: "#3D3428", muted: "#7A6F62", accent: "#7AAB9E" },
+      { id: "parchment", label: "羊皮纸", bg: "#F6F0E4", surface: "#FFF3C4", line: "#DDD5C8", ink: "#3D3428", muted: "#7A6F62", accent: "#E8A56A" },
+      { id: "sage", label: "苔绿", bg: "#E8F0DE", surface: "#E2EDD4", line: "#C5D0B8", ink: "#3D3428", muted: "#6F7A62", accent: "#5C7A54" },
+      { id: "rose", label: "蜜桃", bg: "#F6EDE8", surface: "#FFE4EC", line: "#E0D5C8", ink: "#3D3428", muted: "#7A6F62", accent: "#C45C2A" },
+      { id: "ink", label: "木纹", bg: "#EBE2D4", surface: "#E6D9C6", line: "#D0C0A8", ink: "#3D2818", muted: "#7A6F62", accent: "#5C4030" },
+    ];
+    const PAPER_TYPES = [
+      { id: "grid", label: "网格" },
+      { id: "blank", label: "空白" },
+      { id: "lined", label: "横线" },
+      { id: "dots", label: "网点" },
+    ];
+
+    function loadPrefs() {
+      try {
+        const raw = localStorage.getItem(PREFS_KEY);
+        if (raw) return { brightness: 100, themeId: "forest", paperType: "grid", ...JSON.parse(raw) };
+      } catch (_) {}
+      return { brightness: 100, themeId: "forest", paperType: "grid" };
+    }
+
+    let uiPrefs = loadPrefs();
+    let addColorId = uiPrefs.themeId || "parchment";
+    let detailColorId = "parchment";
+
+    function savePrefs() {
+      localStorage.setItem(PREFS_KEY, JSON.stringify(uiPrefs));
+    }
+
+    function currentTheme() {
+      return THEMES.find((t) => t.id === uiPrefs.themeId) || THEMES[0];
+    }
+
+    function themeById(id) {
+      return THEMES.find((t) => t.id === id) || THEMES.find((t) => t.id === "parchment") || THEMES[0];
+    }
+
+    function stickerSurface(id) {
+      return themeById(id).surface || themeById(id).bg;
+    }
+
+    function applyUiPrefs() {
+      const theme = currentTheme();
+      const root = document.documentElement;
+      root.style.setProperty("--cream", theme.bg);
+      root.style.setProperty("--grid", theme.line);
+      root.style.setProperty("--ink", theme.ink);
+      root.style.setProperty("--muted", theme.muted);
+      root.style.setProperty("--tape-teal", theme.accent);
+      const paper = uiPrefs.paperType || "grid";
+      [els.spread, els.detailView, els.settingsView, els.ledgerView, els.addView].forEach((node) => {
+        if (node) node.dataset.paper = paper;
+      });
+      if (els.brightnessVeil) {
+        els.brightnessVeil.style.opacity = String(((100 - uiPrefs.brightness) / 100) * 0.55);
+      }
+      if (els.setBrightness) {
+        els.setBrightness.value = String(uiPrefs.brightness);
+        els.setBrightnessVal.textContent = String(uiPrefs.brightness);
+      }
+      renderSettingsChips();
+    }
+
+    function renderSettingsChips() {
+      if (!els.setThemeRow || !els.setPaperRow) return;
+      const theme = currentTheme();
+      els.setThemeRow.innerHTML = "";
+      THEMES.forEach((t) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "set-chip color-swatch" + (t.id === uiPrefs.themeId ? " is-on" : "");
+        btn.textContent = t.label;
+        btn.style.borderBottom = `4px solid ${t.bg}`;
+        btn.addEventListener("click", () => {
+          uiPrefs.themeId = t.id;
+          savePrefs();
+          applyUiPrefs();
+        });
+        els.setThemeRow.appendChild(btn);
+      });
+      els.setPaperRow.innerHTML = "";
+      PAPER_TYPES.forEach((p) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "set-chip" + (p.id === uiPrefs.paperType ? " is-on" : "");
+        btn.textContent = p.label;
+        if (p.id === uiPrefs.paperType) {
+          btn.style.background = theme.accent;
+          btn.style.borderColor = theme.accent;
+        }
+        btn.addEventListener("click", () => {
+          uiPrefs.paperType = p.id;
+          savePrefs();
+          applyUiPrefs();
+        });
+        els.setPaperRow.appendChild(btn);
+      });
+    }
+
+    function openSettings() {
+      applyUiPrefs();
+      showView("settings");
+    }
+
+    const LEDGER_KEY = "notesketch-scrapbook-ledger-v1";
+    const EXPENSE_CATS = ["餐饮", "交通", "学习", "日用", "娱乐", "其他"];
+    const INCOME_CATS = ["工资", "红包", "兼职", "其他"];
+    let ledgerEntries = loadLedger();
+    let ledgerIsExpense = true;
+    let ledgerCategory = EXPENSE_CATS[0];
+
+    function loadLedger() {
+      try {
+        const raw = localStorage.getItem(LEDGER_KEY);
+        if (raw) {
+          const list = JSON.parse(raw);
+          if (Array.isArray(list)) return list;
+        }
+      } catch (_) {}
+      return [];
+    }
+
+    function saveLedger() {
+      localStorage.setItem(LEDGER_KEY, JSON.stringify(ledgerEntries));
+    }
+
+    function formatYuan(cents) {
+      return `¥${(cents / 100).toFixed(2)}`;
+    }
+
+    function renderLedgerType() {
+      [els.ledgerTypeExpense, els.ledgerTypeIncome].forEach((btn) => {
+        if (!btn) return;
+        const on = (btn.dataset.expense === "1") === ledgerIsExpense;
+        btn.classList.toggle("is-on", on);
+        btn.style.background = "";
+        btn.style.borderColor = "";
+        btn.style.color = "";
+      });
+    }
+
+    function currentLedgerCats() {
+      return ledgerIsExpense ? EXPENSE_CATS : INCOME_CATS;
+    }
+
+    function tagPlaceholder() {
+      return ledgerIsExpense ? "用途" : "来源";
+    }
+
+    function closeLedgerTagMenu() {
+      if (!els.ledgerTagMenu) return;
+      els.ledgerTagMenu.classList.remove("open");
+      els.ledgerTagMenu.hidden = true;
+      if (els.ledgerTagBtn) els.ledgerTagBtn.setAttribute("aria-expanded", "false");
+    }
+
+    function refreshLedgerTagBtn() {
+      if (!els.ledgerTagBtn) return;
+      const cats = currentLedgerCats();
+      if (!cats.includes(ledgerCategory)) ledgerCategory = cats[0];
+      els.ledgerTagBtn.textContent = ledgerCategory || tagPlaceholder();
+      els.ledgerTagBtn.title = ledgerIsExpense ? "选择用途" : "选择来源";
+      refreshLedgerMemoField(false);
+    }
+
+    function refreshLedgerMemoField(focus) {
+      if (!els.ledgerMemo) return;
+      const show = ledgerCategory === "其他";
+      els.ledgerMemo.classList.toggle("show", show);
+      if (!show) {
+        els.ledgerMemo.value = "";
+        return;
+      }
+      if (focus) {
+        requestAnimationFrame(() => {
+          els.ledgerMemo.focus();
+          els.ledgerMemo.select?.();
+        });
+      }
+    }
+
+    function renderLedgerTagMenu() {
+      if (!els.ledgerTagMenu) return;
+      const cats = currentLedgerCats();
+      els.ledgerTagMenu.innerHTML = "";
+      cats.forEach((cat) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.setAttribute("role", "option");
+        btn.className = cat === ledgerCategory ? "is-on" : "";
+        btn.textContent = cat;
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          ledgerCategory = cat;
+          refreshLedgerTagBtn();
+          closeLedgerTagMenu();
+          if (cat === "其他") refreshLedgerMemoField(true);
+        });
+        els.ledgerTagMenu.appendChild(btn);
+      });
+    }
+
+    function toggleLedgerTagMenu() {
+      if (!els.ledgerTagMenu) return;
+      const open = !els.ledgerTagMenu.classList.contains("open");
+      if (open) {
+        renderLedgerTagMenu();
+        els.ledgerTagMenu.hidden = false;
+        els.ledgerTagMenu.classList.add("open");
+        if (els.ledgerTagBtn) els.ledgerTagBtn.setAttribute("aria-expanded", "true");
+      } else {
+        closeLedgerTagMenu();
+      }
+    }
+
+    function renderLedger() {
+      if (!els.ledgerList) return;
+      let income = 0;
+      let expense = 0;
+      ledgerEntries.forEach((e) => {
+        if (e.isExpense) expense += e.amountCents;
+        else income += e.amountCents;
+      });
+      if (els.ledgerIncome) els.ledgerIncome.textContent = formatYuan(income);
+      if (els.ledgerExpense) els.ledgerExpense.textContent = formatYuan(expense);
+      if (els.ledgerBalance) els.ledgerBalance.textContent = formatYuan(income - expense);
+
+      const sorted = [...ledgerEntries].sort((a, b) => b.createdAt - a.createdAt);
+      els.ledgerList.innerHTML = "";
+      if (els.ledgerEmpty) els.ledgerEmpty.hidden = sorted.length > 0;
+      sorted.forEach((entry) => {
+        const li = document.createElement("li");
+        li.className = "ledger-item";
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        const cat = document.createElement("div");
+        cat.className = "cat";
+        cat.textContent = `${entry.category} · ${entry.isExpense ? "支出" : "收入"}`;
+        const sub = document.createElement("div");
+        sub.className = "sub";
+        const time = NoteSketch.formatDateTime(entry.createdAt);
+        sub.textContent = entry.memo ? `${entry.memo} · ${time}` : time;
+        meta.appendChild(cat);
+        meta.appendChild(sub);
+        const amt = document.createElement("div");
+        amt.className = "amt " + (entry.isExpense ? "out" : "in");
+        amt.textContent = (entry.isExpense ? "-" : "+") + formatYuan(entry.amountCents);
+        const del = document.createElement("button");
+        del.type = "button";
+        del.className = "btn-tear";
+        del.textContent = NoteSketch.strings.delete;
+        del.addEventListener("click", () => {
+          ledgerEntries = ledgerEntries.filter((e) => e.id !== entry.id);
+          saveLedger();
+          renderLedger();
+        });
+        li.appendChild(meta);
+        li.appendChild(amt);
+        li.appendChild(del);
+        els.ledgerList.appendChild(li);
+      });
+      renderLedgerType();
+      refreshLedgerTagBtn();
+      closeLedgerTagMenu();
+    }
+
+    function openLedger() {
+      applyUiPrefs();
+      renderLedger();
+      showView("ledger");
+    }
+
+    function addLedgerEntry() {
+      const raw = (els.ledgerAmount?.value || "").trim();
+      const yuan = Number(raw);
+      if (!Number.isFinite(yuan) || yuan <= 0) {
+        alert("请输入有效金额");
+        return;
+      }
+      const cents = Math.round(yuan * 100);
+      const memo =
+        ledgerCategory === "其他" ? (els.ledgerMemo?.value || "").trim() : "";
+      const maxId = ledgerEntries.reduce((m, e) => Math.max(m, e.id || 0), 0);
+      ledgerEntries.push({
+        id: maxId + 1,
+        amountCents: cents,
+        isExpense: ledgerIsExpense,
+        category: ledgerCategory,
+        memo,
+        createdAt: Date.now(),
+      });
+      saveLedger();
+      if (els.ledgerAmount) els.ledgerAmount.value = "";
+      if (els.ledgerMemo) els.ledgerMemo.value = "";
+      renderLedger();
+    }
+
+    function sortedNotes() {
+      return [...notes].sort((a, b) => a.createdAt - b.createdAt);
+    }
+
+    const tilts = [-0.45, 0.35, -0.3, 0.4, -0.35, 0.25];
+    const shifts = [0, 4, -3, 5, -4, 2];
+    let afterListRender = () => {};
+
+    function renderList(highlightId = null) {
+      const list = sortedNotes();
+      els.emptyState.classList.toggle("show", list.length === 0);
+      els.emptyState.textContent = NoteSketch.strings.empty;
+      els.noteList.innerHTML = "";
+
+      list.forEach((note, i) => {
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = "note-sticker";
+        if (note.id === highlightId) card.classList.add("note-sticker--new");
+        card.dataset.noteId = String(note.id);
+        const tilt = tilts[i % tilts.length];
+        const shift = shifts[i % shifts.length];
+        card.style.transform = `rotate(${tilt}deg) translateX(${shift}px)`;
+        card.style.background = stickerSurface(note.colorId || "parchment");
+
+        const h3 = document.createElement("h3");
+        h3.textContent = note.title;
+
+        const preview = document.createElement("div");
+        preview.className = "preview";
+        preview.textContent = note.content || "";
+
+        const meta = document.createElement("div");
+        meta.className = "meta";
+
+        const when = document.createElement("span");
+        when.className = "when";
+        when.textContent = NoteSketch.reviewText(note.nextReviewTime, note.finished);
+        if (NoteSketch.isDue(note.nextReviewTime, note.finished)) when.classList.add("due");
+
+        const del = document.createElement("button");
+        del.type = "button";
+        del.className = "btn-tear";
+        del.textContent = NoteSketch.strings.delete;
+        del.addEventListener("click", (e) => {
+          e.stopPropagation();
+          notes = notes.filter((n) => n.id !== note.id);
+          saveNotes();
+          renderList();
+        });
+
+        meta.append(when, del);
+        card.append(h3, preview, meta);
+        card.addEventListener("click", () => openDetail(note.id));
+        els.noteList.appendChild(card);
+      });
+      afterListRender();
+    }
+
+    function getListMaxScroll() {
+      const el = els.listScroll;
+      return Math.max(0, el.scrollHeight - el.clientHeight);
+    }
+
+    function scrollListToBottom() {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const max = getListMaxScroll();
+          els.listScroll.scrollTo({ top: max, behavior: "auto" });
+        });
+      });
+    }
+
+    function isListAtBottom() {
+      const el = els.listScroll;
+      return el.scrollTop + el.clientHeight >= el.scrollHeight - 8;
+    }
+
+    function initListPageScroll() {
+      afterListRender = () => {};
+    }
+
+    function initListPullToAdd() {
+      const el = els.listScroll;
+      const hint = els.pullHint;
+      const MIN_PULL = 48;
+      const HOLD_MS = 700;
+      const COOLDOWN = 800;
+      const WHEEL_GAP_MS = 150;
+      let touchStartY = 0;
+      let pullDistance = 0;
+      let holdStartAt = 0;
+      let lastTrigger = 0;
+      let wheelAcc = 0;
+      let lastWheelAt = 0;
+      let holdArmed = false;
+
+      function resetPull() {
+        pullDistance = 0;
+        wheelAcc = 0;
+        holdStartAt = 0;
+        holdArmed = false;
+        lastWheelAt = 0;
+        el.classList.remove("is-pulling");
+        hint.classList.remove("ready");
+        hint.textContent = NoteSketch.strings.pullHint;
+        hint.style.opacity = "";
+      }
+
+      resetListPullState = resetPull;
+
+      function tryTrigger() {
+        if (Date.now() - lastTrigger < COOLDOWN) {
+          resetPull();
+          return;
+        }
+        lastTrigger = Date.now();
+        resetPull();
+        openAdd();
+      }
+
+      function updatePullVisual(dist, progress) {
+        const p = Math.min(1, Math.max(0, progress));
+        if (dist >= MIN_PULL * 0.25) {
+          el.classList.add("is-pulling");
+          hint.style.opacity = String(0.45 + p * 0.55);
+          if (p >= 1) {
+            hint.classList.add("ready");
+            hint.textContent = NoteSketch.strings.pullHintReady;
+          } else if (dist >= MIN_PULL) {
+            hint.classList.remove("ready");
+            const pct = Math.round(p * 100);
+            hint.textContent = `${NoteSketch.strings.pullHintProgress} ${pct}%`;
+          } else {
+            hint.classList.remove("ready");
+            hint.textContent = NoteSketch.strings.pullHint;
+          }
+        } else {
+          el.classList.remove("is-pulling");
+          hint.style.opacity = "";
+        }
+      }
+
+      function tickHold(delta, atBottom) {
+        if (!atBottom || delta < MIN_PULL) {
+          holdStartAt = 0;
+          holdArmed = false;
+          updatePullVisual(delta, 0);
+          return;
+        }
+        if (!holdStartAt) holdStartAt = Date.now();
+        const progress = (Date.now() - holdStartAt) / HOLD_MS;
+        updatePullVisual(delta, progress);
+        if (progress >= 1 && !holdArmed) {
+          holdArmed = true;
+          tryTrigger();
+        }
+      }
+
+      el.addEventListener(
+        "touchstart",
+        (e) => {
+          if (!els.listView.classList.contains("active")) return;
+          touchStartY = e.touches[0].clientY;
+          pullDistance = 0;
+          holdStartAt = 0;
+          holdArmed = false;
+        },
+        { passive: true }
+      );
+
+      el.addEventListener(
+        "touchmove",
+        (e) => {
+          if (!els.listView.classList.contains("active")) return;
+          if (!isListAtBottom()) {
+            resetPull();
+            return;
+          }
+          const y = e.touches[0].clientY;
+          const delta = touchStartY - y;
+          if (delta <= 0) {
+            resetPull();
+            return;
+          }
+          pullDistance = delta;
+          if (delta >= MIN_PULL) e.preventDefault();
+          tickHold(pullDistance, true);
+        },
+        { passive: false }
+      );
+
+      el.addEventListener("touchend", () => resetPull(), { passive: true });
+      el.addEventListener("touchcancel", () => resetPull(), { passive: true });
+
+      el.addEventListener(
+        "wheel",
+        (e) => {
+          if (!els.listView.classList.contains("active")) return;
+          const now = Date.now();
+          if (!isListAtBottom() || e.deltaY <= 0) {
+            resetPull();
+            return;
+          }
+          if (lastWheelAt && now - lastWheelAt > WHEEL_GAP_MS) {
+            wheelAcc = 0;
+            holdStartAt = 0;
+            holdArmed = false;
+          }
+          lastWheelAt = now;
+          wheelAcc += e.deltaY;
+          if (wheelAcc < MIN_PULL) {
+            holdStartAt = 0;
+            holdArmed = false;
+            updatePullVisual(wheelAcc, 0);
+            return;
+          }
+          if (!holdStartAt) holdStartAt = now;
+          const progress = (now - holdStartAt) / HOLD_MS;
+          updatePullVisual(wheelAcc, progress);
+          if (progress >= 1) {
+            e.preventDefault();
+            if (!holdArmed) {
+              holdArmed = true;
+              tryTrigger();
+            }
+          }
+        },
+        { passive: false }
+      );
+    }
+
+    function applyAddPageColor() {
+      const color = stickerSurface(addColorId);
+      if (els.addView) {
+        els.addView.style.backgroundColor = color;
+      }
+      document.documentElement.style.setProperty("--add-paper", color);
+    }
+
+    function openAdd() {
+      resetListPullState();
+      els.titleInput.value = "";
+      els.contentInput.value = "";
+      els.fieldHint.classList.remove("show");
+      els.fieldHint.textContent = "";
+      addColorId = uiPrefs.themeId || "parchment";
+      renderAddColorChips();
+      applyUiPrefs();
+      applyAddPageColor();
+      showView("add");
+      setTimeout(() => els.titleInput.focus(), 50);
+    }
+
+    function renderAddColorChips() {
+      if (!els.addColorRow) return;
+      const theme = currentTheme();
+      els.addColorRow.innerHTML = "";
+      THEMES.forEach((t) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "set-chip color-swatch" + (t.id === addColorId ? " is-on" : "");
+        btn.textContent = t.label;
+        btn.style.background = t.id === addColorId ? theme.accent : t.surface;
+        btn.style.borderColor = t.id === addColorId ? theme.accent : t.line;
+        if (t.id === addColorId) btn.style.color = "#fff";
+        btn.addEventListener("click", () => {
+          addColorId = t.id;
+          renderAddColorChips();
+          applyAddPageColor();
+        });
+        els.addColorRow.appendChild(btn);
+      });
+    }
+
+    function exitAddAndSave() {
+      const titleRaw = els.titleInput.value.trim();
+      const content = els.contentInput.value.trim();
+      if (!titleRaw && !content) {
+        showView("list");
+        return;
+      }
+      let title = titleRaw;
+      if (!title) {
+        const firstLine = content.split(/\n/)[0].trim();
+        title = (firstLine || NoteSketch.strings.untitled).slice(0, 80);
+      }
+      const now = Date.now();
+      const newId = nextId++;
+      notes.push({
+        id: newId,
+        title,
+        content,
+        createdAt: now,
+        stage: 0,
+        nextReviewTime: NoteSketch.reviewTimeFor(now, 0),
+        finished: false,
+        colorId: addColorId || "parchment",
+      });
+      saveNotes();
+      showView("list");
+      renderList(newId);
+      scrollListToBottom();
+    }
+
+    function applyDetailPaperColor(colorId) {
+      if (!els.detailPaper) return;
+      els.detailPaper.style.background = stickerSurface(colorId || "parchment");
+    }
+
+    function openDetail(id) {
+      const note = notes.find((n) => n.id === id);
+      if (!note) {
+        showView("list");
+        return;
+      }
+      currentNoteId = id;
+      detailColorId = note.colorId || "parchment";
+      exitDetailEdit(false);
+      els.detailTitle.textContent = note.title;
+      els.detailBody.textContent = note.content || NoteSketch.strings.noBody;
+      applyDetailPaperColor(detailColorId);
+      renderTimeline(note);
+      showView("detail");
+    }
+
+    function renderDetailColorChips() {
+      if (!els.detailColorRow) return;
+      const theme = currentTheme();
+      els.detailColorRow.innerHTML = "";
+      THEMES.forEach((t) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "set-chip color-swatch" + (t.id === detailColorId ? " is-on" : "");
+        btn.textContent = t.label;
+        btn.style.background = t.id === detailColorId ? theme.accent : t.surface;
+        btn.style.borderColor = t.id === detailColorId ? theme.accent : t.line;
+        if (t.id === detailColorId) btn.style.color = "#fff";
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          detailColorId = t.id;
+          applyDetailPaperColor(detailColorId);
+          renderDetailColorChips();
+        });
+        els.detailColorRow.appendChild(btn);
+      });
+    }
+
+    function enterDetailEdit() {
+      const note = notes.find((n) => n.id === currentNoteId);
+      if (!note) return;
+      detailColorId = note.colorId || "parchment";
+      els.detailPaper.classList.add("is-editing");
+      els.detailEditTitle.value = note.title;
+      els.detailEditBody.textContent = note.content || "";
+      renderDetailColorChips();
+      applyDetailPaperColor(detailColorId);
+      els.detailEditTitle.focus();
+      requestAnimationFrame(scrollDetailBodyToLatest);
+    }
+
+    function scrollDetailBodyToLatest() {
+      const el = els.detailEditBody;
+      if (!el) return;
+      el.scrollTop = el.scrollHeight;
+    }
+
+    function exitDetailEdit(save) {
+      if (save) {
+        const note = notes.find((n) => n.id === currentNoteId);
+        if (note) {
+          const title = els.detailEditTitle.value.trim();
+          if (!title) {
+            showFieldHint("标题不能为空");
+            return false;
+          }
+          note.title = title;
+          note.content = (els.detailEditBody.innerText || "").replace(/\u00a0/g, " ").trim();
+          note.colorId = detailColorId || note.colorId || "parchment";
+          saveNotes();
+          els.detailTitle.textContent = note.title;
+          els.detailBody.textContent = note.content || NoteSketch.strings.noBody;
+          applyDetailPaperColor(note.colorId);
+          renderList();
+        }
+      }
+      els.detailPaper.classList.remove("is-editing");
+      return true;
+    }
+
+    function renderTimeline(note) {
+      const n = NoteSketch.intervalDays.length;
+      const progress = note.finished || note.stage >= n ? 100 : (note.stage / Math.max(n - 1, 1)) * 100;
+      els.ebbingAxis.innerHTML = "";
+
+      const boxes = document.createElement("div");
+      boxes.className = "ebbing-boxes";
+      for (let i = 0; i < n; i++) {
+        const done = note.finished || i < note.stage;
+        const current = !note.finished && i === note.stage;
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "ebbing-box" + (done ? " done" : "") + (current ? " current" : "");
+        btn.disabled = !current;
+        btn.title = NoteSketch.stageLabel(i);
+        if (current) {
+          btn.addEventListener("click", () => completeStage(i));
+        }
+        boxes.appendChild(btn);
+      }
+
+      const track = document.createElement("div");
+      track.className = "ebbing-track";
+      const fill = document.createElement("div");
+      fill.className = "ebbing-fill";
+      fill.style.width = progress + "%";
+      const ticks = document.createElement("div");
+      ticks.className = "ebbing-ticks";
+      for (let i = 0; i < n; i++) ticks.appendChild(document.createElement("span"));
+      const fox = document.createElement("img");
+      fox.className = "ebbing-fox";
+      fox.src = "images/stickers/fox-deco-transparent.png";
+      fox.alt = "";
+      fox.style.left = progress + "%";
+      track.append(fill, ticks, fox);
+
+      const days = document.createElement("div");
+      days.className = "ebbing-days";
+      NoteSketch.intervalDays.forEach((d) => {
+        const span = document.createElement("span");
+        span.innerHTML = `${d}<small>天</small>`;
+        days.appendChild(span);
+      });
+
+      els.ebbingAxis.append(boxes, track, days);
+    }
+
+    function completeStage(index) {
+      const note = notes.find((n) => n.id === currentNoteId);
+      if (!note || note.finished || index !== note.stage) {
+        if (note) renderTimeline(note);
+        return;
+      }
+      const nextStage = note.stage + 1;
+      const nextTime = NoteSketch.reviewTimeFor(note.createdAt, nextStage);
+      note.stage = nextStage;
+      note.nextReviewTime = nextTime;
+      note.finished = nextTime < 0;
+      saveNotes();
+      renderTimeline(note);
+      renderList();
+    }
+
+    function bindBack(el, onBack) {
+      el.addEventListener("click", onBack);
+      el.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onBack();
+        }
+      });
+    }
+
+    els.emptyState.textContent = NoteSketch.strings.empty;
+    els.titleInput.placeholder = NoteSketch.strings.titleHint;
+    els.contentInput.placeholder = NoteSketch.strings.contentHint;
+    els.pullHint.textContent = NoteSketch.strings.pullHint;
+    document.getElementById("interval-days").innerHTML = NoteSketch.intervalDays
+      .map((d) => `<span>${d}</span>`)
+      .join("");
+
+    bindBack(document.getElementById("add-header"), exitAddAndSave);
+    bindBack(document.getElementById("detail-header"), () => {
+      if (els.detailPaper.classList.contains("is-editing")) {
+        if (!exitDetailEdit(true)) return;
+      }
+      renderList();
+      showView("list");
+    });
+    bindBack(document.getElementById("settings-header"), () => showView("list"));
+    bindBack(document.getElementById("ledger-header"), () => showView("list"));
+    els.settingsFoxBtn.addEventListener("click", openSettings);
+    if (els.ledgerFoxBtn) els.ledgerFoxBtn.addEventListener("click", openLedger);
+    if (els.ledgerTagBtn) {
+      els.ledgerTagBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        toggleLedgerTagMenu();
+      });
+    }
+    document.addEventListener("click", (e) => {
+      if (!els.ledgerTagMenu || !els.ledgerTagMenu.classList.contains("open")) return;
+      const row = document.getElementById("ledger-amount-row");
+      if (row && row.contains(e.target)) return;
+      closeLedgerTagMenu();
+    });
+    if (els.ledgerTypeExpense) {
+      els.ledgerTypeExpense.addEventListener("click", () => {
+        ledgerIsExpense = true;
+        ledgerCategory = EXPENSE_CATS[0];
+        renderLedgerType();
+        refreshLedgerTagBtn();
+        closeLedgerTagMenu();
+      });
+    }
+    if (els.ledgerTypeIncome) {
+      els.ledgerTypeIncome.addEventListener("click", () => {
+        ledgerIsExpense = false;
+        ledgerCategory = INCOME_CATS[0];
+        renderLedgerType();
+        refreshLedgerTagBtn();
+        closeLedgerTagMenu();
+      });
+    }
+    if (els.ledgerAddBtn) els.ledgerAddBtn.addEventListener("click", addLedgerEntry);
+    els.setBrightness.addEventListener("input", () => {
+      uiPrefs.brightness = Number(els.setBrightness.value);
+      els.setBrightnessVal.textContent = String(uiPrefs.brightness);
+      savePrefs();
+      applyUiPrefs();
+    });
+    els.detailPaper.querySelector(".detail-view").addEventListener("click", enterDetailEdit);
+    els.detailEditBody.addEventListener("input", scrollDetailBodyToLatest);
+    els.detailEditBody.addEventListener("keyup", scrollDetailBodyToLatest);
+    els.detailSave.addEventListener("click", (e) => {
+      e.stopPropagation();
+      exitDetailEdit(true);
+    });
+    els.fab.addEventListener("click", openAdd);
+
+    initListPageScroll();
+    initListPullToAdd();
+    applyUiPrefs();
+    renderList();
+    showView("list");
+  </script>
+</body>
 </html>

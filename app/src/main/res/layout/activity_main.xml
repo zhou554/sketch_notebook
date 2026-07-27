@@ -1,68 +1,333 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg">
+    android:background="@color/cream">
+
+    <com.example.notesketch.ScrapbookPaperView
+        android:id="@+id/paperBg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- 胶带装饰 -->
+    <View
+        android:id="@+id/tapeV"
+        android:layout_width="28dp"
+        android:layout_height="110dp"
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="48dp"
+        android:background="@drawable/bg_tape_v"
+        android:elevation="1dp"
+        android:rotation="-4" />
+
+    <View
+        android:id="@+id/tapeH"
+        android:layout_width="100dp"
+        android:layout_height="22dp"
+        android:layout_gravity="end"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="56dp"
+        android:background="@drawable/bg_tape_h"
+        android:elevation="1dp"
+        android:rotation="2" />
+
+    <!-- 标题丝带 -->
+    <TextView
+        android:id="@+id/ribbon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|center_horizontal"
+        android:layout_marginTop="28dp"
+        android:background="@drawable/bg_ribbon"
+        android:elevation="4dp"
+        android:fontFamily="@font/patrick_hand"
+        android:paddingHorizontal="36dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="10dp"
+        android:rotation="-0.8"
+        android:text="@string/app_name"
+        android:textColor="@color/ink"
+        android:textSize="23sp" />
+
+    <!-- 侧边复习间隔木牌 -->
+    <LinearLayout
+        android:id="@+id/sideBoard"
+        android:layout_width="52dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginTop="100dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/bg_side_board"
+        android:elevation="3dp"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingHorizontal="6dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:rotation="1.5">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/patrick_hand"
+            android:gravity="center"
+            android:lineSpacingExtra="2dp"
+            android:text="复习\n间隔"
+            android:textColor="#F6E8DC"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/intervalDays"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="monospace"
+            android:gravity="center"
+            android:lineSpacingExtra="6dp"
+            android:text="1\n2\n4\n7\n15\n30"
+            android:textColor="#FFE8D4"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+    <!-- 狐狸贴纸 -->
+    <ImageView
+        android:layout_width="68dp"
+        android:layout_height="68dp"
+        android:layout_gravity="start|center_vertical"
+        android:layout_marginStart="4dp"
+        android:alpha="0.9"
+        android:contentDescription="@null"
+        android:elevation="2dp"
+        android:rotation="-10"
+        android:scaleType="fitCenter"
+        android:src="@drawable/fox_deco" />
+
+    <ImageView
+        android:layout_width="68dp"
+        android:layout_height="68dp"
+        android:layout_gravity="end|center_vertical"
+        android:layout_marginEnd="58dp"
+        android:layout_marginBottom="40dp"
+        android:alpha="0.9"
+        android:contentDescription="@null"
+        android:elevation="2dp"
+        android:rotation="8"
+        android:scaleType="fitCenter"
+        android:scaleX="-1"
+        android:src="@drawable/fox_deco" />
+
+    <ImageView
+        android:layout_width="52dp"
+        android:layout_height="52dp"
+        android:layout_gravity="start|bottom"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="200dp"
+        android:alpha="0.72"
+        android:contentDescription="@null"
+        android:elevation="2dp"
+        android:rotation="6"
+        android:scaleType="fitCenter"
+        android:src="@drawable/fox_deco" />
+
+    <ImageView
+        android:layout_width="52dp"
+        android:layout_height="52dp"
+        android:layout_gravity="end|top"
+        android:layout_marginTop="160dp"
+        android:layout_marginEnd="64dp"
+        android:alpha="0.72"
+        android:contentDescription="@null"
+        android:elevation="2dp"
+        android:rotation="-6"
+        android:scaleType="fitCenter"
+        android:scaleX="-1"
+        android:src="@drawable/fox_deco" />
+
+    <!-- journal content -->
+    <LinearLayout
+        android:id="@+id/journalFrame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="88dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/bg_journal_frame"
+        android:elevation="5dp"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingStart="24dp"
+                android:paddingTop="10dp"
+                android:paddingEnd="24dp"
+                android:paddingBottom="12dp"
+                android:scrollbars="none" />
+
+            <TextView
+                android:id="@+id/emptyView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:fontFamily="@font/patrick_hand"
+                android:gravity="center"
+                android:lineSpacingExtra="6dp"
+                android:padding="32dp"
+                android:text="这一页还空着\n点下方狐狸，或滑到底写下便签"
+                android:textColor="@color/muted"
+                android:textSize="14sp"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:id="@+id/journalFoot"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingTop="2dp"
+            android:paddingBottom="10dp">
+
+            <ImageView
+                android:id="@+id/fabAdd"
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:clickable="true"
+                android:contentDescription="新建笔记"
+                android:focusable="true"
+                android:scaleType="fitCenter"
+                android:src="@drawable/fox_sticker" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/patrick_hand"
+                android:text="新建"
+                android:textColor="@color/muted"
+                android:textSize="14sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- 底部森林 peeks（盖在内容两侧外缘） -->
+    <ImageView
+        android:id="@+id/forestLeft"
+        android:layout_width="170dp"
+        android:layout_height="110dp"
+        android:layout_gravity="bottom|start"
+        android:alpha="0.88"
+        android:contentDescription="@null"
+        android:elevation="1dp"
+        android:scaleType="fitStart"
+        android:src="@drawable/forest_deco" />
+
+    <ImageView
+        android:id="@+id/forestRight"
+        android:layout_width="170dp"
+        android:layout_height="110dp"
+        android:layout_gravity="bottom|end"
+        android:alpha="0.88"
+        android:contentDescription="@null"
+        android:elevation="1dp"
+        android:scaleType="fitEnd"
+        android:scaleX="-1"
+        android:src="@drawable/forest_deco" />
+
+    <!-- 左上角狐狸头：记账入口（与右上角设置对称） -->
+    <LinearLayout
+        android:id="@+id/btnLedger"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|start"
+        android:layout_marginTop="2dp"
+        android:layout_marginStart="0dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:contentDescription="记账"
+        android:elevation="10dp"
+        android:focusable="true"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="0dp">
+
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:contentDescription="@null"
+            android:scaleType="fitCenter"
+            android:scaleX="-1"
+            android:src="@drawable/fox_deco" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-10dp"
+            android:fontFamily="@font/patrick_hand"
+            android:includeFontPadding="false"
+            android:text="记账"
+            android:textColor="@color/muted"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <!-- 右上角狐狸头：设置入口 -->
+    <LinearLayout
+        android:id="@+id/btnSettings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="0dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:contentDescription="设置"
+        android:elevation="10dp"
+        android:focusable="true"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="0dp">
+
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:contentDescription="@null"
+            android:scaleType="fitCenter"
+            android:src="@drawable/fox_deco" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-10dp"
+            android:fontFamily="@font/patrick_hand"
+            android:includeFontPadding="false"
+            android:text="设置"
+            android:textColor="@color/muted"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/headerBar"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone" />
+
+    <View
+        android:id="@+id/headerLine"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/header"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@drawable/bg_hairline_bottom"
-        android:letterSpacing="0.08"
-        android:paddingHorizontal="20dp"
-        android:paddingTop="20dp"
-        android:paddingBottom="16dp"
-        android:text="@string/app_name"
-        android:textColor="@color/ink"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/emptyView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:lineSpacingExtra="4dp"
-        android:text="还没有笔记\n点击右下角 + 记录第一条学习笔记"
-        android:textColor="@color/text_secondary"
-        android:textSize="14sp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/header" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:clipToPadding="false"
-        android:paddingHorizontal="20dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="90dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/header" />
+        android:visibility="gone" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabAdd"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:contentDescription="添加笔记"
-        android:src="@android:drawable/ic_input_add"
-        app:backgroundTint="@color/ink"
-        app:borderWidth="0dp"
-        app:elevation="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:pressedTranslationZ="0dp"
-        app:tint="@color/white" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>
