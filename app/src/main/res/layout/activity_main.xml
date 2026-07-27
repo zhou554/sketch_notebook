@@ -231,12 +231,14 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- 底部森林 peeks（盖在内容两侧外缘） -->
+    <!-- 底部森林 peeks：宽高由 MainActivity 按屏宽/屏高比例贴边 -->
     <ImageView
         android:id="@+id/forestLeft"
-        android:layout_width="170dp"
-        android:layout_height="110dp"
+        android:layout_width="160dp"
+        android:layout_height="100dp"
         android:layout_gravity="bottom|start"
+        android:layout_marginStart="0dp"
+        android:layout_marginBottom="0dp"
         android:alpha="0.88"
         android:contentDescription="@null"
         android:elevation="1dp"
@@ -245,9 +247,11 @@
 
     <ImageView
         android:id="@+id/forestRight"
-        android:layout_width="170dp"
-        android:layout_height="110dp"
+        android:layout_width="160dp"
+        android:layout_height="100dp"
         android:layout_gravity="bottom|end"
+        android:layout_marginEnd="0dp"
+        android:layout_marginBottom="0dp"
         android:alpha="0.88"
         android:contentDescription="@null"
         android:elevation="1dp"

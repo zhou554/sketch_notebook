@@ -6,7 +6,12 @@ import android.os.Handler
 import android.os.Looper
 import android.view.MotionEvent
 import android.view.View
+import android.widget.FrameLayout
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.doOnLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.notesketch.data.AppDatabase
@@ -17,6 +22,8 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.roundToInt
 
 class MainActivity : AppCompatActivity() {
 
@@ -51,6 +58,7 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerView.adapter = adapter
         binding.recyclerView.setHasFixedSize(false)
         setupPullToAdd()
+        setupForestPeeps()
 
         binding.fabAdd.setOnClickListener {
             startActivity(Intent(this, AddNoteActivity::class.java))
@@ -87,6 +95,50 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         pullHandler.removeCallbacks(pullHoldRunnable)
         super.onDestroy()
+    }
+
+    private fun setupForestPeeps() {
+        binding.root.doOnLayout { layoutForestPeeps() }
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+            layoutForestPeeps()
+            insets
+        }
+    }
+
+    /** 对齐预览：宽约 46% 屏宽、高约 21% 屏高，贴紧左右底边。 */
+    private fun layoutForestPeeps() {
+        val root = binding.root
+        if (root.width <= 0 || root.height <= 0) return
+        val d = resources.displayMetrics.density
+        val insets = ViewCompat.getRootWindowInsets(root)
+            ?.getInsets(WindowInsetsCompat.Type.systemBars())
+        val bottomInset = insets?.bottom ?: 0
+        val forestW = (root.width * 0.46f).roundToInt()
+            .coerceIn((120 * d).roundToInt(), (root.width * 0.5f).roundToInt())
+        val forestH = min((root.height * 0.21f).roundToInt(), (118 * d).roundToInt())
+            .coerceAtLeast((72 * d).roundToInt())
+        // 略微外拉，抵消素材内边透明，视觉贴紧屏幕边
+        val edgePull = (6 * d).roundToInt()
+
+        fun place(iv: ImageView, startSide: Boolean) {
+            val lp = (iv.layoutParams as FrameLayout.LayoutParams).apply {
+                width = forestW
+                height = forestH
+                gravity = if (startSide) {
+                    android.view.Gravity.BOTTOM or android.view.Gravity.START
+                } else {
+                    android.view.Gravity.BOTTOM or android.view.Gravity.END
+                }
+                bottomMargin = bottomInset
+                marginStart = 0
+                marginEnd = 0
+            }
+            iv.layoutParams = lp
+            iv.translationX = if (startSide) -edgePull.toFloat() else edgePull.toFloat()
+            iv.translationY = (4 * d) // 略下沉贴底
+        }
+        place(binding.forestLeft, startSide = true)
+        place(binding.forestRight, startSide = false)
     }
 
     private fun setupPullToAdd() {
