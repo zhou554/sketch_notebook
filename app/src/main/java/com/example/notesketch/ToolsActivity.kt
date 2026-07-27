@@ -34,8 +34,10 @@ class ToolsActivity : AppCompatActivity() {
         val theme = UiPrefs.theme(this)
         ThemeUi.applyScrapbook(this, binding.paperBg)
         binding.root.setBackgroundColor(theme.bg)
-        ThemeUi.colorTexts(theme.ink, binding.tvLedgerLabel, binding.tvMoodLabel)
-        binding.tvHeader.setTextColor(Color.parseColor("#3D2818"))
-        ThemeUi.colorTexts(Color.parseColor("#3D2818"), binding.btnBack)
+        // 图标文字画在固定浅色的 tools_board 手账图上，须用固定深色而非 theme.ink（深色主题下是浅色）
+        val boardInk = Color.parseColor("#3D2818")
+        ThemeUi.colorTexts(boardInk, binding.tvLedgerLabel, binding.tvMoodLabel)
+        binding.tvHeader.setTextColor(boardInk)
+        ThemeUi.colorTexts(boardInk, binding.btnBack)
     }
 }

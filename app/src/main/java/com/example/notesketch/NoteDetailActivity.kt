@@ -119,7 +119,8 @@ class NoteDetailActivity : AppCompatActivity() {
 
     private fun applyNotePaperColor() {
         val colorId = if (editing) selectedColorId else (note?.colorId ?: selectedColorId)
-        val fill = UiPrefs.stickerColor(colorId)
+        // context 版解析，自定义色 id 才能命中
+        val fill = UiPrefs.stickerColor(this, colorId)
         val d = resources.displayMetrics.density
         binding.notePaper.background = GradientDrawable().apply {
             setColor(fill)
@@ -190,7 +191,8 @@ class NoteDetailActivity : AppCompatActivity() {
         binding.colorRow.removeAllViews()
         val pageTheme = UiPrefs.theme(this)
         val d = resources.displayMetrics.density
-        UiPrefs.themes.forEach { preset ->
+        // 同步设置里的全部颜色（含自定义色，已隐藏的预设不展示）
+        UiPrefs.allThemes(this).forEach { preset ->
             val selected = preset.id == selectedColorId
             val chip = TextView(this).apply {
                 text = preset.label

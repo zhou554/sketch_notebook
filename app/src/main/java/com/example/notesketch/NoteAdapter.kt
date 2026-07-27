@@ -38,7 +38,8 @@ class NoteAdapter(
             val due = DateUtil.isDue(note.nextReviewTime, note.finished)
             val ctx = root.context
             val density = ctx.resources.displayMetrics.density
-            val fill = UiPrefs.stickerColor(note.colorId)
+            // context 版解析，自定义色 id 才能命中
+            val fill = UiPrefs.stickerColor(ctx, note.colorId)
             val ink = ThemeUi.contrastText(fill)
             val muted = ThemeUi.contrastMuted(fill)
 

@@ -925,7 +925,8 @@
     .tools-tile .tools-tile-label {
       font-family: var(--font-hand);
       font-size: 0.95rem;
-      color: var(--ink);
+      /* 文字画在固定浅色的 tools-board 图上，用固定深色而非 var(--ink) */
+      color: #3d2818;
       margin-top: -4px;
       line-height: 1;
     }
@@ -3656,14 +3657,16 @@
       if (!els.addColorRow) return;
       const theme = currentTheme();
       els.addColorRow.innerHTML = "";
-      THEMES.forEach((t) => {
+      // 同步设置里的全部颜色（含自定义色），字色按底色亮度自动推理
+      allThemes().forEach((t) => {
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = "set-chip color-swatch" + (t.id === addColorId ? " is-on" : "");
         btn.textContent = t.label;
-        btn.style.background = t.id === addColorId ? theme.accent : t.surface;
+        const fill = t.id === addColorId ? theme.accent : t.surface;
+        btn.style.background = fill;
         btn.style.borderColor = t.id === addColorId ? theme.accent : t.line;
-        if (t.id === addColorId) btn.style.color = "#fff";
+        btn.style.color = contrastText(fill);
         btn.addEventListener("click", () => {
           addColorId = t.id;
           renderAddColorChips();
@@ -3746,14 +3749,16 @@
       if (!els.detailColorRow) return;
       const theme = currentTheme();
       els.detailColorRow.innerHTML = "";
-      THEMES.forEach((t) => {
+      // 同步设置里的全部颜色（含自定义色），字色按底色亮度自动推理
+      allThemes().forEach((t) => {
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = "set-chip color-swatch" + (t.id === detailColorId ? " is-on" : "");
         btn.textContent = t.label;
-        btn.style.background = t.id === detailColorId ? theme.accent : t.surface;
+        const fill = t.id === detailColorId ? theme.accent : t.surface;
+        btn.style.background = fill;
         btn.style.borderColor = t.id === detailColorId ? theme.accent : t.line;
-        if (t.id === detailColorId) btn.style.color = "#fff";
+        btn.style.color = contrastText(fill);
         btn.addEventListener("click", (e) => {
           e.stopPropagation();
           detailColorId = t.id;

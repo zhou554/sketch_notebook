@@ -63,7 +63,8 @@ class AddNoteActivity : AppCompatActivity() {
 
     private fun applyUi() {
         val pageTheme = UiPrefs.theme(this)
-        val sticker = UiPrefs.themeById(selectedColorId)
+        // context 版解析，自定义色 id 才能命中
+        val sticker = UiPrefs.themeById(this, selectedColorId)
         ThemeUi.applyWindow(this, pageTheme)
         ThemeUi.applyBrightness(this)
         binding.paperBg.paperColor = sticker.surface
@@ -86,7 +87,8 @@ class AddNoteActivity : AppCompatActivity() {
         binding.colorRow.removeAllViews()
         val pageTheme = UiPrefs.theme(this)
         val d = resources.displayMetrics.density
-        UiPrefs.themes.forEach { preset ->
+        // 同步设置里的全部颜色（含自定义色，已隐藏的预设不展示）
+        UiPrefs.allThemes(this).forEach { preset ->
             val selected = preset.id == selectedColorId
             val chip = TextView(this).apply {
                 text = preset.label
