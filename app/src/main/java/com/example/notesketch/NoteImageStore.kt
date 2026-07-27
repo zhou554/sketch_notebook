@@ -3,7 +3,9 @@ package com.example.notesketch
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
 import android.net.Uri
+import android.os.Build
 import android.widget.ImageView
 import androidx.core.content.FileProvider
 import java.io.File
@@ -42,12 +44,12 @@ object NoteImageStore {
     /** 将任意 Uri / 临时拍照文件压缩写入 note_images，返回相对文件名。 */
     fun importImage(context: Context, source: Uri): String? {
         val bitmap = decodeScaled(context, source) ?: return null
-        return persistBitmap(context, bitmap)
+        return persistBitmap(context, toSoftware(bitmap))
     }
 
     fun importFile(context: Context, source: File): String? {
         val bitmap = decodeScaledFile(source) ?: return null
-        return persistBitmap(context, bitmap)
+        return persistBitmap(context, toSoftware(bitmap))
     }
 
     fun loadInto(imageView: ImageView, context: Context, relativeName: String?) {
@@ -88,10 +90,39 @@ object NoteImageStore {
     }
 
     private fun decodeScaled(context: Context, uri: Uri): Bitmap? {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            decodeWithImageDecoder(context, uri)?.let { return it }
+        }
+        return decodeWithBitmapFactory(context, uri)
+    }
+
+    private fun decodeWithImageDecoder(context: Context, uri: Uri): Bitmap? {
+        return try {
+            val source = ImageDecoder.createSource(context.contentResolver, uri)
+            ImageDecoder.decodeBitmap(source) { decoder, info, _ ->
+                val w = info.size.width.coerceAtLeast(1)
+                val h = info.size.height.coerceAtLeast(1)
+                val maxEdge = maxOf(w, h)
+                if (maxEdge > MAX_EDGE) {
+                    val scale = MAX_EDGE.toFloat() / maxEdge
+                    decoder.setTargetSize(
+                        (w * scale).toInt().coerceAtLeast(1),
+                        (h * scale).toInt().coerceAtLeast(1)
+                    )
+                }
+                decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
+            }
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    private fun decodeWithBitmapFactory(context: Context, uri: Uri): Bitmap? {
         val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
         context.contentResolver.openInputStream(uri)?.use {
             BitmapFactory.decodeStream(it, null, bounds)
         } ?: return null
+        if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return null
         val sample = sampleSize(bounds.outWidth, bounds.outHeight)
         val opts = BitmapFactory.Options().apply { inSampleSize = sample }
         return context.contentResolver.openInputStream(uri)?.use {
@@ -102,9 +133,17 @@ object NoteImageStore {
     private fun decodeScaledFile(file: File): Bitmap? {
         val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
         BitmapFactory.decodeFile(file.absolutePath, bounds)
+        if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return null
         val sample = sampleSize(bounds.outWidth, bounds.outHeight)
         val opts = BitmapFactory.Options().apply { inSampleSize = sample }
         return BitmapFactory.decodeFile(file.absolutePath, opts)
+    }
+
+    private fun toSoftware(bitmap: Bitmap): Bitmap {
+        if (bitmap.config != Bitmap.Config.HARDWARE) return bitmap
+        val copy = bitmap.copy(Bitmap.Config.ARGB_8888, false)
+        if (!bitmap.isRecycled) bitmap.recycle()
+        return copy ?: bitmap
     }
 
     private fun sampleSize(w: Int, h: Int): Int {

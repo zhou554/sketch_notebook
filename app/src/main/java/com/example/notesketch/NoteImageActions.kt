@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.widget.Toast
 import androidx.activity.ComponentActivity
-import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
@@ -15,7 +14,7 @@ import java.io.File
 
 /**
  * 拍照 / 相册多选，每张图回调相对文件名。
- * 必须在 Activity 的 onCreate 完成前创建（字段初始化即可）。
+ * 相册使用 GetMultipleContents（比 Photo Picker 在更多机型上可用）。
  */
 class NoteImageActions(
     private val activity: ComponentActivity,
@@ -39,15 +38,27 @@ class NoteImageActions(
     }
 
     private val pickImages = activity.registerForActivityResult(
-        ActivityResultContracts.PickMultipleVisualMedia()
+        ActivityResultContracts.GetMultipleContents()
     ) { uris ->
-        if (uris.isNullOrEmpty()) return@registerForActivityResult
+        if (uris.isEmpty()) return@registerForActivityResult
         activity.lifecycleScope.launch {
             val names = withContext(Dispatchers.IO) {
-                uris.mapNotNull { NoteImageStore.importImage(activity, it) }
+                uris.mapNotNull { uri ->
+                    try {
+                        NoteImageStore.importImage(activity, uri)
+                    } catch (_: Exception) {
+                        null
+                    }
+                }
             }
-            if (names.isNotEmpty()) onImagesReady(names)
-            else Toast.makeText(activity, "图片导入失败", Toast.LENGTH_SHORT).show()
+            when {
+                names.isNotEmpty() -> onImagesReady(names)
+                else -> Toast.makeText(
+                    activity,
+                    "图片导入失败（格式可能不支持）",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
     }
 
@@ -67,9 +78,7 @@ class NoteImageActions(
     }
 
     fun pickFromGallery() {
-        pickImages.launch(
-            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-        )
+        pickImages.launch("image/*")
     }
 
     private fun launchCamera() {
