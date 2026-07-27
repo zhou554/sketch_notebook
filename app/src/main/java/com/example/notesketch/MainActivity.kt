@@ -33,22 +33,35 @@ class MainActivity : AppCompatActivity() {
 
     private val pullHandler = Handler(Looper.getMainLooper())
     private var pullStartY = 0f
+    private var pullDistance = 0f
+    private var pullHoldStartAt = 0L
     private var pullArmed = false
     private var pullTriggered = false
     private var pullCooldownUntil = 0L
+    private var minPullPx = 0f
 
-    private val pullHoldRunnable = Runnable {
-        if (!pullArmed || pullTriggered) return@Runnable
-        pullTriggered = true
-        pullCooldownUntil = System.currentTimeMillis() + COOLDOWN_MS
-        resetPull(hideHint = true)
-        startActivity(Intent(this, AddNoteActivity::class.java))
+    private val pullTickRunnable = object : Runnable {
+        override fun run() {
+            if (pullTriggered || !pullArmed) return
+            val progress = ((System.currentTimeMillis() - pullHoldStartAt).toFloat() / HOLD_MS)
+                .coerceIn(0f, 1f)
+            updatePullVisual(pullDistance, progress)
+            if (progress >= 1f) {
+                pullTriggered = true
+                pullCooldownUntil = System.currentTimeMillis() + COOLDOWN_MS
+                resetPull(hideHint = true)
+                startActivity(Intent(this@MainActivity, AddNoteActivity::class.java))
+                return
+            }
+            pullHandler.postDelayed(this, TICK_MS)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        minPullPx = 48f * resources.displayMetrics.density
 
         adapter = NoteAdapter(
             onClick = { openDetail(it) },
@@ -93,7 +106,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        pullHandler.removeCallbacks(pullHoldRunnable)
+        pullHandler.removeCallbacks(pullTickRunnable)
         super.onDestroy()
     }
 
@@ -117,7 +130,6 @@ class MainActivity : AppCompatActivity() {
             .coerceIn((120 * d).roundToInt(), (root.width * 0.5f).roundToInt())
         val forestH = min((root.height * 0.21f).roundToInt(), (118 * d).roundToInt())
             .coerceAtLeast((72 * d).roundToInt())
-        // 略微外拉，抵消素材内边透明，视觉贴紧屏幕边
         val edgePull = (6 * d).roundToInt()
 
         fun place(iv: ImageView, startSide: Boolean) {
@@ -135,14 +147,13 @@ class MainActivity : AppCompatActivity() {
             }
             iv.layoutParams = lp
             iv.translationX = if (startSide) -edgePull.toFloat() else edgePull.toFloat()
-            iv.translationY = (4 * d) // 略下沉贴底
+            iv.translationY = (4 * d)
         }
         place(binding.forestLeft, startSide = true)
         place(binding.forestRight, startSide = false)
     }
 
     private fun setupPullToAdd() {
-        val minPullPx = 48f * resources.displayMetrics.density
         binding.recyclerView.setOnTouchListener { _, event ->
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
@@ -159,22 +170,50 @@ class MainActivity : AppCompatActivity() {
                         return@setOnTouchListener false
                     }
                     val pullY = max(0f, pullStartY - event.y)
-                    if (pullY >= minPullPx) {
-                        if (!pullArmed) {
-                            pullArmed = true
-                            binding.pullHint.visibility = View.VISIBLE
-                            pullHandler.removeCallbacks(pullHoldRunnable)
-                            pullHandler.postDelayed(pullHoldRunnable, HOLD_MS)
-                        }
-                    } else {
-                        resetPull(hideHint = true)
-                    }
+                    pullDistance = pullY
+                    tickHold(pullY)
                 }
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                     if (!pullTriggered) resetPull(hideHint = true)
                 }
             }
             false
+        }
+    }
+
+    private fun tickHold(delta: Float) {
+        if (delta < minPullPx) {
+            pullHoldStartAt = 0L
+            pullArmed = false
+            pullHandler.removeCallbacks(pullTickRunnable)
+            updatePullVisual(delta, 0f)
+            return
+        }
+        if (!pullArmed) {
+            pullArmed = true
+            pullHoldStartAt = System.currentTimeMillis()
+            pullHandler.removeCallbacks(pullTickRunnable)
+            pullHandler.post(pullTickRunnable)
+        }
+        val progress = ((System.currentTimeMillis() - pullHoldStartAt).toFloat() / HOLD_MS)
+            .coerceIn(0f, 1f)
+        updatePullVisual(delta, progress)
+    }
+
+    private fun updatePullVisual(dist: Float, progress: Float) {
+        val p = progress.coerceIn(0f, 1f)
+        val hint = binding.pullHint
+        if (dist < minPullPx * 0.25f) {
+            hint.visibility = View.GONE
+            hint.alpha = 1f
+            return
+        }
+        hint.visibility = View.VISIBLE
+        hint.alpha = 0.45f + p * 0.55f
+        hint.text = when {
+            p >= 1f -> HINT_READY
+            dist >= minPullPx -> "$HINT_PROGRESS ${(p * 100).roundToInt()}%"
+            else -> HINT_BASE
         }
     }
 
@@ -186,14 +225,21 @@ class MainActivity : AppCompatActivity() {
 
     private fun resetPull(hideHint: Boolean) {
         pullArmed = false
-        pullHandler.removeCallbacks(pullHoldRunnable)
-        if (hideHint) binding.pullHint.visibility = View.GONE
+        pullHoldStartAt = 0L
+        pullDistance = 0f
+        pullHandler.removeCallbacks(pullTickRunnable)
+        if (hideHint) {
+            binding.pullHint.visibility = View.GONE
+            binding.pullHint.alpha = 1f
+            binding.pullHint.text = HINT_BASE
+        }
     }
 
     private fun applyUi() {
         val theme = UiPrefs.theme(this)
         ThemeUi.applyScrapbook(this, binding.paperBg)
         binding.root.setBackgroundColor(theme.bg)
+        ThemeUi.colorTexts(theme.ink, binding.pullHint)
     }
 
     private fun openDetail(note: Note) {
@@ -219,5 +265,9 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private const val HOLD_MS = 700L
         private const val COOLDOWN_MS = 900L
+        private const val TICK_MS = 32L
+        private const val HINT_BASE = "滑到底后，继续上拉并按住片刻"
+        private const val HINT_PROGRESS = "继续按住…"
+        private const val HINT_READY = "即将进入新建页…"
     }
 }
