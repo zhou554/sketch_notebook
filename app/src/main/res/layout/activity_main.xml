@@ -182,9 +182,23 @@
                 android:gravity="center"
                 android:lineSpacingExtra="6dp"
                 android:padding="32dp"
-                android:text="这一页还空着\n点下方狐狸，或滑到底写下便签"
+                android:text="这一页还空着\n点下方狐狸，或滑到底上拉新建"
                 android:textColor="@color/muted"
                 android:textSize="14sp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/pullHint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:fontFamily="@font/patrick_hand"
+                android:gravity="center"
+                android:paddingBottom="8dp"
+                android:paddingTop="4dp"
+                android:text="新建中..."
+                android:textColor="@color/ink"
+                android:textSize="13sp"
                 android:visibility="gone" />
         </FrameLayout>
 

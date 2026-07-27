@@ -3,8 +3,6 @@ package com.example.notesketch
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.Gravity
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -50,18 +48,18 @@ class NoteDetailActivity : AppCompatActivity() {
         binding.etContent.isVerticalScrollBarEnabled = false
         binding.tvContent.isVerticalScrollBarEnabled = false
         binding.tvContent.movementMethod = android.text.method.ScrollingMovementMethod.getInstance()
-        binding.etContent.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
-            override fun afterTextChanged(s: Editable?) {
-                scrollContentToLatest()
-            }
-        })
-        // 避免外层 ScrollView 抢走便签内滚动
+        // 避免外层 ScrollView 抢走便签内滚动；仅在正文区滑动时拦截
         binding.etContent.setOnTouchListener { v, event ->
-            v.parent?.requestDisallowInterceptTouchEvent(true)
-            if (event.action == android.view.MotionEvent.ACTION_UP) {
-                v.performClick()
+            when (event.actionMasked) {
+                android.view.MotionEvent.ACTION_DOWN,
+                android.view.MotionEvent.ACTION_MOVE ->
+                    v.parent?.requestDisallowInterceptTouchEvent(true)
+                android.view.MotionEvent.ACTION_UP -> {
+                    v.parent?.requestDisallowInterceptTouchEvent(false)
+                    v.performClick()
+                }
+                android.view.MotionEvent.ACTION_CANCEL ->
+                    v.parent?.requestDisallowInterceptTouchEvent(false)
             }
             false
         }
@@ -148,7 +146,6 @@ class NoteDetailActivity : AppCompatActivity() {
         renderColorChips()
         binding.etTitle.requestFocus()
         binding.etTitle.setSelection(binding.etTitle.text?.length ?: 0)
-        scrollContentToLatest()
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.showSoftInput(binding.etTitle, InputMethodManager.SHOW_IMPLICIT)
     }
@@ -185,15 +182,6 @@ class NoteDetailActivity : AppCompatActivity() {
                 }
             }
             binding.colorRow.addView(chip)
-        }
-    }
-
-    private fun scrollContentToLatest() {
-        binding.etContent.post {
-            val layout = binding.etContent.layout ?: return@post
-            val lastLine = (binding.etContent.lineCount - 1).coerceAtLeast(0)
-            val y = layout.getLineTop(lastLine)
-            binding.etContent.scrollTo(0, y)
         }
     }
 

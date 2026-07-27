@@ -121,7 +121,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/patrick_hand"
             android:includeFontPadding="false"
-            android:rotation="22"
+            android:rotation="-22"
             android:text="工具"
             android:textColor="#3D2818"
             android:textSize="22sp"

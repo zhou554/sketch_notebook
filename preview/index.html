@@ -777,7 +777,7 @@
       color: #3d2818;
       line-height: 1;
       letter-spacing: 0.06em;
-      transform: rotate(22deg);
+      transform: rotate(-22deg);
       transform-origin: center center;
       pointer-events: none;
       user-select: none;
@@ -2914,8 +2914,6 @@
       applyUiPrefs();
     });
     els.detailPaper.querySelector(".detail-view").addEventListener("click", enterDetailEdit);
-    els.detailEditBody.addEventListener("input", scrollDetailBodyToLatest);
-    els.detailEditBody.addEventListener("keyup", scrollDetailBodyToLatest);
     els.detailSave.addEventListener("click", (e) => {
       e.stopPropagation();
       exitDetailEdit(true);
