@@ -26,6 +26,11 @@ class NoteDetailActivity : AppCompatActivity() {
     private var editing = false
     private var selectedColorId: String = "parchment"
 
+    private val imageActions = NoteImageActions(this) { paths ->
+        paths.forEach { NoteInlineImages.insertAtCursor(binding.etContent, this, it) }
+        binding.etContent.requestFocus()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityNoteDetailBinding.inflate(layoutInflater)
@@ -44,11 +49,18 @@ class NoteDetailActivity : AppCompatActivity() {
         }
         binding.viewMode.setOnClickListener { enterEditMode() }
         binding.btnSaveEdit.setOnClickListener { saveEditsAndExitEdit() }
+        binding.btnCamera.setOnClickListener {
+            binding.etContent.snapshotCursor()
+            imageActions.takePhoto()
+        }
+        binding.btnGallery.setOnClickListener {
+            binding.etContent.snapshotCursor()
+            imageActions.pickFromGallery()
+        }
         binding.etContent.setHorizontallyScrolling(false)
         binding.etContent.isVerticalScrollBarEnabled = false
         binding.tvContent.isVerticalScrollBarEnabled = false
         binding.tvContent.movementMethod = android.text.method.ScrollingMovementMethod.getInstance()
-        // 避免外层 ScrollView 抢走便签内滚动；仅在正文区滑动时拦截
         binding.etContent.setOnTouchListener { v, event ->
             when (event.actionMasked) {
                 android.view.MotionEvent.ACTION_DOWN,
@@ -96,7 +108,12 @@ class NoteDetailActivity : AppCompatActivity() {
         ThemeUi.applyScrapbook(this, binding.paperBg)
         binding.root.setBackgroundColor(theme.bg)
         binding.contentPanel.setBackgroundColor(Color.TRANSPARENT)
-        ThemeUi.colorTexts(theme.ink, binding.tvHeader, binding.tvTitle, binding.tvTimelineTitle)
+        ThemeUi.colorTexts(
+            theme.ink,
+            binding.tvHeader,
+            binding.tvTitle,
+            binding.tvTimelineTitle
+        )
         ThemeUi.colorTexts(theme.muted, binding.tvContent)
         ThemeUi.colorLines(0x737A6F62, binding.rule1)
         applyNotePaperColor()
@@ -120,7 +137,21 @@ class NoteDetailActivity : AppCompatActivity() {
                 finish()
                 return@launch
             }
-            bindNote(loaded)
+            val migratedContent = NoteInlineImages.migrateLegacy(loaded.content, loaded.imagePath)
+            val normalized = if (
+                migratedContent != loaded.content ||
+                NoteInlineImages.firstImage(migratedContent) != loaded.imagePath
+            ) {
+                val updated = loaded.copy(
+                    content = migratedContent,
+                    imagePath = NoteInlineImages.firstImage(migratedContent)
+                )
+                withContext(Dispatchers.IO) { dao.update(updated) }
+                updated
+            } else {
+                loaded
+            }
+            bindNote(normalized)
         }
     }
 
@@ -128,9 +159,8 @@ class NoteDetailActivity : AppCompatActivity() {
         note = n
         selectedColorId = n.colorId
         binding.tvTitle.text = n.title
-        binding.tvContent.text = n.content.ifBlank { "（无正文）" }
+        NoteInlineImages.bindToTextView(binding.tvContent, this, n.content)
         binding.etTitle.setText(n.title)
-        binding.etContent.setText(n.content)
         binding.timelineView.bind(n)
         applyNotePaperColor()
     }
@@ -142,7 +172,7 @@ class NoteDetailActivity : AppCompatActivity() {
         binding.viewMode.visibility = View.GONE
         binding.editMode.visibility = View.VISIBLE
         binding.etTitle.setText(n.title)
-        binding.etContent.setText(n.content)
+        NoteInlineImages.bindToEditText(binding.etContent, this, n.content)
         renderColorChips()
         binding.etTitle.requestFocus()
         binding.etTitle.setSelection(binding.etTitle.text?.length ?: 0)
@@ -159,9 +189,9 @@ class NoteDetailActivity : AppCompatActivity() {
             val chip = TextView(this).apply {
                 text = preset.label
                 setTextColor(if (selected) pageTheme.surface else pageTheme.ink)
-                textSize = 12f
+                textSize = 11f
                 gravity = Gravity.CENTER
-                setPadding((10 * d).toInt(), (6 * d).toInt(), (10 * d).toInt(), (6 * d).toInt())
+                setPadding((8 * d).toInt(), (5 * d).toInt(), (8 * d).toInt(), (5 * d).toInt())
                 background = GradientDrawable().apply {
                     setColor(if (selected) pageTheme.accent else preset.surface)
                     setStroke(
@@ -172,7 +202,7 @@ class NoteDetailActivity : AppCompatActivity() {
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
-                ).also { it.marginEnd = (6 * d).toInt() }
+                ).also { it.marginEnd = (5 * d).toInt() }
                 isClickable = true
                 isFocusable = true
                 setOnClickListener {
@@ -193,18 +223,36 @@ class NoteDetailActivity : AppCompatActivity() {
         val current = note ?: return
         if (!editing && exitEdit) return
         val title = binding.etTitle.text?.toString()?.trim().orEmpty()
-        val content = binding.etContent.text?.toString()?.trim().orEmpty()
+        val content = NoteInlineImages.serialize(binding.etContent.text ?: "")
         if (title.isEmpty()) {
             Toast.makeText(this, "标题不能为空", Toast.LENGTH_SHORT).show()
             return
         }
-        if (title == current.title && content == current.content && selectedColorId == current.colorId) {
+        val firstImage = NoteInlineImages.firstImage(content)
+        if (title == current.title &&
+            content == current.content &&
+            selectedColorId == current.colorId &&
+            firstImage == current.imagePath
+        ) {
             if (exitEdit) leaveEditMode()
             return
         }
-        val updated = current.copy(title = title, content = content, colorId = selectedColorId)
+        val updated = current.copy(
+            title = title,
+            content = content,
+            colorId = selectedColorId,
+            imagePath = firstImage
+        )
         lifecycleScope.launch {
-            withContext(Dispatchers.IO) { dao.update(updated) }
+            withContext(Dispatchers.IO) {
+                dao.update(updated)
+                NoteInlineImages.deleteUnreferenced(
+                    this@NoteDetailActivity,
+                    current.content,
+                    current.imagePath,
+                    content
+                )
+            }
             bindNote(updated)
             if (exitEdit) leaveEditMode()
             else Toast.makeText(this@NoteDetailActivity, "已保存", Toast.LENGTH_SHORT).show()

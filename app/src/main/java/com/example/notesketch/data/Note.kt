@@ -19,5 +19,7 @@ data class Note(
     val stage: Int = 0,
     val nextReviewTime: Long,
     val finished: Boolean = false,
-    val colorId: String = "parchment"
+    val colorId: String = "parchment",
+    /** 便签附图文件名（位于 files/note_images/），空表示无图 */
+    val imagePath: String = ""
 )

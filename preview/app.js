@@ -85,7 +85,7 @@
   }
 
   function sortedNotes() {
-    return [...notes].sort((a, b) => a.nextReviewTime - b.nextReviewTime);
+    return [...notes].sort((a, b) => a.createdAt - b.createdAt);
   }
 
   function renderList() {

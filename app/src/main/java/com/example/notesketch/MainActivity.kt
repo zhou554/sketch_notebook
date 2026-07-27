@@ -153,7 +153,14 @@ class MainActivity : AppCompatActivity() {
 
     private fun deleteNote(note: Note) {
         lifecycleScope.launch {
-            withContext(Dispatchers.IO) { dao.delete(note) }
+            withContext(Dispatchers.IO) {
+                dao.delete(note)
+                val images = (
+                    NoteInlineImages.listedImages(note.content) +
+                        listOfNotNull(note.imagePath.takeIf { it.isNotBlank() })
+                    ).toSet()
+                images.forEach { NoteImageStore.delete(this@MainActivity, it) }
+            }
         }
     }
 

@@ -19,7 +19,7 @@ interface NoteDao {
     @Delete
     suspend fun delete(note: Note)
 
-    @Query("SELECT * FROM notes ORDER BY nextReviewTime ASC")
+    @Query("SELECT * FROM notes ORDER BY createdAt ASC")
     fun observeAll(): Flow<List<Note>>
 
     @Query("SELECT * FROM notes WHERE id = :id LIMIT 1")

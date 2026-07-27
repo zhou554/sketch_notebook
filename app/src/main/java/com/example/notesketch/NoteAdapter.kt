@@ -30,8 +30,10 @@ class NoteAdapter(
         val note = getItem(position)
         with(holder.binding) {
             tvTitle.text = note.title
-            tvContent.text = note.content
+            tvContent.text = NoteInlineImages.plainPreview(note.content)
             tvReview.text = DateUtil.reviewText(note.nextReviewTime, note.finished)
+            val thumb = note.imagePath.ifBlank { NoteInlineImages.firstImage(note.content) }
+            NoteImageStore.loadInto(ivThumb, root.context, thumb)
 
             val due = DateUtil.isDue(note.nextReviewTime, note.finished)
             val ctx = root.context

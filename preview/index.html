@@ -1002,6 +1002,12 @@
       color: rgba(122, 111, 98, 0.5);
     }
 
+    .add-editor__body:empty::before {
+      content: attr(data-placeholder);
+      color: rgba(122, 111, 98, 0.5);
+      pointer-events: none;
+    }
+
     #view-add .field-hint {
       position: absolute;
       left: 24px;
@@ -1498,10 +1504,94 @@
       color: rgba(122, 111, 98, 0.45);
       pointer-events: none;
     }
+    .note-media-row {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 4px 10px;
+      align-items: center;
+      padding: 2px 0;
+      flex-shrink: 0;
+    }
+    .detail-toolbar {
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+      padding: 2px 0 0;
+    }
+    .detail-toolbar .note-media-row {
+      padding: 0;
+      flex: 1;
+      min-width: 0;
+    }
+    .note-media-row button,
+    .note-media-row label {
+      font-family: var(--font-hand);
+      font-size: 0.95rem;
+      color: var(--ink);
+      background: transparent;
+      border: 0;
+      padding: 4px 2px;
+      cursor: pointer;
+    }
+    .note-media-row .media-icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      padding: 4px;
+      line-height: 0;
+    }
+    .note-media-row .media-icon-btn img {
+      width: 28px;
+      height: auto;
+      display: block;
+      pointer-events: none;
+    }
+    .note-media-row input[type="file"] {
+      display: none;
+    }
+    .inline-note-img {
+      display: block;
+      max-width: 100%;
+      max-height: 160px;
+      object-fit: contain;
+      margin: 6px 0;
+      border: 1.5px solid rgba(61, 52, 40, 0.18);
+    }
+    .detail-edit .chip-row,
+    .add-color-block .chip-row {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+    .detail-edit .chip-row::-webkit-scrollbar,
+    .add-color-block .chip-row::-webkit-scrollbar {
+      display: none;
+    }
+    .detail-edit .chip-row .set-chip,
+    .add-color-block .chip-row .set-chip {
+      flex: 0 0 auto;
+      white-space: nowrap;
+      font-size: 0.78rem;
+      padding: 5px 9px;
+    }
+    .note-sticker .thumb {
+      display: block;
+      width: 100%;
+      height: 64px;
+      object-fit: cover;
+      margin-top: 8px;
+      border: 1px solid rgba(61, 52, 40, 0.18);
+    }
     .detail-save {
       flex-shrink: 0;
-      align-self: flex-start;
-      margin-top: 2px;
+      margin: 0;
       border: 0;
       background: transparent;
       padding: 0;
@@ -1517,8 +1607,8 @@
       transform: scale(0.96);
     }
     .detail-save img {
-      width: 96px;
-      height: 96px;
+      width: 56px;
+      height: 56px;
       object-fit: contain;
       display: block;
       pointer-events: none;
@@ -1771,11 +1861,25 @@
               autocomplete="off"
               aria-label="标题"
             />
-            <textarea
+            <div
               class="add-editor__body scrollbar-hidden"
               id="input-content"
+              contenteditable="true"
+              role="textbox"
+              aria-multiline="true"
               aria-label="内容"
-            ></textarea>
+              data-placeholder="笔记内容 / 知识点…"
+            ></div>
+            <div class="note-media-row" id="add-media-row">
+              <label class="media-icon-btn" title="拍照">
+                <img src="images/stickers/ic_note_camera.png" width="28" height="28" alt="拍照" />
+                <input type="file" id="add-camera" accept="image/*" capture="environment" />
+              </label>
+              <label class="media-icon-btn" title="相册">
+                <img src="images/stickers/ic_note_gallery.png" width="28" height="28" alt="相册" />
+                <input type="file" id="add-gallery" accept="image/*" multiple />
+              </label>
+            </div>
           </div>
           <div class="add-color-block">
             <p class="sub">便签颜色</p>
@@ -1809,10 +1913,22 @@
                   aria-label="编辑内容"
                   data-placeholder="笔记内容…"
                 ></div>
-                <div class="chip-row" id="detail-color-row" style="margin-top:6px"></div>
-                <button type="button" class="detail-save" id="detail-save" aria-label="保存">
-                  <img src="images/stickers/fox-deco-transparent.png" width="96" height="96" alt="" decoding="async" />
-                </button>
+                <div class="detail-toolbar">
+                  <div class="note-media-row" id="detail-media-row">
+                    <label class="media-icon-btn" title="拍照">
+                      <img src="images/stickers/ic_note_camera.png" width="26" height="26" alt="拍照" />
+                      <input type="file" id="detail-camera" accept="image/*" capture="environment" />
+                    </label>
+                    <label class="media-icon-btn" title="相册">
+                      <img src="images/stickers/ic_note_gallery.png" width="26" height="26" alt="相册" />
+                      <input type="file" id="detail-gallery" accept="image/*" multiple />
+                    </label>
+                  </div>
+                  <button type="button" class="detail-save" id="detail-save" aria-label="保存">
+                    <img src="images/stickers/fox-deco-transparent.png" width="56" height="56" alt="" decoding="async" />
+                  </button>
+                </div>
+                <div class="chip-row" id="detail-color-row"></div>
               </div>
             </div>
             <div class="timeline-block">
@@ -1976,6 +2092,7 @@
     let hintTimer = null;
     let resetListPullState = () => {};
 
+
     const els = {
       listView: document.getElementById("view-list"),
       addView: document.getElementById("view-add"),
@@ -2010,6 +2127,12 @@
       detailEditTitle: document.getElementById("detail-edit-title"),
       detailEditBody: document.getElementById("detail-edit-body"),
       detailSave: document.getElementById("detail-save"),
+      addMediaRow: document.getElementById("add-media-row"),
+      addCamera: document.getElementById("add-camera"),
+      addGallery: document.getElementById("add-gallery"),
+      detailMediaRow: document.getElementById("detail-media-row"),
+      detailCamera: document.getElementById("detail-camera"),
+      detailGallery: document.getElementById("detail-gallery"),
       listScroll: document.getElementById("list-scroll"),
       pullHint: document.getElementById("pull-hint"),
       noteList: document.getElementById("note-list"),
@@ -2421,7 +2544,8 @@
 
         const preview = document.createElement("div");
         preview.className = "preview";
-        preview.textContent = note.content || "";
+        migrateNoteImages(note);
+        preview.textContent = plainPreview(note.content) || "";
 
         const meta = document.createElement("div");
         meta.className = "meta";
@@ -2443,7 +2567,16 @@
         });
 
         meta.append(when, del);
-        card.append(h3, preview, meta);
+        card.append(h3, preview);
+        const thumbSrc = firstImageData(note);
+        if (thumbSrc) {
+          const thumb = document.createElement("img");
+          thumb.className = "thumb";
+          thumb.src = thumbSrc;
+          thumb.alt = "";
+          card.appendChild(thumb);
+        }
+        card.append(meta);
         card.addEventListener("click", () => openDetail(note.id));
         els.noteList.appendChild(card);
       });
@@ -2631,10 +2764,189 @@
       document.documentElement.style.setProperty("--add-paper", color);
     }
 
+    function newImgId() {
+      return "img_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    }
+
+    function plainPreview(content) {
+      return String(content || "")
+        .replace(/\{\{img:[^}]+\}\}/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function firstImageData(note) {
+      const m = String(note.content || "").match(/\{\{img:([^}]+)\}\}/);
+      if (m && note.images && note.images[m[1]]) return note.images[m[1]];
+      return note.imageData || "";
+    }
+
+    function migrateNoteImages(note) {
+      if (!note.images) note.images = {};
+      if (note.imageData && Object.keys(note.images).length === 0) {
+        const id = newImgId();
+        note.images[id] = note.imageData;
+        if (!/\{\{img:/.test(note.content || "")) {
+          const base = (note.content || "").trimEnd();
+          note.content = base ? base + "\n{{img:" + id + "}}" : "{{img:" + id + "}}";
+        }
+      }
+      return note;
+    }
+
+    function hydrateEditable(el, content, images) {
+      el.innerHTML = "";
+      const parts = String(content || "").split(/(\{\{img:[^}]+\}\})/);
+      parts.forEach((part) => {
+        const m = part.match(/^\{\{img:([^}]+)\}\}$/);
+        if (m) {
+          const src = images && images[m[1]];
+          if (!src) return;
+          const img = document.createElement("img");
+          img.className = "inline-note-img";
+          img.src = src;
+          img.dataset.imgId = m[1];
+          img.contentEditable = "false";
+          el.appendChild(img);
+          return;
+        }
+        if (!part) return;
+        part.split("\n").forEach((line, i, arr) => {
+          el.appendChild(document.createTextNode(line));
+          if (i < arr.length - 1) el.appendChild(document.createElement("br"));
+        });
+      });
+    }
+
+    function serializeEditable(el) {
+      const images = {};
+      function walk(node) {
+        let out = "";
+        node.childNodes.forEach((child) => {
+          if (child.nodeType === Node.TEXT_NODE) {
+            out += child.textContent || "";
+          } else if (child.nodeName === "BR") {
+            out += "\n";
+          } else if (child.nodeName === "IMG" && child.dataset.imgId) {
+            images[child.dataset.imgId] = child.src;
+            out += "{{img:" + child.dataset.imgId + "}}";
+          } else if (child.nodeName === "DIV" || child.nodeName === "P") {
+            if (out && !out.endsWith("\n")) out += "\n";
+            out += walk(child);
+          } else {
+            out += walk(child);
+          }
+        });
+        return out;
+      }
+      return {
+        content: walk(el).replace(/\u00a0/g, " ").replace(/\n+$/g, ""),
+        images,
+      };
+    }
+
+    function renderViewBody(el, content, images) {
+      if (!content || !String(content).trim()) {
+        el.textContent = NoteSketch.strings.noBody;
+        return;
+      }
+      hydrateEditable(el, content, images || {});
+    }
+
+    const savedRanges = new WeakMap();
+
+    function captureRangeFor(el) {
+      const sel = window.getSelection();
+      if (!sel || !sel.rangeCount) return;
+      const range = sel.getRangeAt(0);
+      if (!el.contains(range.commonAncestorContainer)) return;
+      savedRanges.set(el, range.cloneRange());
+    }
+
+    function watchEditableRange(el) {
+      if (!el) return;
+      el.addEventListener("keyup", () => captureRangeFor(el));
+      el.addEventListener("mouseup", () => captureRangeFor(el));
+      el.addEventListener("blur", () => captureRangeFor(el));
+      document.addEventListener("selectionchange", () => {
+        if (document.activeElement === el) captureRangeFor(el);
+      });
+    }
+
+    function insertInlineImage(el, dataUrl) {
+      const id = newImgId();
+      const img = document.createElement("img");
+      img.className = "inline-note-img";
+      img.src = dataUrl;
+      img.dataset.imgId = id;
+      img.contentEditable = "false";
+
+      let range = savedRanges.get(el);
+      const sel = window.getSelection();
+      if (sel && sel.rangeCount && el.contains(sel.anchorNode)) {
+        range = sel.getRangeAt(0).cloneRange();
+      }
+      if (range && el.contains(range.commonAncestorContainer)) {
+        const r = range.cloneRange();
+        r.collapse(false);
+        r.insertNode(img);
+        r.setStartAfter(img);
+        r.collapse(true);
+        savedRanges.set(el, r.cloneRange());
+        el.focus();
+        sel.removeAllRanges();
+        sel.addRange(r);
+      } else {
+        el.appendChild(img);
+        el.focus();
+        const end = document.createRange();
+        end.selectNodeContents(el);
+        end.collapse(false);
+        savedRanges.set(el, end.cloneRange());
+        if (sel) {
+          sel.removeAllRanges();
+          sel.addRange(end);
+        }
+      }
+    }
+
+    function readFileAsDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ""));
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function wireImageInput(inputEl, targetEl) {
+      if (!inputEl || !targetEl) return;
+      // 点 label/file 前先冻结当前光标
+      const freeze = () => captureRangeFor(targetEl);
+      inputEl.addEventListener("mousedown", freeze);
+      inputEl.addEventListener("click", freeze);
+      const label = inputEl.closest("label");
+      if (label) {
+        label.addEventListener("mousedown", freeze);
+        label.addEventListener("click", freeze);
+      }
+      inputEl.addEventListener("change", async () => {
+        const files = Array.from(inputEl.files || []);
+        inputEl.value = "";
+        for (const file of files) {
+          try {
+            insertInlineImage(targetEl, await readFileAsDataUrl(file));
+          } catch (_) {
+            showFieldHint("图片读取失败");
+          }
+        }
+      });
+    }
+
     function openAdd() {
       resetListPullState();
       els.titleInput.value = "";
-      els.contentInput.value = "";
+      els.contentInput.innerHTML = "";
       els.fieldHint.classList.remove("show");
       els.fieldHint.textContent = "";
       addColorId = uiPrefs.themeId || "parchment";
@@ -2668,18 +2980,22 @@
 
     function exitAddAndSave() {
       const titleRaw = els.titleInput.value.trim();
-      const content = els.contentInput.value.trim();
+      const packed = serializeEditable(els.contentInput);
+      const content = packed.content;
+      const plain = plainPreview(content);
       if (!titleRaw && !content) {
         showView("list");
         return;
       }
       let title = titleRaw;
       if (!title) {
-        const firstLine = content.split(/\n/)[0].trim();
-        title = (firstLine || NoteSketch.strings.untitled).slice(0, 80);
+        title = plain
+          ? plain.slice(0, 80)
+          : "图片便签";
       }
       const now = Date.now();
       const newId = nextId++;
+      const firstKey = (content.match(/\{\{img:([^}]+)\}\}/) || [])[1];
       notes.push({
         id: newId,
         title,
@@ -2689,6 +3005,8 @@
         nextReviewTime: NoteSketch.reviewTimeFor(now, 0),
         finished: false,
         colorId: addColorId || "parchment",
+        images: packed.images,
+        imageData: (firstKey && packed.images[firstKey]) || "",
       });
       saveNotes();
       showView("list");
@@ -2707,11 +3025,12 @@
         showView("list");
         return;
       }
+      migrateNoteImages(note);
       currentNoteId = id;
       detailColorId = note.colorId || "parchment";
       exitDetailEdit(false);
       els.detailTitle.textContent = note.title;
-      els.detailBody.textContent = note.content || NoteSketch.strings.noBody;
+      renderViewBody(els.detailBody, note.content, note.images);
       applyDetailPaperColor(detailColorId);
       renderTimeline(note);
       showView("detail");
@@ -2742,10 +3061,11 @@
     function enterDetailEdit() {
       const note = notes.find((n) => n.id === currentNoteId);
       if (!note) return;
+      migrateNoteImages(note);
       detailColorId = note.colorId || "parchment";
       els.detailPaper.classList.add("is-editing");
       els.detailEditTitle.value = note.title;
-      els.detailEditBody.textContent = note.content || "";
+      hydrateEditable(els.detailEditBody, note.content || "", note.images || {});
       renderDetailColorChips();
       applyDetailPaperColor(detailColorId);
       els.detailEditTitle.focus();
@@ -2767,12 +3087,16 @@
             showFieldHint("标题不能为空");
             return false;
           }
+          const packed = serializeEditable(els.detailEditBody);
           note.title = title;
-          note.content = (els.detailEditBody.innerText || "").replace(/\u00a0/g, " ").trim();
+          note.content = packed.content;
+          note.images = packed.images;
           note.colorId = detailColorId || note.colorId || "parchment";
+          const firstKey = (note.content.match(/\{\{img:([^}]+)\}\}/) || [])[1];
+          note.imageData = (firstKey && packed.images[firstKey]) || "";
           saveNotes();
           els.detailTitle.textContent = note.title;
-          els.detailBody.textContent = note.content || NoteSketch.strings.noBody;
+          renderViewBody(els.detailBody, note.content, note.images);
           applyDetailPaperColor(note.colorId);
           renderList();
         }
@@ -2856,7 +3180,9 @@
 
     els.emptyState.textContent = NoteSketch.strings.empty;
     els.titleInput.placeholder = NoteSketch.strings.titleHint;
-    els.contentInput.placeholder = NoteSketch.strings.contentHint;
+    if (els.contentInput) {
+      els.contentInput.setAttribute("data-placeholder", NoteSketch.strings.contentHint);
+    }
     els.pullHint.textContent = NoteSketch.strings.pullHint;
     document.getElementById("interval-days").innerHTML = NoteSketch.intervalDays
       .map((d) => `<span>${d}</span>`)
@@ -2914,6 +3240,12 @@
       applyUiPrefs();
     });
     els.detailPaper.querySelector(".detail-view").addEventListener("click", enterDetailEdit);
+    watchEditableRange(els.contentInput);
+    watchEditableRange(els.detailEditBody);
+    wireImageInput(els.addCamera, els.contentInput);
+    wireImageInput(els.addGallery, els.contentInput);
+    wireImageInput(els.detailCamera, els.detailEditBody);
+    wireImageInput(els.detailGallery, els.detailEditBody);
     els.detailSave.addEventListener("click", (e) => {
       e.stopPropagation();
       exitDetailEdit(true);

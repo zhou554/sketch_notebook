@@ -22,6 +22,11 @@ class AddNoteActivity : AppCompatActivity() {
     private var selectedColorId: String = "parchment"
     private var saving = false
 
+    private val imageActions = NoteImageActions(this) { paths ->
+        paths.forEach { NoteInlineImages.insertAtCursor(binding.etContent, this, it) }
+        binding.etContent.requestFocus()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAddNoteBinding.inflate(layoutInflater)
@@ -31,6 +36,14 @@ class AddNoteActivity : AppCompatActivity() {
         binding.btnBackRow.setOnClickListener { saveAndFinish() }
         binding.tvHeader.setOnClickListener { saveAndFinish() }
         binding.btnSave.setOnClickListener { saveAndFinish() }
+        binding.btnCamera.setOnClickListener {
+            binding.etContent.snapshotCursor()
+            imageActions.takePhoto()
+        }
+        binding.btnGallery.setOnClickListener {
+            binding.etContent.snapshotCursor()
+            imageActions.pickFromGallery()
+        }
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -76,9 +89,9 @@ class AddNoteActivity : AppCompatActivity() {
             val chip = TextView(this).apply {
                 text = preset.label
                 setTextColor(if (selected) pageTheme.surface else pageTheme.ink)
-                textSize = 13f
+                textSize = 12f
                 gravity = Gravity.CENTER
-                setPadding((12 * d).toInt(), (8 * d).toInt(), (12 * d).toInt(), (8 * d).toInt())
+                setPadding((10 * d).toInt(), (6 * d).toInt(), (10 * d).toInt(), (6 * d).toInt())
                 background = GradientDrawable().apply {
                     setColor(if (selected) pageTheme.accent else preset.surface)
                     setStroke(
@@ -89,8 +102,8 @@ class AddNoteActivity : AppCompatActivity() {
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
-                ).also { it.marginEnd = (8 * d).toInt() }
-                minHeight = (40 * d).toInt()
+                ).also { it.marginEnd = (6 * d).toInt() }
+                minHeight = (36 * d).toInt()
                 isClickable = true
                 isFocusable = true
                 setOnClickListener {
@@ -106,15 +119,17 @@ class AddNoteActivity : AppCompatActivity() {
     private fun saveAndFinish() {
         if (saving) return
         val titleRaw = binding.etTitle.text?.toString()?.trim().orEmpty()
-        val content = binding.etContent.text?.toString()?.trim().orEmpty()
-        if (titleRaw.isEmpty() && content.isEmpty()) {
+        val content = NoteInlineImages.serialize(binding.etContent.text ?: "")
+        val plain = NoteInlineImages.plainPreview(content)
+        if (titleRaw.isEmpty() && content.isBlank()) {
+            NoteInlineImages.listedImages(content).forEach { NoteImageStore.delete(this, it) }
             finish()
             return
         }
         val title = when {
             titleRaw.isNotEmpty() -> titleRaw
-            else -> content.lineSequence().firstOrNull()?.trim()?.take(80)
-                ?.ifEmpty { null } ?: "无标题"
+            plain.isNotEmpty() -> plain.take(80)
+            else -> "图片便签"
         }
         saving = true
         val now = System.currentTimeMillis()
@@ -125,7 +140,8 @@ class AddNoteActivity : AppCompatActivity() {
             stage = 0,
             nextReviewTime = Ebbinghaus.reviewTimeFor(now, 0),
             finished = false,
-            colorId = selectedColorId
+            colorId = selectedColorId,
+            imagePath = NoteInlineImages.firstImage(content)
         )
         lifecycleScope.launch {
             withContext(Dispatchers.IO) { dao.insert(note) }

@@ -143,7 +143,7 @@
                             android:layout_marginBottom="8dp"
                             android:background="#4D7A6F62" />
 
-                        <EditText
+                        <com.example.notesketch.CursorRememberEditText
                             android:id="@+id/etContent"
                             android:layout_width="match_parent"
                             android:layout_height="0dp"
@@ -163,10 +163,59 @@
                             android:textColorHint="#807A6F62"
                             android:textSize="15sp" />
 
+                        <LinearLayout
+                            android:id="@+id/mediaRow"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingTop="2dp">
+
+                            <ImageButton
+                                android:id="@+id/btnCamera"
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:contentDescription="拍照"
+                                android:focusable="false"
+                                android:padding="3dp"
+                                android:scaleType="fitCenter"
+                                android:src="@drawable/ic_note_camera" />
+
+                            <ImageButton
+                                android:id="@+id/btnGallery"
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:layout_marginStart="8dp"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:contentDescription="相册"
+                                android:focusable="false"
+                                android:padding="3dp"
+                                android:scaleType="fitCenter"
+                                android:src="@drawable/ic_note_gallery" />
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="0dp"
+                                android:layout_weight="1" />
+
+                            <ImageButton
+                                android:id="@+id/btnSaveEdit"
+                                android:layout_width="56dp"
+                                android:layout_height="56dp"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:contentDescription="保存"
+                                android:focusable="false"
+                                android:padding="2dp"
+                                android:scaleType="fitCenter"
+                                android:src="@drawable/fox_deco" />
+                        </LinearLayout>
+
                         <HorizontalScrollView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:paddingTop="6dp"
+                            android:fillViewport="false"
+                            android:paddingTop="2dp"
                             android:scrollbars="none">
 
                             <LinearLayout
@@ -175,17 +224,6 @@
                                 android:layout_height="wrap_content"
                                 android:orientation="horizontal" />
                         </HorizontalScrollView>
-
-                        <ImageButton
-                            android:id="@+id/btnSaveEdit"
-                            android:layout_width="96dp"
-                            android:layout_height="96dp"
-                            android:layout_marginTop="4dp"
-                            android:background="?attr/selectableItemBackgroundBorderless"
-                            android:contentDescription="保存"
-                            android:padding="2dp"
-                            android:scaleType="fitCenter"
-                            android:src="@drawable/fox_deco" />
                     </LinearLayout>
                 </FrameLayout>
 

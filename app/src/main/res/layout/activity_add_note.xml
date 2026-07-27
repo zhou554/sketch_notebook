@@ -72,7 +72,7 @@
             android:layout_marginHorizontal="24dp"
             android:background="#597A6F62" />
 
-        <EditText
+        <com.example.notesketch.CursorRememberEditText
             android:id="@+id/etContent"
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -92,20 +92,55 @@
             android:textColorHint="#807A6F62"
             android:textSize="15sp" />
 
+        <LinearLayout
+            android:id="@+id/mediaRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="20dp"
+            android:paddingTop="2dp"
+            android:paddingBottom="0dp">
+
+            <ImageButton
+                android:id="@+id/btnCamera"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="拍照"
+                android:focusable="false"
+                android:padding="3dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_note_camera" />
+
+            <ImageButton
+                android:id="@+id/btnGallery"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="相册"
+                android:focusable="false"
+                android:padding="3dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_note_gallery" />
+        </LinearLayout>
+
         <TextView
             android:id="@+id/labelColor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/patrick_hand"
             android:paddingHorizontal="24dp"
-            android:paddingTop="4dp"
+            android:paddingTop="2dp"
             android:text="便签颜色"
-            android:textSize="15sp" />
+            android:textSize="14sp" />
 
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingVertical="8dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
             android:scrollbars="none">
 
             <LinearLayout
