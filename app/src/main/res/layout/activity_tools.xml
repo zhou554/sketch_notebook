@@ -112,6 +112,39 @@
                     android:text="记账"
                     android:textSize="15sp" />
             </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/btnMood"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_gravity="fill_horizontal|top"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:contentDescription="心情日记"
+                android:focusable="true"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:paddingTop="2dp"
+                android:paddingBottom="6dp">
+
+                <ImageView
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
+                    android:contentDescription="@null"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/fox_deco" />
+
+                <TextView
+                    android:id="@+id/tvMoodLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="-4dp"
+                    android:fontFamily="@font/patrick_hand"
+                    android:includeFontPadding="false"
+                    android:text="心情日记"
+                    android:textSize="15sp" />
+            </LinearLayout>
         </GridLayout>
 
         <!-- 「工具」：原 22sp，移入橙色贴纸中央并与贴纸同向倾斜 -->

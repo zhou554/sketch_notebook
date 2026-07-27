@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/cream">
+
+    <com.example.notesketch.ScrapbookPaperView
+        android:id="@+id/paperBg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <LinearLayout
+        android:id="@+id/contentPanel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/btnBackRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="48dp"
+            android:paddingBottom="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="‹"
+                android:textColor="@color/ink"
+                android:textSize="28sp" />
+
+            <TextView
+                android:id="@+id/tvHeader"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                android:fontFamily="@font/patrick_hand"
+                android:text="心情详情"
+                android:textColor="@color/ink"
+                android:textSize="22sp" />
+
+        </LinearLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:clipToPadding="false"
+            android:fillViewport="false"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="24dp"
+            android:scrollbars="none"
+            android:overScrollMode="never">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- 点击便签进入编辑：固定高度，内容在框内滚动 -->
+                <FrameLayout
+                    android:id="@+id/notePaper"
+                    android:layout_width="match_parent"
+                    android:layout_height="400dp"
+                    android:background="@drawable/bg_detail_paper"
+                    android:elevation="3dp"
+                    android:foreground="?attr/selectableItemBackground"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:id="@+id/viewMode"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:id="@+id/ivMoodBadge"
+                                android:layout_width="52dp"
+                                android:layout_height="52dp"
+                                android:contentDescription="心情图标"
+                                android:scaleType="fitCenter"
+                                tools:src="@drawable/mood_fox_1" />
+
+                            <TextView
+                                android:id="@+id/tvMood"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="10dp"
+                                android:layout_weight="1"
+                                android:fontFamily="@font/patrick_hand"
+                                android:textColor="@color/ink"
+                                android:textSize="22sp"
+                                tools:text="元气满满" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tvContent"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_marginTop="12dp"
+                            android:layout_weight="1"
+                            android:lineSpacingExtra="4dp"
+                            android:overScrollMode="never"
+                            android:scrollbars="none"
+                            android:textColor="@color/muted"
+                            android:textSize="15sp"
+                            tools:text="心情正文" />
+
+                        <TextView
+                            android:id="@+id/tvDate"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:fontFamily="monospace"
+                            android:textColor="@color/muted"
+                            android:textSize="11sp"
+                            tools:text="07月15日 20:30" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:fontFamily="@font/patrick_hand"
+                            android:text="轻触便签可再次编辑"
+                            android:textColor="#997A6F62"
+                            android:textSize="13sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/editMode"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <HorizontalScrollView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:overScrollMode="never"
+                            android:scrollbars="none">
+
+                            <LinearLayout
+                                android:id="@+id/iconRow"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal" />
+                        </HorizontalScrollView>
+
+                        <EditText
+                            android:id="@+id/etTitle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:background="@android:color/transparent"
+                            android:fontFamily="@font/patrick_hand"
+                            android:hint="心情标题…"
+                            android:importantForAutofill="no"
+                            android:inputType="text"
+                            android:maxLines="1"
+                            android:paddingHorizontal="4dp"
+                            android:paddingVertical="2dp"
+                            android:textColor="@color/ink"
+                            android:textSize="18sp"
+                            tools:text="元气满满" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="2dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
+                            android:background="#4D7A6F62" />
+
+                        <com.example.notesketch.CursorRememberEditText
+                            android:id="@+id/etContent"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            android:background="@android:color/transparent"
+                            android:fadeScrollbars="true"
+                            android:gravity="top"
+                            android:hint="写点什么…"
+                            android:importantForAutofill="no"
+                            android:inputType="textMultiLine"
+                            android:lineSpacingExtra="4dp"
+                            android:nestedScrollingEnabled="true"
+                            android:overScrollMode="never"
+                            android:padding="0dp"
+                            android:scrollbars="none"
+                            android:textColor="@color/muted"
+                            android:textColorHint="#807A6F62"
+                            android:textSize="15sp" />
+
+                        <LinearLayout
+                            android:id="@+id/mediaRow"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingTop="2dp">
+
+                            <ImageButton
+                                android:id="@+id/btnCamera"
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:contentDescription="拍照"
+                                android:focusable="false"
+                                android:padding="3dp"
+                                android:scaleType="fitCenter"
+                                android:src="@drawable/ic_note_camera" />
+
+                            <ImageButton
+                                android:id="@+id/btnGallery"
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:layout_marginStart="8dp"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:contentDescription="相册"
+                                android:focusable="false"
+                                android:padding="3dp"
+                                android:scaleType="fitCenter"
+                                android:src="@drawable/ic_note_gallery" />
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="0dp"
+                                android:layout_weight="1" />
+
+                            <ImageButton
+                                android:id="@+id/btnSaveEdit"
+                                android:layout_width="56dp"
+                                android:layout_height="56dp"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:contentDescription="保存"
+                                android:focusable="false"
+                                android:padding="2dp"
+                                android:scaleType="fitCenter"
+                                android:src="@drawable/fox_deco" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </FrameLayout>
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+    <!-- 右下角装饰花枝：与复习详情页一致 -->
+    <ImageView
+        android:id="@+id/bloomCorner"
+        android:layout_width="160dp"
+        android:layout_height="160dp"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="-22dp"
+        android:layout_marginBottom="-16dp"
+        android:alpha="0.9"
+        android:contentDescription="@null"
+        android:elevation="4dp"
+        android:pivotX="100%"
+        android:pivotY="100%"
+        android:rotation="18"
+        android:scaleType="fitCenter"
+        android:src="@drawable/bloom_branch" />
+</FrameLayout>

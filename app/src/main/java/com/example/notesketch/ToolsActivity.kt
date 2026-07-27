@@ -19,6 +19,9 @@ class ToolsActivity : AppCompatActivity() {
         binding.btnLedger.setOnClickListener {
             startActivity(Intent(this, LedgerActivity::class.java))
         }
+        binding.btnMood.setOnClickListener {
+            startActivity(Intent(this, MoodDiaryActivity::class.java))
+        }
         applyChrome()
     }
 
@@ -31,7 +34,7 @@ class ToolsActivity : AppCompatActivity() {
         val theme = UiPrefs.theme(this)
         ThemeUi.applyScrapbook(this, binding.paperBg)
         binding.root.setBackgroundColor(theme.bg)
-        ThemeUi.colorTexts(theme.ink, binding.tvLedgerLabel)
+        ThemeUi.colorTexts(theme.ink, binding.tvLedgerLabel, binding.tvMoodLabel)
         binding.tvHeader.setTextColor(Color.parseColor("#3D2818"))
         ThemeUi.colorTexts(Color.parseColor("#3D2818"), binding.btnBack)
     }

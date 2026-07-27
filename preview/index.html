@@ -454,11 +454,105 @@
       padding: 20px 8px;
     }
 
+    /* 心情日记（对齐 activity_mood_diary.xml / item_mood.xml） */
+    .mood-icon-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .mood-icon-row::-webkit-scrollbar { display: none; }
+    .mood-icon-btn {
+      flex: 0 0 auto;
+      width: 48px;
+      height: 48px;
+      padding: 4px;
+      border: none;
+      border-radius: 10px;
+      background: transparent;
+      cursor: pointer;
+    }
+    .mood-icon-btn img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .mood-icon-btn.is-on {
+      background: #fffef8;
+      box-shadow: inset 0 0 0 2px #3d5c4a;
+    }
+    .mood-form .amount-input,
+    .mood-form .amount-input::placeholder {
+      text-align: left;
+    }
+    .mood-list {
+      padding: 4px 2px 0;
+    }
+    .mood-list .note-sticker { cursor: pointer; }
+    .mood-card-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .mood-card-head img {
+      flex: 0 0 auto;
+      width: 44px;
+      height: 44px;
+      object-fit: contain;
+    }
+    .mood-detail-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .mood-detail-head img {
+      flex: 0 0 auto;
+      width: 52px;
+      height: 52px;
+      object-fit: contain;
+    }
+    .mood-detail-date {
+      flex-shrink: 0;
+      margin-top: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+    .mood-detail-mood-row {
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      padding-bottom: 8px;
+      border-bottom: 2px dashed rgba(122, 111, 98, 0.35);
+    }
+    .mood-detail-mood-row .mood-icon-row { margin-bottom: 0; }
+    .mood-detail-mood-row .mood-icon-btn {
+      width: 40px;
+      height: 40px;
+    }
+    .mood-detail-title-input {
+      margin-top: 6px;
+      width: 100%;
+      padding: 2px 4px;
+      border: none;
+      background: transparent;
+      outline: none;
+      font-family: var(--font-hand);
+      font-size: 1.1rem;
+      color: var(--ink);
+    }
+
     .spread[data-paper="blank"],
     #view-detail[data-paper="blank"],
     #view-settings[data-paper="blank"],
     #view-tools[data-paper="blank"],
     #view-ledger[data-paper="blank"],
+    #view-mood[data-paper="blank"],
+    #view-mood-detail[data-paper="blank"],
     #view-add[data-paper="blank"] {
       background-image: none !important;
     }
@@ -467,6 +561,8 @@
     #view-settings[data-paper="lined"],
     #view-tools[data-paper="lined"],
     #view-ledger[data-paper="lined"],
+    #view-mood[data-paper="lined"],
+    #view-mood-detail[data-paper="lined"],
     #view-add[data-paper="lined"] {
       background-image: linear-gradient(var(--grid) 1px, transparent 1px) !important;
       background-size: 100% 18px !important;
@@ -476,6 +572,8 @@
     #view-settings[data-paper="grid"],
     #view-tools[data-paper="grid"],
     #view-ledger[data-paper="grid"],
+    #view-mood[data-paper="grid"],
+    #view-mood-detail[data-paper="grid"],
     #view-add[data-paper="grid"] {
       background-image:
         linear-gradient(var(--grid) 1px, transparent 1px),
@@ -487,6 +585,8 @@
     #view-settings[data-paper="dots"],
     #view-tools[data-paper="dots"],
     #view-ledger[data-paper="dots"],
+    #view-mood[data-paper="dots"],
+    #view-mood-detail[data-paper="dots"],
     #view-add[data-paper="dots"] {
       background-image: radial-gradient(circle, var(--grid) 1.1px, transparent 1.2px) !important;
       background-size: 14px 14px !important;
@@ -830,7 +930,9 @@
       line-height: 1;
     }
 
-    #view-ledger.active {
+    #view-ledger.active,
+    #view-mood.active,
+    #view-mood-detail.active {
       position: absolute;
       inset: 0;
       z-index: 10;
@@ -2023,6 +2125,10 @@
                   <img src="images/stickers/fox-deco-transparent.png" width="72" height="72" alt="" decoding="async" />
                   <span class="tools-tile-label">记账</span>
                 </button>
+                <button type="button" class="tools-tile" id="tools-mood-btn" aria-label="心情日记">
+                  <img src="images/stickers/fox-deco-transparent.png" width="72" height="72" alt="" decoding="async" />
+                  <span class="tools-tile-label">心情日记</span>
+                </button>
               </div>
               <div class="tools-title-stamp" aria-hidden="true">工具</div>
             </div>
@@ -2072,6 +2178,92 @@
               <p class="ledger-empty" id="ledger-empty">还没有记账<br />写下第一笔吧</p>
             </div>
           </div>
+        </section>
+
+        <section class="view" id="view-mood">
+          <header class="panel-head panel-head--corner-title" id="mood-header" tabindex="0" role="button" aria-label="返回">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6 L9 12 L15 18" /></svg>
+            <span class="panel-corner-title">心情日记</span>
+          </header>
+          <div class="panel-scroll scrollbar-hidden" id="mood-scroll">
+            <div class="settings-block ledger-form mood-form">
+              <h3>今天的心情</h3>
+              <div class="mood-icon-row" id="mood-icon-row" role="radiogroup" aria-label="选择心情图标"></div>
+              <div class="amount-row" id="mood-row">
+                <input class="amount-input" id="mood-title" type="text" maxlength="20" placeholder="心情标题…" aria-label="心情标题" />
+                <input class="amount-input" id="mood-content" type="text" maxlength="60" placeholder="写点什么…" aria-label="写点什么" />
+              </div>
+              <button type="button" class="ledger-add-btn" id="mood-add-btn" aria-label="贴上">
+                <img src="images/stickers/fox-deco-transparent.png" width="88" height="88" alt="" decoding="async" />
+                <span class="save-label">贴上</span>
+              </button>
+            </div>
+            <div class="settings-block">
+              <h3>心情便签</h3>
+              <div class="mood-list" id="mood-list"></div>
+              <p class="ledger-empty" id="mood-empty">还没有心情日记<br />贴上今天的第一张吧</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="view-mood-detail">
+          <header class="panel-head" id="mood-detail-header" tabindex="0" role="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6 L9 12 L15 18" /></svg>
+            <div class="panel-head-text">
+              <h2>心情详情</h2>
+            </div>
+          </header>
+          <div class="panel-scroll scrollbar-hidden" id="mood-detail-scroll">
+            <div class="detail-paper" id="mood-detail-paper">
+              <div class="detail-view">
+                <div class="mood-detail-head">
+                  <img id="mood-detail-icon" src="images/stickers/mood-fox-1.png" alt="心情图标" decoding="async" />
+                  <h3 id="mood-detail-mood"></h3>
+                </div>
+                <div class="detail-body" id="mood-detail-body"></div>
+                <p class="mood-detail-date" id="mood-detail-date"></p>
+                <p class="detail-edit-hint">轻触便签可再次编辑</p>
+              </div>
+              <div class="detail-edit">
+                <div class="mood-detail-mood-row" id="mood-detail-mood-row">
+                  <div class="mood-icon-row" id="mood-detail-icon-row" role="radiogroup" aria-label="选择心情图标"></div>
+                  <input class="mood-detail-title-input" id="mood-detail-title" type="text" maxlength="20" placeholder="心情标题…" aria-label="心情标题" />
+                </div>
+                <div
+                  id="mood-detail-edit-body"
+                  class="detail-edit-body"
+                  contenteditable="true"
+                  role="textbox"
+                  aria-multiline="true"
+                  aria-label="编辑内容"
+                  data-placeholder="写点什么…"
+                ></div>
+                <div class="detail-toolbar">
+                  <div class="note-media-row" id="mood-detail-media-row">
+                    <label class="media-icon-btn" title="拍照">
+                      <img src="images/stickers/ic_note_camera.png" width="26" height="26" alt="拍照" />
+                      <input type="file" id="mood-detail-camera" accept="image/*" capture="environment" />
+                    </label>
+                    <label class="media-icon-btn" title="相册">
+                      <img src="images/stickers/ic_note_gallery.png" width="26" height="26" alt="相册" />
+                      <input type="file" id="mood-detail-gallery" accept="image/*" multiple />
+                    </label>
+                  </div>
+                  <button type="button" class="detail-save" id="mood-detail-save" aria-label="保存">
+                    <img src="images/stickers/fox-deco-transparent.png" width="56" height="56" alt="" decoding="async" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <img
+            class="detail-bloom-corner"
+            src="images/stickers/bloom-branch.png"
+            width="168"
+            height="168"
+            alt=""
+            decoding="async"
+          />
         </section>
 
       </div>
@@ -2152,6 +2344,26 @@
       ledgerAddBtn: document.getElementById("ledger-add-btn"),
       ledgerTypeExpense: document.getElementById("ledger-type-expense"),
       ledgerTypeIncome: document.getElementById("ledger-type-income"),
+      moodView: document.getElementById("view-mood"),
+      toolsMoodBtn: document.getElementById("tools-mood-btn"),
+      moodIconRow: document.getElementById("mood-icon-row"),
+      moodTitle: document.getElementById("mood-title"),
+      moodContent: document.getElementById("mood-content"),
+      moodList: document.getElementById("mood-list"),
+      moodEmpty: document.getElementById("mood-empty"),
+      moodAddBtn: document.getElementById("mood-add-btn"),
+      moodDetailView: document.getElementById("view-mood-detail"),
+      moodDetailPaper: document.getElementById("mood-detail-paper"),
+      moodDetailMood: document.getElementById("mood-detail-mood"),
+      moodDetailIcon: document.getElementById("mood-detail-icon"),
+      moodDetailBody: document.getElementById("mood-detail-body"),
+      moodDetailDate: document.getElementById("mood-detail-date"),
+      moodDetailIconRow: document.getElementById("mood-detail-icon-row"),
+      moodDetailTitle: document.getElementById("mood-detail-title"),
+      moodDetailEditBody: document.getElementById("mood-detail-edit-body"),
+      moodDetailCamera: document.getElementById("mood-detail-camera"),
+      moodDetailGallery: document.getElementById("mood-detail-gallery"),
+      moodDetailSave: document.getElementById("mood-detail-save"),
       brightnessVeil: document.getElementById("brightness-veil"),
       setBrightness: document.getElementById("set-brightness"),
       setBrightnessVal: document.getElementById("set-brightness-val"),
@@ -2239,6 +2451,8 @@
       els.settingsView.classList.toggle("active", name === "settings");
       if (els.toolsView) els.toolsView.classList.toggle("active", name === "tools");
       if (els.ledgerView) els.ledgerView.classList.toggle("active", name === "ledger");
+      if (els.moodView) els.moodView.classList.toggle("active", name === "mood");
+      if (els.moodDetailView) els.moodDetailView.classList.toggle("active", name === "mood-detail");
       const onList = name === "list";
       if (els.settingsFoxBtn) {
         els.settingsFoxBtn.hidden = !onList;
@@ -2442,7 +2656,7 @@
       root.style.setProperty("--muted", theme.muted);
       root.style.setProperty("--tape-teal", theme.accent);
       const paper = uiPrefs.paperType || "grid";
-      [els.spread, els.detailView, els.settingsView, els.toolsView, els.ledgerView, els.addView].forEach((node) => {
+      [els.spread, els.detailView, els.settingsView, els.toolsView, els.ledgerView, els.moodView, els.moodDetailView, els.addView].forEach((node) => {
         if (node) node.dataset.paper = paper;
       });
       if (els.brightnessVeil) {
@@ -2738,6 +2952,253 @@
       if (els.ledgerAmount) els.ledgerAmount.value = "";
       if (els.ledgerMemo) els.ledgerMemo.value = "";
       renderLedger();
+    }
+
+    // 心情日记（对齐 MoodDiaryActivity / MoodAdapter / MoodIcons）
+    const MOOD_KEY = "notesketch-scrapbook-mood-v1";
+    const MOOD_ICONS = [
+      { src: "images/stickers/mood-fox-1.png", colorId: "parchment" },
+      { src: "images/stickers/mood-fox-2.png", colorId: "sage" },
+      { src: "images/stickers/mood-fox-3.png", colorId: "forest" },
+      { src: "images/stickers/mood-fox-4.png", colorId: "rose" },
+      { src: "images/stickers/mood-fox-5.png", colorId: "parchment" },
+      { src: "images/stickers/mood-fox-6.png", colorId: "ink" },
+    ];
+    const MOOD_DEFAULT_TITLE = "今日心情";
+    let moodEntries = loadMoods();
+    let selectedMoodIcon = 0;
+
+    function loadMoods() {
+      try {
+        const raw = localStorage.getItem(MOOD_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveMoods() {
+      localStorage.setItem(MOOD_KEY, JSON.stringify(moodEntries));
+    }
+
+    function moodIconSrc(icon) {
+      const i = Math.min(Math.max(icon | 0, 0), MOOD_ICONS.length - 1);
+      return MOOD_ICONS[i].src;
+    }
+
+    function moodIconColorId(icon) {
+      const i = Math.min(Math.max(icon | 0, 0), MOOD_ICONS.length - 1);
+      return MOOD_ICONS[i].colorId;
+    }
+
+    /* 在容器里铺开 6 只可点选的狐狸图标（对齐 MoodIcons.bindPicker） */
+    function renderMoodIconRow(row, selected, onSelect) {
+      if (!row) return;
+      row.innerHTML = "";
+      MOOD_ICONS.forEach((m, index) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "mood-icon-btn" + (index === selected ? " is-on" : "");
+        btn.setAttribute("role", "radio");
+        btn.setAttribute("aria-checked", index === selected ? "true" : "false");
+        const img = document.createElement("img");
+        img.src = m.src;
+        img.alt = `心情图标${index + 1}`;
+        btn.appendChild(img);
+        btn.addEventListener("click", () => onSelect(index));
+        row.appendChild(btn);
+      });
+    }
+
+    function renderMoodFormIconRow() {
+      renderMoodIconRow(els.moodIconRow, selectedMoodIcon, (index) => {
+        selectedMoodIcon = index;
+        renderMoodFormIconRow();
+      });
+    }
+
+    function renderMoods() {
+      if (!els.moodList) return;
+      const sorted = [...moodEntries].sort((a, b) => b.createdAt - a.createdAt);
+      els.moodList.innerHTML = "";
+      if (els.moodEmpty) els.moodEmpty.hidden = sorted.length > 0;
+      sorted.forEach((entry, i) => {
+        migrateMoodImages(entry);
+        const card = document.createElement("div");
+        card.className = "note-sticker";
+        const tilt = tilts[i % tilts.length];
+        const shift = shifts[i % shifts.length];
+        card.style.transform = `rotate(${tilt}deg) translateX(${shift}px)`;
+        const fill = stickerSurface(moodIconColorId(entry.icon));
+        card.style.background = fill;
+        const ink = contrastText(fill);
+        const muted = contrastMuted(fill);
+
+        const head = document.createElement("div");
+        head.className = "mood-card-head";
+        const iconImg = document.createElement("img");
+        iconImg.src = moodIconSrc(entry.icon);
+        iconImg.alt = "";
+        const h3 = document.createElement("h3");
+        h3.textContent = entry.mood;
+        h3.style.color = ink;
+        head.append(iconImg, h3);
+
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        const when = document.createElement("span");
+        when.className = "when";
+        when.textContent = NoteSketch.formatDateTime(entry.createdAt);
+        when.style.color = muted;
+
+        const del = document.createElement("button");
+        del.type = "button";
+        del.className = "btn-tear";
+        del.textContent = NoteSketch.strings.delete;
+        del.style.color = muted;
+        del.style.borderColor = muted;
+        del.addEventListener("click", (e) => {
+          e.stopPropagation();
+          moodEntries = moodEntries.filter((e2) => e2.id !== entry.id);
+          saveMoods();
+          renderMoods();
+        });
+
+        meta.append(when, del);
+        card.appendChild(head);
+        const plain = plainPreview(entry.content);
+        if (plain) {
+          const preview = document.createElement("div");
+          preview.className = "preview";
+          preview.textContent = plain;
+          preview.style.color = muted;
+          card.appendChild(preview);
+        }
+        const thumbSrc = moodFirstImageData(entry);
+        if (thumbSrc) {
+          const thumb = document.createElement("img");
+          thumb.className = "thumb";
+          thumb.src = thumbSrc;
+          thumb.alt = "";
+          card.appendChild(thumb);
+        }
+        card.appendChild(meta);
+        card.addEventListener("click", () => openMoodDetail(entry.id));
+        els.moodList.appendChild(card);
+      });
+    }
+
+    function openMood() {
+      applyUiPrefs();
+      renderMoodFormIconRow();
+      renderMoods();
+      showView("mood");
+    }
+
+    function addMoodEntry() {
+      const title = (els.moodTitle?.value || "").trim() || MOOD_DEFAULT_TITLE;
+      const content = (els.moodContent?.value || "").trim();
+      const maxId = moodEntries.reduce((m, e) => Math.max(m, e.id || 0), 0);
+      moodEntries.push({
+        id: maxId + 1,
+        mood: title,
+        icon: selectedMoodIcon,
+        content,
+        images: {},
+        createdAt: Date.now(),
+      });
+      saveMoods();
+      if (els.moodTitle) els.moodTitle.value = "";
+      if (els.moodContent) els.moodContent.value = "";
+      renderMoods();
+    }
+
+    let currentMoodId = null;
+    let moodDetailIcon = 0;
+
+    function migrateMoodImages(entry) {
+      if (!entry.images) entry.images = {};
+      if (typeof entry.icon !== "number") entry.icon = 0;
+      return entry;
+    }
+
+    function moodFirstImageData(entry) {
+      const m = String(entry.content || "").match(/\{\{img:([^}]+)\}\}/);
+      return (m && entry.images && entry.images[m[1]]) || "";
+    }
+
+    function applyMoodDetailPaperColor(icon) {
+      if (!els.moodDetailPaper) return;
+      const fill = stickerSurface(moodIconColorId(icon));
+      els.moodDetailPaper.style.background = fill;
+      const ink = contrastText(fill);
+      const muted = contrastMuted(fill);
+      if (els.moodDetailMood) els.moodDetailMood.style.color = ink;
+      if (els.moodDetailBody) els.moodDetailBody.style.color = muted;
+      if (els.moodDetailDate) els.moodDetailDate.style.color = muted;
+      if (els.moodDetailEditBody) els.moodDetailEditBody.style.color = ink;
+      if (els.moodDetailTitle) els.moodDetailTitle.style.color = ink;
+    }
+
+    function openMoodDetail(id) {
+      const entry = moodEntries.find((e) => e.id === id);
+      if (!entry) {
+        showView("mood");
+        return;
+      }
+      migrateMoodImages(entry);
+      currentMoodId = id;
+      moodDetailIcon = entry.icon;
+      exitMoodDetailEdit(false);
+      els.moodDetailMood.textContent = entry.mood;
+      if (els.moodDetailIcon) els.moodDetailIcon.src = moodIconSrc(entry.icon);
+      renderViewBody(els.moodDetailBody, entry.content, entry.images);
+      els.moodDetailDate.textContent = NoteSketch.formatDateTime(entry.createdAt);
+      applyMoodDetailPaperColor(entry.icon);
+      applyUiPrefs();
+      showView("mood-detail");
+    }
+
+    function renderMoodDetailIconRow() {
+      renderMoodIconRow(els.moodDetailIconRow, moodDetailIcon, (index) => {
+        moodDetailIcon = index;
+        renderMoodDetailIconRow();
+        applyMoodDetailPaperColor(moodDetailIcon);
+      });
+    }
+
+    function enterMoodDetailEdit() {
+      const entry = moodEntries.find((e) => e.id === currentMoodId);
+      if (!entry) return;
+      migrateMoodImages(entry);
+      moodDetailIcon = entry.icon;
+      els.moodDetailPaper.classList.add("is-editing");
+      renderMoodDetailIconRow();
+      if (els.moodDetailTitle) els.moodDetailTitle.value = entry.mood;
+      hydrateEditable(els.moodDetailEditBody, entry.content || "", entry.images || {});
+      applyMoodDetailPaperColor(moodDetailIcon);
+      els.moodDetailEditBody.focus();
+    }
+
+    function exitMoodDetailEdit(save) {
+      if (save) {
+        const entry = moodEntries.find((e) => e.id === currentMoodId);
+        if (entry) {
+          const packed = serializeEditable(els.moodDetailEditBody);
+          entry.mood = (els.moodDetailTitle?.value || "").trim() || MOOD_DEFAULT_TITLE;
+          entry.icon = moodDetailIcon;
+          entry.content = packed.content;
+          entry.images = packed.images;
+          saveMoods();
+          els.moodDetailMood.textContent = entry.mood;
+          if (els.moodDetailIcon) els.moodDetailIcon.src = moodIconSrc(entry.icon);
+          renderViewBody(els.moodDetailBody, entry.content, entry.images);
+          applyMoodDetailPaperColor(entry.icon);
+          renderMoods();
+        }
+      }
+      els.moodDetailPaper.classList.remove("is-editing");
+      return true;
     }
 
     function sortedNotes() {
@@ -3444,9 +3905,18 @@
     bindBack(document.getElementById("settings-header"), () => showView("list"));
     bindBack(document.getElementById("tools-header"), () => showView("list"));
     bindBack(document.getElementById("ledger-header"), () => showView("tools"));
+    bindBack(document.getElementById("mood-header"), () => showView("tools"));
+    bindBack(document.getElementById("mood-detail-header"), () => {
+      if (els.moodDetailPaper.classList.contains("is-editing")) {
+        exitMoodDetailEdit(true);
+      }
+      renderMoods();
+      showView("mood");
+    });
     els.settingsFoxBtn.addEventListener("click", openSettings);
     if (els.toolsFoxBtn) els.toolsFoxBtn.addEventListener("click", openTools);
     if (els.toolsLedgerBtn) els.toolsLedgerBtn.addEventListener("click", openLedger);
+    if (els.toolsMoodBtn) els.toolsMoodBtn.addEventListener("click", openMood);
     if (els.ledgerTagBtn) {
       els.ledgerTagBtn.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -3459,6 +3929,7 @@
       if (row && row.contains(e.target)) return;
       closeLedgerTagMenu();
     });
+    if (els.moodAddBtn) els.moodAddBtn.addEventListener("click", addMoodEntry);
     if (els.ledgerTypeExpense) {
       els.ledgerTypeExpense.addEventListener("click", () => {
         ledgerIsExpense = true;
@@ -3485,16 +3956,28 @@
       applyUiPrefs();
     });
     els.detailPaper.querySelector(".detail-view").addEventListener("click", enterDetailEdit);
+    if (els.moodDetailPaper) {
+      els.moodDetailPaper.querySelector(".detail-view").addEventListener("click", enterMoodDetailEdit);
+    }
     watchEditableRange(els.contentInput);
     watchEditableRange(els.detailEditBody);
+    watchEditableRange(els.moodDetailEditBody);
     wireImageInput(els.addCamera, els.contentInput);
     wireImageInput(els.addGallery, els.contentInput);
     wireImageInput(els.detailCamera, els.detailEditBody);
     wireImageInput(els.detailGallery, els.detailEditBody);
+    wireImageInput(els.moodDetailCamera, els.moodDetailEditBody);
+    wireImageInput(els.moodDetailGallery, els.moodDetailEditBody);
     els.detailSave.addEventListener("click", (e) => {
       e.stopPropagation();
       exitDetailEdit(true);
     });
+    if (els.moodDetailSave) {
+      els.moodDetailSave.addEventListener("click", (e) => {
+        e.stopPropagation();
+        exitMoodDetailEdit(true);
+      });
+    }
     els.fab.addEventListener("click", openAdd);
 
     initListPageScroll();
