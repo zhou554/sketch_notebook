@@ -55,23 +55,39 @@
             android:layout_marginHorizontal="16dp"
             android:background="#597A6F62" />
 
+        <LinearLayout
+            android:id="@+id/contentCard"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="12dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_ai_tutor_card"
+            android:elevation="4dp"
+            android:orientation="vertical"
+            android:padding="12dp">
+
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabMode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="12dp"
-            android:layout_marginTop="8dp"
+            android:background="@android:color/transparent"
             app:tabIndicatorFullWidth="false"
             app:tabMode="fixed" />
+
+        <FrameLayout
+            android:id="@+id/panelContainer"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
 
         <!-- API 对话 -->
         <LinearLayout
             android:id="@+id/panelApi"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:paddingHorizontal="12dp">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/btnToggleSettings"
@@ -187,10 +203,8 @@
         <LinearLayout
             android:id="@+id/panelWeb"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="match_parent"
             android:orientation="vertical"
-            android:paddingHorizontal="12dp"
             android:visibility="gone">
 
             <EditText
@@ -198,12 +212,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="AI 网址（如 https://chat.deepseek.com）"
+                android:imeOptions="actionGo"
                 android:inputType="textUri"
                 android:textSize="14sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:gravity="center_vertical"
                 android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
@@ -211,45 +228,79 @@
                     style="@style/Widget.Material3.Button.OutlinedButton"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="4dp"
+                    android:layout_marginEnd="6dp"
                     android:layout_weight="1"
-                    android:text="打开" />
+                    android:minHeight="40dp"
+                    android:text="打开网页"
+                    android:textColor="#3D3428"
+                    android:textSize="13sp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnWebBack"
                     style="@style/Widget.Material3.Button.OutlinedButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="‹" />
+                    android:layout_marginEnd="4dp"
+                    android:minWidth="52dp"
+                    android:minHeight="40dp"
+                    android:text="后退"
+                    android:textColor="#3D3428"
+                    android:textSize="12sp"
+                    android:contentDescription="后退一页" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnWebForward"
                     style="@style/Widget.Material3.Button.OutlinedButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="›" />
+                    android:layout_marginEnd="4dp"
+                    android:minWidth="52dp"
+                    android:minHeight="40dp"
+                    android:text="前进"
+                    android:textColor="#3D3428"
+                    android:textSize="12sp"
+                    android:contentDescription="前进一页" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnWebRefresh"
                     style="@style/Widget.Material3.Button.OutlinedButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="↻" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnWebOpenExternal"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="外部" />
+                    android:minWidth="52dp"
+                    android:minHeight="40dp"
+                    android:text="刷新"
+                    android:textColor="#3D3428"
+                    android:textSize="12sp"
+                    android:contentDescription="刷新当前页" />
             </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="在上方输入 AI 网址，点「打开网页」即可在应用内浏览"
+                android:textColor="#7A6F62"
+                android:textSize="12sp" />
+
+            <ProgressBar
+                android:id="@+id/webProgress"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:layout_marginTop="6dp"
+                android:max="100"
+                android:progress="0"
+                android:visibility="gone" />
 
             <WebView
                 android:id="@+id/webView"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
+                android:layout_marginTop="6dp"
                 android:layout_weight="1"
-                android:overScrollMode="never" />
+                android:background="#FFFFFF"
+                android:overScrollMode="never"
+                android:scrollbars="none" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnPasteToNote"
@@ -257,6 +308,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="8dp"
                 android:text="粘贴剪贴板到新建便签" />
+        </LinearLayout>
+
+        </FrameLayout>
+
         </LinearLayout>
     </LinearLayout>
 </FrameLayout>

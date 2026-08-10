@@ -66,6 +66,25 @@ object ThemeUi {
         }
     }
 
+    /** 浅色贴纸卡片（#FFFEF8）上的输入框，字色不随深色主题变亮。 */
+    fun styleLightPanelEdit(et: EditText, fill: Int = Color.parseColor("#FFFEF8")) {
+        et.setTextColor(contrastText(fill))
+        et.setHintTextColor(contrastMuted(fill))
+        et.background = GradientDrawable().apply {
+            setColor(fill)
+            setStroke(
+                (1 * et.resources.displayMetrics.density).toInt().coerceAtLeast(1),
+                Color.parseColor("#483D3428")
+            )
+        }
+    }
+
+    fun styleLightPanelButton(btn: MaterialButton, fill: Int = Color.parseColor("#FFFEF8")) {
+        val ink = contrastText(fill)
+        btn.setTextColor(ink)
+        btn.strokeColor = ColorStateList.valueOf(ink)
+    }
+
     fun styleButton(btn: MaterialButton, theme: ThemePalette) {
         btn.setTextColor(theme.ink)
         btn.strokeColor = ColorStateList.valueOf(theme.ink)

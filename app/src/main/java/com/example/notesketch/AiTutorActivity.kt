@@ -1,5 +1,6 @@
 package com.example.notesketch
 
+import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -9,9 +10,16 @@ import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.view.Gravity
+import android.view.KeyEvent
 import android.view.View
+import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import android.webkit.CookieManager
 import android.webkit.WebChromeClient
+import android.webkit.WebResourceRequest
+import android.webkit.WebSettings
+import android.webkit.WebResourceError
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.LinearLayout
@@ -36,6 +44,7 @@ class AiTutorActivity : AppCompatActivity() {
     )
     private val chatMessages = mutableListOf<ChatMessage>()
     private var settingsExpanded = false
+    private var webTabActive = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,11 +82,22 @@ class AiTutorActivity : AppCompatActivity() {
         binding.btnWebBack.setOnClickListener { if (binding.webView.canGoBack()) binding.webView.goBack() }
         binding.btnWebForward.setOnClickListener { if (binding.webView.canGoForward()) binding.webView.goForward() }
         binding.btnWebRefresh.setOnClickListener { binding.webView.reload() }
-        binding.btnWebOpenExternal.setOnClickListener { openWebExternal() }
         binding.btnWebGo.setOnClickListener { loadWebUrl() }
+        binding.etWebUrl.setOnEditorActionListener { _, actionId, event ->
+            val enter = event?.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN
+            if (actionId == EditorInfo.IME_ACTION_GO || enter) {
+                loadWebUrl()
+                true
+            } else {
+                false
+            }
+        }
 
         setupWebView()
         loadSettings()
+        if (savedInstanceState != null) {
+            binding.webView.restoreState(savedInstanceState)
+        }
         showTab(0)
         applyChrome()
 
@@ -95,31 +115,196 @@ class AiTutorActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        if (webTabActive) binding.webView.onResume()
         applyChrome()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        binding.webView.saveState(outState)
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onPause() {
+        binding.webView.onPause()
+        super.onPause()
+    }
+
+    override fun onDestroy() {
+        binding.webView.apply {
+            stopLoading()
+            (parent as? ViewGroup)?.removeView(this)
+            destroy()
+        }
+        super.onDestroy()
+    }
+
     private fun showTab(index: Int) {
+        webTabActive = index == 1
         binding.panelApi.visibility = if (index == 0) View.VISIBLE else View.GONE
         binding.panelWeb.visibility = if (index == 1) View.VISIBLE else View.GONE
         if (index == 1) {
-            val url = binding.etWebUrl.text?.toString()?.trim().orEmpty()
-            if (url.isNotBlank() && binding.webView.url.isNullOrBlank()) {
-                loadWebUrl()
-            }
+            binding.webView.onResume()
+            binding.panelWeb.post { maybeAutoLoadWeb() }
+        } else {
+            binding.webView.onPause()
         }
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     private fun setupWebView() {
+        CookieManager.getInstance().setAcceptCookie(true)
+        CookieManager.getInstance().setAcceptThirdPartyCookies(binding.webView, true)
+
+        binding.webView.setBackgroundColor(Color.WHITE)
         binding.webView.settings.apply {
             javaScriptEnabled = true
             domStorageEnabled = true
+            databaseEnabled = true
             loadWithOverviewMode = true
             useWideViewPort = true
             builtInZoomControls = true
             displayZoomControls = false
+            mixedContentMode = WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE
+            javaScriptCanOpenWindowsAutomatically = true
+            setSupportMultipleWindows(true)
+            loadsImagesAutomatically = true
+            cacheMode = WebSettings.LOAD_DEFAULT
+            mediaPlaybackRequiresUserGesture = false
+            userAgentString = desktopUserAgent()
         }
-        binding.webView.webViewClient = WebViewClient()
-        binding.webView.webChromeClient = WebChromeClient()
+        binding.webView.webViewClient = object : WebViewClient() {
+            override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+                return handleInAppLink(view, request.url?.toString().orEmpty())
+            }
+
+            @Deprecated("Deprecated in Java")
+            override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+                return handleInAppLink(view, url)
+            }
+
+            override fun onPageStarted(view: WebView, url: String?, favicon: android.graphics.Bitmap?) {
+                updateWebProgress(5)
+            }
+
+            override fun onPageFinished(view: WebView, url: String?) {
+                updateWebProgress(100)
+                val current = url?.trim().orEmpty()
+                if (current.isNotBlank() && current != "about:blank") {
+                    binding.etWebUrl.setText(current)
+                    AiTutorPrefs.setWebUrl(this@AiTutorActivity, current)
+                }
+                updateWebNavButtons()
+            }
+
+            override fun onReceivedError(
+                view: WebView,
+                request: WebResourceRequest,
+                error: WebResourceError
+            ) {
+                if (request.isForMainFrame) {
+                    updateWebProgress(100)
+                    Toast.makeText(
+                        this@AiTutorActivity,
+                        "页面加载失败，请检查网址或网络",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+        binding.webView.webChromeClient = object : WebChromeClient() {
+            override fun onProgressChanged(view: WebView, newProgress: Int) {
+                updateWebProgress(newProgress)
+            }
+
+            override fun onCreateWindow(
+                view: WebView,
+                isDialog: Boolean,
+                isUserGesture: Boolean,
+                resultMsg: android.os.Message
+            ): Boolean {
+                val href = view.hitTestResult.extra
+                if (!href.isNullOrBlank()) {
+                    view.loadUrl(normalizeWebUrl(href))
+                    return false
+                }
+                val transport = resultMsg.obj as WebView.WebViewTransport
+                transport.webView = view
+                resultMsg.sendToTarget()
+                return true
+            }
+        }
+        binding.webView.setDownloadListener { _, _, _, _, _ ->
+            Toast.makeText(this, "下载请在网页内长按链接操作", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun desktopUserAgent(): String {
+        return "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
+            "(KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+    }
+
+    private fun updateWebProgress(progress: Int) {
+        binding.webProgress.progress = progress
+        binding.webProgress.visibility =
+            if (progress in 1..99) View.VISIBLE else View.GONE
+    }
+
+    private fun updateWebNavButtons() {
+        binding.btnWebBack.isEnabled = binding.webView.canGoBack()
+        binding.btnWebForward.isEnabled = binding.webView.canGoForward()
+    }
+
+    /** 所有网页链接尽量留在应用内 WebView 打开，不跳转系统浏览器。 */
+    private fun handleInAppLink(view: WebView, url: String): Boolean {
+        if (url.isBlank()) return true
+        val uri = Uri.parse(url)
+        when (uri.scheme?.lowercase()) {
+            "http", "https", "about" -> return false
+            "intent" -> {
+                try {
+                    val intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME)
+                    val fallback = intent.getStringExtra("browser_fallback_url")
+                    if (!fallback.isNullOrBlank()) {
+                        view.loadUrl(fallback)
+                        return true
+                    }
+                    if (intent.resolveActivity(packageManager) != null) {
+                        startActivity(intent)
+                    } else {
+                        Toast.makeText(this, "该操作需要在应用内网页完成", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (_: Exception) {
+                    Toast.makeText(this, "无法打开链接", Toast.LENGTH_SHORT).show()
+                }
+                return true
+            }
+            else -> {
+                Toast.makeText(this, "该链接暂不支持，请尝试在网页内操作", Toast.LENGTH_SHORT).show()
+                return true
+            }
+        }
+    }
+
+    private fun maybeAutoLoadWeb() {
+        val target = normalizeWebUrl(binding.etWebUrl.text?.toString().orEmpty())
+        if (target.isBlank()) return
+        val current = binding.webView.url?.trim().orEmpty()
+        if (current.isBlank() || current == "about:blank" || !urlsEquivalent(current, target)) {
+            loadWebUrl()
+        }
+    }
+
+    private fun normalizeWebUrl(raw: String): String {
+        var url = raw.trim()
+        if (url.isBlank()) return ""
+        if (!url.startsWith("http://") && !url.startsWith("https://")) {
+            url = "https://$url"
+        }
+        return url
+    }
+
+    private fun urlsEquivalent(a: String, b: String): Boolean {
+        return normalizeWebUrl(a).trimEnd('/') == normalizeWebUrl(b).trimEnd('/')
     }
 
     private fun loadSettings() {
@@ -175,7 +360,7 @@ class AiTutorActivity : AppCompatActivity() {
             return
         }
 
-        hideKeyboard()
+        hideKeyboard(binding.etInput)
         binding.etInput.setText("")
         appendMessage(ChatMessage("user", input))
         binding.btnSend.isEnabled = false
@@ -221,27 +406,15 @@ class AiTutorActivity : AppCompatActivity() {
     }
 
     private fun loadWebUrl() {
-        var url = binding.etWebUrl.text?.toString()?.trim().orEmpty()
+        val url = normalizeWebUrl(binding.etWebUrl.text?.toString().orEmpty())
         if (url.isBlank()) {
             Toast.makeText(this, "请填写 AI 网址", Toast.LENGTH_SHORT).show()
             return
         }
-        if (!url.startsWith("http://") && !url.startsWith("https://")) {
-            url = "https://$url"
-            binding.etWebUrl.setText(url)
-        }
+        binding.etWebUrl.setText(url)
         AiTutorPrefs.setWebUrl(this, url)
+        hideKeyboard(binding.etWebUrl)
         binding.webView.loadUrl(url)
-    }
-
-    private fun openWebExternal() {
-        val url = binding.etWebUrl.text?.toString()?.trim().orEmpty()
-        if (url.isBlank()) {
-            Toast.makeText(this, "请填写 AI 网址", Toast.LENGTH_SHORT).show()
-            return
-        }
-        val full = if (url.startsWith("http")) url else "https://$url"
-        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(full)))
     }
 
     private fun pasteClipboardToNote() {
@@ -264,18 +437,47 @@ class AiTutorActivity : AppCompatActivity() {
         Toast.makeText(this, "已复制", Toast.LENGTH_SHORT).show()
     }
 
-    private fun hideKeyboard() {
+    private fun hideKeyboard(view: View = binding.etInput) {
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(binding.etInput.windowToken, 0)
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
     private fun applyChrome() {
         val theme = UiPrefs.theme(this)
+        val panelBg = Color.parseColor("#FFFEF8")
+        val panelInk = ThemeUi.contrastText(panelBg)
+        val panelMuted = ThemeUi.contrastMuted(panelBg)
+
         ThemeUi.applyScrapbook(this, binding.paperBg)
         binding.root.setBackgroundColor(theme.bg)
         ThemeUi.colorTexts(theme.ink, binding.tvHeader)
         ThemeUi.colorTexts(theme.muted, binding.btnBack)
         ThemeUi.colorLines(0x597A6F62, binding.headerLine)
+
+        ThemeUi.colorTexts(panelInk, binding.btnToggleSettings)
+        listOf(
+            binding.etBaseUrl,
+            binding.etApiKey,
+            binding.etModel,
+            binding.etSystemPrompt,
+            binding.etInput,
+            binding.etWebUrl
+        ).forEach { ThemeUi.styleLightPanelEdit(it, panelBg) }
+        listOf(
+            binding.btnSaveSettings,
+            binding.btnTestApi,
+            binding.btnSend,
+            binding.btnWebGo,
+            binding.btnWebBack,
+            binding.btnWebForward,
+            binding.btnWebRefresh,
+            binding.btnPasteToNote
+        ).forEach {
+            ThemeUi.styleLightPanelButton(it, panelBg)
+            it.setTextColor(panelInk)
+        }
+        binding.tabMode.setTabTextColors(panelMuted, panelInk)
+        binding.tabMode.setSelectedTabIndicatorColor(theme.accent)
     }
 }
 
@@ -335,28 +537,35 @@ private class AiChatAdapter(
 
         fun bind(msg: ChatMessage, onSaveNote: (String) -> Unit, onCopy: (String) -> Unit) {
             val isUser = msg.role == "user"
+            val bubbleBg = if (isUser) Color.parseColor("#E8F0EA") else Color.parseColor("#FFFEF8")
             label.text = when (msg.role) {
                 "user" -> "我"
                 "assistant" -> "AI 导师"
                 else -> msg.role
             }
             body.text = msg.content
+            label.setTextColor(ThemeUi.contrastMuted(bubbleBg))
+            body.setTextColor(
+                if (msg.content.startsWith("⚠")) Color.parseColor("#9A4A32")
+                else ThemeUi.contrastText(bubbleBg)
+            )
             root.background = GradientDrawable().apply {
                 cornerRadius = 10 * d
-                setColor(if (isUser) Color.parseColor("#E8F0EA") else Color.parseColor("#FFFEF8"))
+                setColor(bubbleBg)
                 setStroke((1 * d).toInt().coerceAtLeast(1), Color.parseColor("#337A6F62"))
             }
             actions.removeAllViews()
             if (msg.role == "assistant" && !msg.content.startsWith("⚠") && msg.content != "思考中…") {
-                actions.addView(actionBtn("存为便签") { onSaveNote(msg.content) })
-                actions.addView(actionBtn("复制") { onCopy(msg.content) })
+                actions.addView(actionBtn("存为便签", bubbleBg) { onSaveNote(msg.content) })
+                actions.addView(actionBtn("复制", bubbleBg) { onCopy(msg.content) })
             }
         }
 
-        private fun actionBtn(text: String, onClick: () -> Unit): TextView {
+        private fun actionBtn(text: String, bubbleBg: Int, onClick: () -> Unit): TextView {
             return TextView(root.context).apply {
                 this.text = text
                 textSize = 13f
+                setTextColor(ThemeUi.contrastText(bubbleBg))
                 setPadding((10 * d).toInt(), (4 * d).toInt(), (10 * d).toInt(), (4 * d).toInt())
                 setOnClickListener { onClick() }
             }

@@ -59,7 +59,8 @@
 
         <activity
             android:name=".AiTutorActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:hardwareAccelerated="true" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
