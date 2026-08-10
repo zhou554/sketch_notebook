@@ -13,6 +13,10 @@
       --grid: #ddd5c8;
       --ink: #3d3428;
       --muted: #7a6f62;
+      --panel-surface: #fffef8;
+      --panel-ink: #3d3428;
+      --panel-muted: #6f6256;
+      --panel-border: rgba(61, 52, 40, 0.22);
       --wood: #5c4030;
       --wood-light: #7a5844;
       --tape-teal: #7aab9e;
@@ -216,7 +220,7 @@
       display: flex;
       gap: 8px;
       margin-bottom: 16px;
-      padding: 12px;
+      padding: 14px 12px;
       background: #fffef8;
       border: 2px solid rgba(61, 52, 40, 0.22);
       outline: 2px solid #fff;
@@ -232,107 +236,81 @@
     }
     .ledger-summary .val {
       font-family: var(--font-hand);
-      font-size: 1.15rem;
+      font-size: 1rem;
       color: #3d3428;
+    }
+    .ledger-summary > div:first-child .val {
+      font-size: 1.35rem;
+      letter-spacing: -0.01em;
+    }
+    .ledger-summary > div:not(:first-child) .val {
+      font-size: 0.95rem;
+      opacity: 0.92;
     }
     .ledger-summary .val.income { color: var(--tape-teal); }
     .ledger-summary .val.expense { color: var(--due); }
-    .ledger-form .amount-row {
-      display: flex;
-      align-items: stretch;
-      gap: 8px;
-      margin: 8px 0 4px;
-      position: relative;
+    .ledger-form .ledger-field {
+      margin-top: 12px;
     }
-    .ledger-form .amount-input {
-      flex: 1 1 auto;
-      min-width: 0;
-      width: auto;
-      height: 30px;
-      box-sizing: border-box;
-      border: 1.5px solid #3d5c4a;
-      border-radius: 999px;
-      background: #fffef8;
-      font-family: var(--font-hand);
-      font-size: 1rem;
-      color: var(--ink);
-      outline: none;
-      padding: 0 14px;
-      margin: 0;
-      text-align: center;
-      line-height: 1;
-    }
-    .ledger-form .amount-input::placeholder {
-      color: var(--muted);
-      text-align: center;
-    }
-    .ledger-tag-btn {
-      flex: 0 0 auto;
-      min-width: 3.8em;
-      max-width: 5.2em;
-      height: 30px;
-      border: 1.5px solid #3d5c4a;
-      border-radius: 999px;
-      background: #fffef8;
-      font-family: var(--font-hand);
-      font-size: 0.95rem;
-      color: var(--ink);
-      padding: 0 12px;
-      cursor: pointer;
-      line-height: 1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .ledger-tag-btn:hover {
-      background: color-mix(in srgb, var(--tape-teal) 16%, #fffef8);
-    }
-    .ledger-tag-menu {
-      display: none;
-      position: absolute;
-      right: 0;
-      top: calc(100% + 4px);
-      z-index: 8;
-      min-width: 7.5em;
-      max-height: 220px;
-      overflow-y: auto;
-      padding: 4px;
-      border: 1.5px solid #3d5c4a;
-      border-radius: 12px;
-      background: #fffef8;
-      font-family: var(--font-hand);
-      box-shadow: 0 4px 12px rgba(61, 52, 40, 0.12);
-    }
-    .ledger-tag-menu.open { display: block; }
-    .ledger-tag-menu button {
+    .ledger-form .ledger-label {
       display: block;
-      width: 100%;
+      font-family: var(--font-hand);
+      font-size: 0.9rem;
+      color: var(--ink);
+      opacity: 0.9;
+      margin-bottom: 6px;
+    }
+    .ledger-amount-hero {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 12px;
+      background: var(--panel-surface);
+      border: 2px solid var(--panel-border);
+      border-radius: 12px;
+    }
+    .ledger-currency {
+      font-family: var(--font-hand);
+      font-size: 1.5rem;
+      color: var(--panel-muted);
+      line-height: 1;
+    }
+    .ledger-amount-input {
+      flex: 1;
+      min-width: 0;
       border: none;
       background: transparent;
       font-family: var(--font-hand);
-      font-size: 0.95rem;
-      color: var(--ink);
-      text-align: left;
-      padding: 6px 10px;
-      cursor: pointer;
-      border-radius: 8px;
+      font-size: 1.75rem;
+      color: var(--panel-ink);
+      outline: none;
+      padding: 0;
+      line-height: 1.2;
     }
-    .ledger-tag-menu button:hover,
-    .ledger-tag-menu button.is-on {
-      background: var(--tape-teal);
-      color: #fffef8;
+    .ledger-amount-input::placeholder {
+      color: var(--panel-muted);
+      opacity: 0.72;
+    }
+    .ledger-category-block {
+      margin-top: 14px;
+    }
+    .ledger-tag-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
     }
     .ledger-type-row {
-      display: inline-grid;
+      display: grid;
       grid-template-columns: 1fr 1fr;
-      width: 8.6em;
-      height: 28px;
-      margin-top: 6px;
-      border: 1.5px solid #3d5c4a;
-      border-radius: 999px;
+      width: 100%;
+      max-width: 14em;
+      height: 36px;
+      margin-top: 8px;
+      border: 1.5px solid rgba(61, 52, 40, 0.28);
+      border-radius: 10px;
       overflow: hidden;
       box-sizing: border-box;
-      background: #fffef8;
+      background: var(--panel-surface);
     }
     .ledger-type-row button {
       width: 100%;
@@ -345,116 +323,183 @@
       background: transparent;
       font-family: var(--font-hand);
       font-size: 0.95rem;
-      color: var(--ink);
+      color: var(--panel-ink);
       cursor: pointer;
       line-height: 1;
       display: flex;
       align-items: center;
       justify-content: center;
-      writing-mode: horizontal-tb;
-      text-orientation: mixed;
+      transition: background-color 0.2s var(--ease), color 0.2s var(--ease);
     }
     .ledger-type-row button + button {
-      border-left: 1.5px solid #3d5c4a;
+      border-left: 1.5px solid rgba(61, 52, 40, 0.28);
     }
     .ledger-type-row button.is-on {
-      background: linear-gradient(180deg, #8bb8ab 0%, var(--tape-teal) 55%, #5f9084 100%);
+      background: var(--tape-teal);
       color: #fffef8;
-      text-shadow: 0 1px 0 rgba(61, 52, 40, 0.18);
+    }
+    .ledger-type-row button:focus-visible {
+      outline: 2px solid var(--tape-teal);
+      outline-offset: -2px;
     }
     .ledger-form .memo-input {
-      display: none;
+      display: block;
       width: 100%;
       box-sizing: border-box;
-      height: 30px;
-      margin: 6px 0 2px;
-      border: 1.5px solid #3d5c4a;
-      border-radius: 999px;
-      background: #fffef8;
+      height: 40px;
+      margin: 0;
+      border: 1.5px solid rgba(61, 52, 40, 0.28);
+      border-radius: 10px;
+      background: var(--panel-surface);
       font-family: var(--font-hand);
       font-size: 0.95rem;
-      color: var(--ink);
+      color: var(--panel-ink);
       outline: none;
-      padding: 0 14px;
+      padding: 0 12px;
       text-align: left;
       line-height: 1;
+      transition: border-color 0.2s var(--ease);
     }
-    .ledger-form .memo-input.show {
-      display: block;
+    .ledger-form .memo-input:focus {
+      border-color: var(--tape-teal);
     }
     .ledger-form .memo-input::placeholder {
-      color: var(--muted);
+      color: var(--panel-muted);
+      opacity: 0.72;
     }
-    .ledger-add-btn {
-      display: inline-flex;
+    .btn-primary-wide {
+      display: flex;
       align-items: center;
-      gap: 4px;
-      margin-top: 6px;
-      padding: 2px 4px 2px 0;
+      justify-content: center;
+      width: 100%;
+      min-height: 44px;
+      margin-top: 16px;
+      padding: 10px 16px;
       border: none;
-      background: transparent;
-      cursor: pointer;
-      filter: drop-shadow(0 1px 2px rgba(61, 52, 40, 0.18));
-      transition: transform 0.18s var(--ease);
-    }
-    .ledger-add-btn:hover { transform: scale(1.05) rotate(-3deg); }
-    .ledger-add-btn:active { transform: scale(0.96); }
-    .ledger-add-btn img {
-      width: 88px;
-      height: 88px;
-      object-fit: contain;
-      display: block;
-      pointer-events: none;
-    }
-    .ledger-add-btn .save-label {
+      border-radius: 10px;
+      background: var(--tape-teal);
       font-family: var(--font-hand);
+      font-size: 1.05rem;
+      color: #fffef8;
+      cursor: pointer;
+      transition: background-color 0.2s var(--ease), opacity 0.2s var(--ease);
+    }
+    .btn-primary-wide:hover {
+      background: color-mix(in srgb, var(--tape-teal) 88%, #3d3428);
+    }
+    .btn-primary-wide:active {
+      opacity: 0.92;
+    }
+    .btn-primary-wide:focus-visible {
+      outline: 2px solid var(--ink);
+      outline-offset: 2px;
+    }
+    .btn-primary-compact {
+      width: auto;
+      min-width: 88px;
+      min-height: 40px;
+      margin-top: 0;
+      padding: 8px 20px;
       font-size: 1rem;
-      color: var(--ink);
-      line-height: 1;
-      letter-spacing: 0.04em;
     }
     .ledger-list {
       list-style: none;
-      margin-top: 8px;
+      margin-top: 4px;
       padding: 0;
     }
     .ledger-item {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 10px 12px;
-      margin-bottom: 8px;
-      background: #fffef8;
-      border: 2px solid rgba(61, 52, 40, 0.2);
+      gap: 10px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(61, 52, 40, 0.12);
+    }
+    .ledger-item:last-child {
+      border-bottom: none;
     }
     .ledger-item .meta {
       flex: 1;
       min-width: 0;
     }
-    .ledger-item .cat {
+    .ledger-badge {
+      display: inline-block;
       font-family: var(--font-hand);
-      font-size: 1rem;
-      color: #3d3428;
+      font-size: 0.88rem;
+      color: var(--panel-ink);
+      background: rgba(122, 171, 158, 0.18);
+      border: 1px solid rgba(61, 52, 40, 0.15);
+      border-radius: 999px;
+      padding: 2px 10px;
+      line-height: 1.4;
     }
     .ledger-item .sub {
-      font-size: 12px;
-      color: #7a6f62;
+      margin-top: 4px;
+      font-family: var(--font-hand);
+      font-size: 0.82rem;
+      color: color-mix(in srgb, var(--ink) 72%, var(--cream));
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .ledger-item .amt {
       font-family: var(--font-hand);
       font-size: 1.05rem;
       white-space: nowrap;
+      text-align: right;
     }
     .ledger-item .amt.out { color: var(--due); }
     .ledger-item .amt.in { color: var(--tape-teal); }
+    .ledger-del-btn {
+      flex-shrink: 0;
+      border: none;
+      background: transparent;
+      font-family: var(--font-hand);
+      font-size: 0.82rem;
+      color: var(--muted);
+      padding: 6px 4px;
+      cursor: pointer;
+      min-width: 44px;
+      min-height: 44px;
+      transition: color 0.2s var(--ease);
+    }
+    .ledger-del-btn:hover,
+    .ledger-del-btn:focus-visible {
+      color: var(--due);
+    }
     .ledger-empty {
       font-family: var(--font-hand);
       color: var(--muted);
       text-align: center;
-      padding: 20px 8px;
+      padding: 24px 12px;
+      line-height: 1.5;
     }
 
     /* 心情日记（对齐 activity_mood_diary.xml / item_mood.xml） */
+    .mood-form .mood-field {
+      margin-top: 12px;
+    }
+    .mood-form .mood-text-input {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      height: 40px;
+      border: 1.5px solid rgba(61, 52, 40, 0.28);
+      border-radius: 10px;
+      background: var(--panel-surface);
+      font-family: var(--font-hand);
+      font-size: 0.95rem;
+      color: var(--panel-ink);
+      outline: none;
+      padding: 0 12px;
+      transition: border-color 0.2s var(--ease);
+    }
+    .mood-form .mood-text-input:focus {
+      border-color: var(--tape-teal);
+    }
+    .mood-form .mood-text-input::placeholder {
+      color: var(--panel-muted);
+      opacity: 0.72;
+    }
     .mood-icon-row {
       display: flex;
       align-items: center;
@@ -481,12 +526,8 @@
       object-fit: contain;
     }
     .mood-icon-btn.is-on {
-      background: #fffef8;
-      box-shadow: inset 0 0 0 2px #3d5c4a;
-    }
-    .mood-form .amount-input,
-    .mood-form .amount-input::placeholder {
-      text-align: left;
+      background: rgba(122, 171, 158, 0.14);
+      box-shadow: inset 0 0 0 2px var(--tape-teal);
     }
     .mood-list {
       padding: 4px 2px 0;
@@ -824,115 +865,89 @@
       flex-direction: column;
       min-height: 0;
       overflow: hidden;
-      background-color: #5c4030;
+      background-color: var(--cream);
+      background-image:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+      background-size: 18px 18px;
     }
 
-    #view-tools .panel-head {
-      position: absolute;
-      top: 0;
-      left: 0;
-      z-index: 3;
-      padding: 48px 16px 12px;
-      background: transparent;
+    .tools-nav-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
-
-    .tools-board-wrap {
-      position: absolute;
-      inset: 0;
-      margin: 0;
-      display: block;
-      overflow: hidden;
-    }
-    .tools-board-wrap > img.tools-board {
-      position: absolute;
-      inset: 0;
+    .tools-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
       width: 100%;
-      height: 100%;
-      max-height: none;
-      object-fit: fill;
-      display: block;
-      filter: none;
-      pointer-events: none;
-      user-select: none;
+      min-height: 56px;
+      padding: 10px 12px;
+      border: 1.5px solid rgba(61, 52, 40, 0.18);
+      border-radius: 12px;
+      background: var(--panel-surface);
+      cursor: pointer;
+      text-align: left;
+      transition: background-color 0.2s var(--ease), border-color 0.2s var(--ease);
     }
-    .tools-board-stage {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      max-height: none;
-      aspect-ratio: auto;
-      transform: none;
-      left: 0;
-      top: 0;
-      pointer-events: none;
+    .tools-nav-item:hover {
+      background: color-mix(in srgb, var(--tape-teal) 8%, var(--panel-surface));
+      border-color: rgba(61, 52, 40, 0.28);
     }
-    .tools-title-stamp {
-      position: absolute;
-      left: 58%;
-      top: 80%;
-      width: 26%;
-      height: 9%;
+    .tools-nav-item:active {
+      background: color-mix(in srgb, var(--tape-teal) 14%, var(--panel-surface));
+    }
+    .tools-nav-item:focus-visible {
+      outline: 2px solid var(--tape-teal);
+      outline-offset: 2px;
+    }
+    .tools-nav-icon {
+      flex-shrink: 0;
+      width: 48px;
+      height: 48px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: var(--font-hand);
-      font-size: 1.375rem; /* ~22sp */
-      color: #3d2818;
-      line-height: 1;
-      letter-spacing: 0.06em;
-      transform: rotate(-22deg);
-      transform-origin: center center;
-      pointer-events: none;
-      user-select: none;
+      border-radius: 10px;
+      background: rgba(122, 171, 158, 0.12);
     }
-    .tools-grid {
-      position: absolute;
-      left: 12%;
-      right: 12%;
-      top: 14%;
-      bottom: 26%;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      grid-auto-rows: min-content;
-      align-content: start;
-      justify-items: center;
-      gap: 10px 6px;
-      overflow: auto;
-      pointer-events: auto;
-      scrollbar-width: none;
-    }
-    .tools-grid::-webkit-scrollbar { display: none; }
-    .tools-tile {
-      border: none;
-      background: transparent;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 100%;
-      max-width: 96px;
-      filter: drop-shadow(0 2px 3px rgba(61, 52, 40, 0.14));
-      transition: transform 0.18s var(--ease);
-      padding: 4px 2px;
-      pointer-events: auto;
-    }
-    .tools-tile:hover { transform: scale(1.06) rotate(-3deg); }
-    .tools-tile:active { transform: scale(0.96); }
-    .tools-tile img {
-      width: 72px;
-      height: 72px;
+    .tools-nav-icon img {
+      width: 36px;
+      height: 36px;
       object-fit: contain;
       display: block;
       pointer-events: none;
     }
-    .tools-tile .tools-tile-label {
+    .tools-nav-text {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .tools-nav-title {
       font-family: var(--font-hand);
-      font-size: 0.95rem;
-      /* 文字画在固定浅色的 tools-board 图上，用固定深色而非 var(--ink) */
-      color: #3d2818;
-      margin-top: -4px;
-      line-height: 1;
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: var(--panel-ink);
+      line-height: 1.2;
+    }
+    .tools-nav-sub {
+      font-family: var(--font-hand);
+      font-size: 0.85rem;
+      color: var(--panel-muted);
+      line-height: 1.2;
+    }
+    .tools-nav-chevron {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      stroke: var(--panel-muted);
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
 
     #view-ledger.active,
@@ -962,24 +977,31 @@
       text-align: center;
     }
     .pomo-hero {
-      width: min(200px, 56vw);
+      width: min(80px, 22vw);
       height: auto;
       display: block;
-      margin-top: 6px;
-      filter: drop-shadow(0 3px 6px rgba(61, 52, 40, 0.12));
+      margin-top: 4px;
+      opacity: 0.92;
       user-select: none;
       pointer-events: none;
+    }
+    .pomo-timer-card {
+      width: 100%;
+      padding: 20px 16px 16px;
+      background: var(--panel-surface);
+      border: 2px solid var(--panel-border);
+      border-radius: 12px;
     }
     .pomo-phase {
       font-family: var(--font-hand);
       font-size: 0.95rem;
-      color: var(--muted);
-      margin: 0;
+      color: var(--panel-muted);
+      margin: 0 0 8px;
     }
     .pomo-timer {
       font-family: var(--font-hand);
       font-size: clamp(2.8rem, 12vw, 3.5rem);
-      color: var(--ink);
+      color: var(--panel-ink);
       line-height: 1;
       letter-spacing: 0.04em;
       margin: 0;
@@ -999,12 +1021,13 @@
       flex: 0 0 auto;
       font-family: var(--font-hand);
       font-size: 0.9rem;
-      border: 1.5px solid #3d5c4a;
-      background: #fffef8;
-      color: #3d3428;
+      border: 1.5px solid rgba(61, 52, 40, 0.28);
+      background: var(--panel-surface);
+      color: var(--panel-ink);
       padding: 6px 12px;
       border-radius: 999px;
       cursor: pointer;
+      transition: background-color 0.2s var(--ease), border-color 0.2s var(--ease), color 0.2s var(--ease);
     }
     .pomo-chip.is-on {
       background: var(--tape-teal);
@@ -1020,20 +1043,24 @@
     .pomo-actions button {
       flex: 1;
       font-family: var(--font-hand);
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       border: none;
-      border-radius: 999px;
-      min-height: 46px;
+      border-radius: 10px;
+      min-height: 44px;
       cursor: pointer;
+      transition: background-color 0.2s var(--ease), opacity 0.2s var(--ease);
     }
     .pomo-btn-primary {
-      background: linear-gradient(180deg, #8bb8ab, var(--tape-teal), #5f9084);
+      background: var(--tape-teal);
       color: #fffef8;
+    }
+    .pomo-btn-primary:hover {
+      background: color-mix(in srgb, var(--tape-teal) 88%, #3d3428);
     }
     .pomo-btn-reset {
       background: #fffef8;
       color: #3d3428;
-      border: 1.5px solid #3d5c4a !important;
+      border: 1.5px solid rgba(61, 52, 40, 0.28) !important;
     }
     .pomo-skip {
       font-family: var(--font-hand);
@@ -1048,20 +1075,21 @@
     .pomo-stats {
       width: 100%;
       margin-top: 8px;
-      padding: 14px;
-      background: color-mix(in srgb, var(--cream) 20%, #fffef8);
-      border: 1.5px solid rgba(61, 52, 40, 0.16);
+      padding: 14px 12px;
+      background: var(--panel-surface);
+      border: 2px solid var(--panel-border);
+      border-radius: 12px;
       text-align: left;
     }
     .pomo-stats .lab {
       font-family: var(--font-hand);
       font-size: 0.95rem;
-      color: var(--ink);
+      color: var(--panel-muted);
     }
     .pomo-stats .val {
       font-family: var(--font-hand);
       font-size: 1.05rem;
-      color: var(--ink);
+      color: var(--panel-ink);
       margin-top: 4px;
     }
 
@@ -1076,7 +1104,8 @@
     .settings-block .sub {
       font-family: var(--font-hand);
       font-size: 0.9rem;
-      color: var(--muted);
+      color: var(--ink);
+      opacity: 0.82;
       margin-top: 2px;
       margin-bottom: 10px;
     }
@@ -1134,8 +1163,8 @@
       font-family: var(--font-hand);
       font-size: 0.95rem;
       border: 1.5px solid rgba(61, 52, 40, 0.28);
-      background: #fffef8;
-      color: #3d3428;
+      background: var(--panel-surface);
+      color: var(--panel-ink);
       padding: 6px 12px;
       cursor: pointer;
       transition: background 0.15s, color 0.15s, border-color 0.15s;
@@ -2232,27 +2261,46 @@
         </section>
 
         <section class="view" id="view-tools">
-          <header class="panel-head" id="tools-header" tabindex="0" role="button" aria-label="返回">
+          <header class="panel-head panel-head--corner-title" id="tools-header" tabindex="0" role="button" aria-label="返回">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6 L9 12 L15 18" /></svg>
+            <span class="panel-corner-title">工具</span>
           </header>
-          <div class="tools-board-wrap" id="tools-scroll">
-            <img class="tools-board" src="images/stickers/tools-board.png" width="575" height="1024" alt="" decoding="async" />
-            <div class="tools-board-stage" aria-hidden="false">
-              <div class="tools-grid" id="tools-grid">
-                <button type="button" class="tools-tile" id="tools-ledger-btn" aria-label="记账">
-                  <img src="images/stickers/fox-deco-transparent.png" width="72" height="72" alt="" decoding="async" />
-                  <span class="tools-tile-label">记账</span>
+          <div class="panel-scroll scrollbar-hidden" id="tools-scroll">
+            <div class="settings-block">
+              <h3>小工具</h3>
+              <p class="sub">记一记、算一算</p>
+              <div class="tools-nav-list" id="tools-nav-list">
+                <button type="button" class="tools-nav-item" id="tools-ledger-btn" aria-label="记账">
+                  <span class="tools-nav-icon">
+                    <img src="images/stickers/fox-deco-transparent.png" width="36" height="36" alt="" decoding="async" />
+                  </span>
+                  <span class="tools-nav-text">
+                    <span class="tools-nav-title">记账</span>
+                    <span class="tools-nav-sub">记收支 · 看结余</span>
+                  </span>
+                  <svg class="tools-nav-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6 L15 12 L9 18" /></svg>
                 </button>
-                <button type="button" class="tools-tile" id="tools-mood-btn" aria-label="心情日记">
-                  <img src="images/stickers/fox-deco-transparent.png" width="72" height="72" alt="" decoding="async" />
-                  <span class="tools-tile-label">心情日记</span>
+                <button type="button" class="tools-nav-item" id="tools-mood-btn" aria-label="心情日记">
+                  <span class="tools-nav-icon">
+                    <img src="images/stickers/fox-deco-transparent.png" width="36" height="36" alt="" decoding="async" />
+                  </span>
+                  <span class="tools-nav-text">
+                    <span class="tools-nav-title">心情日记</span>
+                    <span class="tools-nav-sub">记录今天的心情</span>
+                  </span>
+                  <svg class="tools-nav-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6 L15 12 L9 18" /></svg>
                 </button>
-                <button type="button" class="tools-tile" id="tools-pomodoro-btn" aria-label="番茄钟">
-                  <img src="images/stickers/tomato_fanqie.png" width="72" height="72" alt="" decoding="async" />
-                  <span class="tools-tile-label">番茄钟</span>
+                <button type="button" class="tools-nav-item" id="tools-pomodoro-btn" aria-label="番茄钟">
+                  <span class="tools-nav-icon">
+                    <img src="images/stickers/tomato_fanqie.png" width="36" height="36" alt="" decoding="async" />
+                  </span>
+                  <span class="tools-nav-text">
+                    <span class="tools-nav-title">番茄钟</span>
+                    <span class="tools-nav-sub">专注计时 · 休息提醒</span>
+                  </span>
+                  <svg class="tools-nav-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6 L15 12 L9 18" /></svg>
                 </button>
               </div>
-              <div class="tools-title-stamp" aria-hidden="true">工具</div>
             </div>
           </div>
         </section>
@@ -2283,21 +2331,27 @@
                 <button type="button" class="is-on" data-expense="1" id="ledger-type-expense">支出</button>
                 <button type="button" data-expense="0" id="ledger-type-income">收入</button>
               </div>
-              <div class="amount-row" id="ledger-amount-row">
-                <input class="amount-input" id="ledger-amount" type="number" min="0" step="0.01" placeholder="金额" inputmode="decimal" aria-label="金额" />
-                <button type="button" class="ledger-tag-btn" id="ledger-tag-btn" aria-haspopup="listbox" aria-expanded="false">用途</button>
-                <div class="ledger-tag-menu" id="ledger-tag-menu" role="listbox" hidden></div>
+              <div class="ledger-field">
+                <label class="ledger-label" for="ledger-amount">金额</label>
+                <div class="ledger-amount-hero">
+                  <span class="ledger-currency" aria-hidden="true">¥</span>
+                  <input class="ledger-amount-input" id="ledger-amount" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal" aria-label="金额" />
+                </div>
               </div>
-              <input class="memo-input" id="ledger-memo" type="text" maxlength="40" placeholder="备注（写点什么…）" aria-label="备注" />
-              <button type="button" class="ledger-add-btn" id="ledger-add-btn" aria-label="保存">
-                <img src="images/stickers/fox-deco-transparent.png" width="88" height="88" alt="" decoding="async" />
-                <span class="save-label">保存</span>
-              </button>
+              <div class="ledger-category-block">
+                <div class="ledger-label" id="ledger-category-label">分类</div>
+                <div class="ledger-tag-chips chip-row" id="ledger-tag-chips" role="listbox" aria-labelledby="ledger-category-label"></div>
+              </div>
+              <div class="ledger-field">
+                <label class="ledger-label" for="ledger-memo">备注</label>
+                <input class="memo-input" id="ledger-memo" type="text" maxlength="40" placeholder="可选，写点什么…" aria-label="备注" />
+              </div>
+              <button type="button" class="btn-primary-wide" id="ledger-add-btn">记一笔</button>
             </div>
             <div class="settings-block">
               <h3>流水</h3>
               <ul class="ledger-list" id="ledger-list"></ul>
-              <p class="ledger-empty" id="ledger-empty">还没有记账<br />写下第一笔吧</p>
+              <p class="ledger-empty" id="ledger-empty">还没有记录<br />记第一笔，从这里开始</p>
             </div>
           </div>
         </section>
@@ -2310,20 +2364,22 @@
           <div class="panel-scroll scrollbar-hidden" id="mood-scroll">
             <div class="settings-block ledger-form mood-form">
               <h3>今天的心情</h3>
+              <div class="ledger-label">选择图标</div>
               <div class="mood-icon-row" id="mood-icon-row" role="radiogroup" aria-label="选择心情图标"></div>
-              <div class="amount-row" id="mood-row">
-                <input class="amount-input" id="mood-title" type="text" maxlength="20" placeholder="心情标题…" aria-label="心情标题" />
-                <input class="amount-input" id="mood-content" type="text" maxlength="60" placeholder="写点什么…" aria-label="写点什么" />
+              <div class="mood-field">
+                <label class="ledger-label" for="mood-title">标题</label>
+                <input class="mood-text-input" id="mood-title" type="text" maxlength="20" placeholder="例如：今天很开心" aria-label="心情标题" />
               </div>
-              <button type="button" class="ledger-add-btn" id="mood-add-btn" aria-label="贴上">
-                <img src="images/stickers/fox-deco-transparent.png" width="88" height="88" alt="" decoding="async" />
-                <span class="save-label">贴上</span>
-              </button>
+              <div class="mood-field">
+                <label class="ledger-label" for="mood-content">内容</label>
+                <input class="mood-text-input" id="mood-content" type="text" maxlength="60" placeholder="写点什么…" aria-label="写点什么" />
+              </div>
+              <button type="button" class="btn-primary-wide" id="mood-add-btn">保存心情</button>
             </div>
             <div class="settings-block">
-              <h3>心情便签</h3>
+              <h3>最近记录</h3>
               <div class="mood-list" id="mood-list"></div>
-              <p class="ledger-empty" id="mood-empty">还没有心情日记<br />贴上今天的第一张吧</p>
+              <p class="ledger-empty" id="mood-empty">还没有心情记录<br />保存第一条，从这里开始</p>
             </div>
           </div>
         </section>
@@ -2371,9 +2427,7 @@
                       <input type="file" id="mood-detail-gallery" accept="image/*" multiple />
                     </label>
                   </div>
-                  <button type="button" class="detail-save" id="mood-detail-save" aria-label="保存">
-                    <img src="images/stickers/fox-deco-transparent.png" width="56" height="56" alt="" decoding="async" />
-                  </button>
+                  <button type="button" class="btn-primary-wide btn-primary-compact" id="mood-detail-save">保存</button>
                 </div>
               </div>
             </div>
@@ -2400,9 +2454,11 @@
                 <button type="button" data-mode="countdown" id="pomo-mode-countdown">倒计时</button>
                 <button type="button" class="is-on" data-mode="pomodoro" id="pomo-mode-pomodoro">番茄钟</button>
               </div>
-              <img class="pomo-hero" src="images/stickers/tomato_fanqie.png" width="200" height="160" alt="番茄" decoding="async" />
-              <p class="pomo-phase" id="pomo-phase">专注中 · 第 1 个番茄</p>
-              <p class="pomo-timer" id="pomo-timer">25:00</p>
+              <img class="pomo-hero" src="images/stickers/tomato_fanqie.png" width="80" height="64" alt="番茄" decoding="async" />
+              <div class="pomo-timer-card">
+                <p class="pomo-phase" id="pomo-phase">专注中 · 第 1 个番茄</p>
+                <p class="pomo-timer" id="pomo-timer">25:00</p>
+              </div>
               <div class="pomo-presets" id="pomo-presets"></div>
               <div class="pomo-actions">
                 <button type="button" class="pomo-btn-primary" id="pomo-primary">开始</button>
@@ -2487,8 +2543,7 @@
       ledgerIncome: document.getElementById("ledger-income"),
       ledgerExpense: document.getElementById("ledger-expense"),
       ledgerAmount: document.getElementById("ledger-amount"),
-      ledgerTagBtn: document.getElementById("ledger-tag-btn"),
-      ledgerTagMenu: document.getElementById("ledger-tag-menu"),
+      ledgerTagChips: document.getElementById("ledger-tag-chips"),
       ledgerMemo: document.getElementById("ledger-memo"),
       ledgerList: document.getElementById("ledger-list"),
       ledgerEmpty: document.getElementById("ledger-empty"),
@@ -2963,32 +3018,17 @@
       return ledgerIsExpense ? EXPENSE_CATS : INCOME_CATS;
     }
 
-    function tagPlaceholder() {
-      return ledgerIsExpense ? "用途" : "来源";
-    }
-
-    function closeLedgerTagMenu() {
-      if (!els.ledgerTagMenu) return;
-      els.ledgerTagMenu.classList.remove("open");
-      els.ledgerTagMenu.hidden = true;
-      if (els.ledgerTagBtn) els.ledgerTagBtn.setAttribute("aria-expanded", "false");
-    }
-
-    function refreshLedgerTagBtn() {
-      if (!els.ledgerTagBtn) return;
+    function refreshLedgerTagChips() {
       const cats = currentLedgerCats();
       if (!cats.includes(ledgerCategory)) ledgerCategory = cats[0];
-      els.ledgerTagBtn.textContent = ledgerCategory || tagPlaceholder();
-      els.ledgerTagBtn.title = ledgerIsExpense ? "选择用途" : "选择来源";
+      renderLedgerTagChips();
       refreshLedgerMemoField(false);
     }
 
     function refreshLedgerMemoField(focus) {
       if (!els.ledgerMemo) return;
-      const show = ledgerCategory === "其他";
-      els.ledgerMemo.classList.toggle("show", show);
-      if (!show) {
-        els.ledgerMemo.value = "";
+      if (ledgerCategory !== "其他") {
+        if (focus) return;
         return;
       }
       if (focus) {
@@ -2999,38 +3039,24 @@
       }
     }
 
-    function renderLedgerTagMenu() {
-      if (!els.ledgerTagMenu) return;
+    function renderLedgerTagChips() {
+      if (!els.ledgerTagChips) return;
       const cats = currentLedgerCats();
-      els.ledgerTagMenu.innerHTML = "";
+      els.ledgerTagChips.innerHTML = "";
       cats.forEach((cat) => {
         const btn = document.createElement("button");
         btn.type = "button";
+        btn.className = "set-chip" + (cat === ledgerCategory ? " is-on" : "");
         btn.setAttribute("role", "option");
-        btn.className = cat === ledgerCategory ? "is-on" : "";
+        btn.setAttribute("aria-selected", cat === ledgerCategory ? "true" : "false");
         btn.textContent = cat;
-        btn.addEventListener("click", (e) => {
-          e.stopPropagation();
+        btn.addEventListener("click", () => {
           ledgerCategory = cat;
-          refreshLedgerTagBtn();
-          closeLedgerTagMenu();
+          refreshLedgerTagChips();
           if (cat === "其他") refreshLedgerMemoField(true);
         });
-        els.ledgerTagMenu.appendChild(btn);
+        els.ledgerTagChips.appendChild(btn);
       });
-    }
-
-    function toggleLedgerTagMenu() {
-      if (!els.ledgerTagMenu) return;
-      const open = !els.ledgerTagMenu.classList.contains("open");
-      if (open) {
-        renderLedgerTagMenu();
-        els.ledgerTagMenu.hidden = false;
-        els.ledgerTagMenu.classList.add("open");
-        if (els.ledgerTagBtn) els.ledgerTagBtn.setAttribute("aria-expanded", "true");
-      } else {
-        closeLedgerTagMenu();
-      }
     }
 
     function renderLedger() {
@@ -3053,22 +3079,24 @@
         li.className = "ledger-item";
         const meta = document.createElement("div");
         meta.className = "meta";
-        const cat = document.createElement("div");
-        cat.className = "cat";
-        cat.textContent = `${entry.category} · ${entry.isExpense ? "支出" : "收入"}`;
+        const badge = document.createElement("span");
+        badge.className = "ledger-badge";
+        badge.textContent = entry.category;
         const sub = document.createElement("div");
         sub.className = "sub";
         const time = NoteSketch.formatDateTime(entry.createdAt);
-        sub.textContent = entry.memo ? `${entry.memo} · ${time}` : time;
-        meta.appendChild(cat);
+        const typeLabel = entry.isExpense ? "支出" : "收入";
+        sub.textContent = entry.memo ? `${entry.memo} · ${time}` : `${typeLabel} · ${time}`;
+        meta.appendChild(badge);
         meta.appendChild(sub);
         const amt = document.createElement("div");
         amt.className = "amt " + (entry.isExpense ? "out" : "in");
         amt.textContent = (entry.isExpense ? "-" : "+") + formatYuan(entry.amountCents);
         const del = document.createElement("button");
         del.type = "button";
-        del.className = "btn-tear";
-        del.textContent = NoteSketch.strings.delete;
+        del.className = "ledger-del-btn";
+        del.setAttribute("aria-label", "删除");
+        del.textContent = "删除";
         del.addEventListener("click", () => {
           ledgerEntries = ledgerEntries.filter((e) => e.id !== entry.id);
           saveLedger();
@@ -3080,8 +3108,7 @@
         els.ledgerList.appendChild(li);
       });
       renderLedgerType();
-      refreshLedgerTagBtn();
-      closeLedgerTagMenu();
+      refreshLedgerTagChips();
     }
 
     function openLedger() {
@@ -3098,8 +3125,7 @@
         return;
       }
       const cents = Math.round(yuan * 100);
-      const memo =
-        ledgerCategory === "其他" ? (els.ledgerMemo?.value || "").trim() : "";
+      const memo = (els.ledgerMemo?.value || "").trim();
       const maxId = ledgerEntries.reduce((m, e) => Math.max(m, e.id || 0), 0);
       ledgerEntries.push({
         id: maxId + 1,
@@ -4348,26 +4374,13 @@
     if (els.toolsLedgerBtn) els.toolsLedgerBtn.addEventListener("click", openLedger);
     if (els.toolsMoodBtn) els.toolsMoodBtn.addEventListener("click", openMood);
     if (els.toolsPomodoroBtn) els.toolsPomodoroBtn.addEventListener("click", openPomodoro);
-    if (els.ledgerTagBtn) {
-      els.ledgerTagBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        toggleLedgerTagMenu();
-      });
-    }
-    document.addEventListener("click", (e) => {
-      if (!els.ledgerTagMenu || !els.ledgerTagMenu.classList.contains("open")) return;
-      const row = document.getElementById("ledger-amount-row");
-      if (row && row.contains(e.target)) return;
-      closeLedgerTagMenu();
-    });
     if (els.moodAddBtn) els.moodAddBtn.addEventListener("click", addMoodEntry);
     if (els.ledgerTypeExpense) {
       els.ledgerTypeExpense.addEventListener("click", () => {
         ledgerIsExpense = true;
         ledgerCategory = EXPENSE_CATS[0];
         renderLedgerType();
-        refreshLedgerTagBtn();
-        closeLedgerTagMenu();
+        refreshLedgerTagChips();
       });
     }
     if (els.ledgerTypeIncome) {
@@ -4375,8 +4388,7 @@
         ledgerIsExpense = false;
         ledgerCategory = INCOME_CATS[0];
         renderLedgerType();
-        refreshLedgerTagBtn();
-        closeLedgerTagMenu();
+        refreshLedgerTagChips();
       });
     }
     if (els.ledgerAddBtn) els.ledgerAddBtn.addEventListener("click", addLedgerEntry);
