@@ -207,6 +207,18 @@
             android:orientation="vertical"
             android:visibility="gone">
 
+            <androidx.core.widget.NestedScrollView
+                android:id="@+id/webUrlScroll"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fillViewport="true"
+                android:overScrollMode="never">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
             <EditText
                 android:id="@+id/etWebUrl"
                 android:layout_width="match_parent"
@@ -281,6 +293,9 @@
                 android:text="在上方输入 AI 网址，点「打开网页」即可在应用内浏览"
                 android:textColor="#7A6F62"
                 android:textSize="12sp" />
+
+            </LinearLayout>
+            </androidx.core.widget.NestedScrollView>
 
             <ProgressBar
                 android:id="@+id/webProgress"

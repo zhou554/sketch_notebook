@@ -7,8 +7,13 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
+import android.graphics.Rect
 import android.net.Uri
 import android.os.Bundle
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import android.view.Gravity
 import android.view.KeyEvent
 import android.view.View
@@ -50,6 +55,7 @@ class AiTutorActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityAiTutorBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setupImeHandling()
 
         binding.btnBackRow.setOnClickListener { finish() }
         binding.btnBack.setOnClickListener { finish() }
@@ -92,7 +98,6 @@ class AiTutorActivity : AppCompatActivity() {
                 false
             }
         }
-
         setupWebView()
         loadSettings()
         if (savedInstanceState != null) {
@@ -136,6 +141,46 @@ class AiTutorActivity : AppCompatActivity() {
             destroy()
         }
         super.onDestroy()
+    }
+
+    private fun setupImeHandling() {
+        WindowCompat.setDecorFitsSystemWindows(window, true)
+        val baseCardPaddingBottom = binding.contentCard.paddingBottom
+        ViewCompat.setOnApplyWindowInsetsListener(binding.contentCard) { v, insets ->
+            val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
+            v.updatePadding(bottom = baseCardPaddingBottom + ime.bottom)
+            if (webTabActive) {
+                val urlFocused = binding.etWebUrl.hasFocus()
+                val hideWeb = ime.bottom > 0 && urlFocused
+                binding.webView.visibility = if (hideWeb) View.GONE else View.VISIBLE
+                if (hideWeb) binding.webProgress.visibility = View.GONE
+                if (ime.bottom > 0 && urlFocused) {
+                    binding.webUrlScroll.post {
+                        binding.webUrlScroll.smoothScrollTo(0, 0)
+                        binding.etWebUrl.requestRectangleOnScreen(
+                            Rect(0, 0, binding.etWebUrl.width, binding.etWebUrl.height),
+                            true
+                        )
+                    }
+                }
+            }
+            insets
+        }
+        ViewCompat.requestApplyInsets(binding.contentCard)
+        binding.etWebUrl.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus && webTabActive) {
+                binding.webView.visibility = View.GONE
+                binding.webUrlScroll.post {
+                    binding.webUrlScroll.smoothScrollTo(0, 0)
+                    binding.etWebUrl.requestRectangleOnScreen(
+                        Rect(0, 0, binding.etWebUrl.width, binding.etWebUrl.height),
+                        true
+                    )
+                }
+            } else if (webTabActive) {
+                binding.webView.visibility = View.VISIBLE
+            }
+        }
     }
 
     private fun showTab(index: Int) {

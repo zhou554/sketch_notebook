@@ -27,11 +27,15 @@ class PomodoroActivity : AppCompatActivity() {
     private var running = false
     private var elapsedMs = 0L
     private var remainingMs = WORK_MS
+    private var workDurationMs = WORK_MS
     private var countdownTotalMs = 5 * 60_000L
     private var phase = PomoPhase.WORK
     private var completedToday = 0
     private var focusMinutesToday = 0
     private var cycleInSet = 0
+    private var handlingFinish = false
+    /** 当前轮次是否已完成专注（完成后才允许休息计时）。 */
+    private var workCompletedInSet = false
 
     private var tickBaseElapsedRealtime = 0L
     private var tickBaseElapsedMs = 0L
@@ -83,6 +87,7 @@ class PomodoroActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        reloadStatsFromPrefs()
         applyUi()
         renderModeUi()
         renderPresets()
@@ -217,7 +222,8 @@ class PomodoroActivity : AppCompatActivity() {
             }
             Mode.POMODORO -> {
                 phase = PomoPhase.WORK
-                remainingMs = WORK_MS
+                workDurationMs = WORK_MS
+                remainingMs = workDurationMs
                 binding.tvPhase.text = phaseLabel()
                 binding.btnSkip.visibility = View.VISIBLE
             }
@@ -240,6 +246,7 @@ class PomodoroActivity : AppCompatActivity() {
             listOf(1 to "1 分", 5 to "5 分", 10 to "10 分", 15 to "15 分", 25 to "25 分", 45 to "45 分")
         } else {
             listOf(
+                1 to "专注 1",
                 25 to "专注 25",
                 5 to "短休 5",
                 15 to "长休 15"
@@ -253,11 +260,12 @@ class PomodoroActivity : AppCompatActivity() {
                 typeface = ResourcesCompat.getFont(this@PomodoroActivity, R.font.patrick_hand)
                 gravity = android.view.Gravity.CENTER
                 setPadding((14 * d).toInt(), (8 * d).toInt(), (14 * d).toInt(), (8 * d).toInt())
+                val targetWorkMs = minutes * 60_000L
                 val selected = when (mode) {
-                    Mode.COUNTDOWN -> countdownTotalMs == minutes * 60_000L
+                    Mode.COUNTDOWN -> countdownTotalMs == targetWorkMs
                     Mode.POMODORO -> when (index) {
-                        0 -> phase == PomoPhase.WORK && remainingMs == WORK_MS && !running
-                        1 -> phase == PomoPhase.SHORT_BREAK
+                        0, 1 -> phase == PomoPhase.WORK && workDurationMs == targetWorkMs && !running
+                        2 -> phase == PomoPhase.SHORT_BREAK
                         else -> phase == PomoPhase.LONG_BREAK
                     }
                     else -> false
@@ -280,12 +288,21 @@ class PomodoroActivity : AppCompatActivity() {
                         countdownTotalMs = minutes * 60_000L
                         remainingMs = countdownTotalMs
                     } else {
+                        if (index >= 2 && !workCompletedInSet) {
+                            Toast.makeText(
+                                this@PomodoroActivity,
+                                "请先完成专注阶段，休息不计入番茄数",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            return@setOnClickListener
+                        }
                         when (index) {
-                            0 -> {
+                            0, 1 -> {
                                 phase = PomoPhase.WORK
-                                remainingMs = WORK_MS
+                                workDurationMs = targetWorkMs
+                                remainingMs = workDurationMs
                             }
-                            1 -> {
+                            2 -> {
                                 phase = PomoPhase.SHORT_BREAK
                                 remainingMs = SHORT_BREAK_MS
                             }
@@ -335,6 +352,10 @@ class PomodoroActivity : AppCompatActivity() {
             Mode.COUNTDOWN, Mode.POMODORO ->
                 remainingMs = (tickBaseRemainingMs - (now - tickBaseElapsedRealtime)).coerceAtLeast(0L)
         }
+        if (mode != Mode.STOPWATCH && remainingMs <= 0L) {
+            onTimerFinished()
+            return
+        }
         stopTicker(keepProgress = true)
         renderTimer()
         refreshControls()
@@ -356,7 +377,8 @@ class PomodoroActivity : AppCompatActivity() {
             Mode.COUNTDOWN -> remainingMs = countdownTotalMs
             Mode.POMODORO -> {
                 phase = PomoPhase.WORK
-                remainingMs = WORK_MS
+                workDurationMs = WORK_MS
+                remainingMs = workDurationMs
                 binding.tvPhase.text = phaseLabel()
             }
         }
@@ -365,18 +387,54 @@ class PomodoroActivity : AppCompatActivity() {
         refreshControls()
     }
 
+    private fun syncRemainingTimeIfRunning() {
+        if (!running) return
+        val now = SystemClock.elapsedRealtime()
+        when (mode) {
+            Mode.STOPWATCH -> elapsedMs = tickBaseElapsedMs + (now - tickBaseElapsedRealtime)
+            Mode.COUNTDOWN, Mode.POMODORO ->
+                remainingMs = (tickBaseRemainingMs - (now - tickBaseElapsedRealtime)).coerceAtLeast(0L)
+            else -> Unit
+        }
+    }
+
     private fun skipPhase() {
         if (mode != Mode.POMODORO) return
+        syncRemainingTimeIfRunning()
         stopTicker(keepProgress = false)
         when (phase) {
-            PomoPhase.WORK -> goToBreak(countAsCompleted = false)
+            PomoPhase.WORK -> {
+                if (remainingMs <= 0L) {
+                    onTimerFinished()
+                } else if (remainingMs < workDurationMs - 2_000L) {
+                    recordWorkComplete()
+                    Toast.makeText(this, "番茄完成！休息一下", Toast.LENGTH_SHORT).show()
+                    goToBreak(countAsCompleted = true)
+                } else {
+                    Toast.makeText(this, "请先开始专注计时，完成后才会计入番茄", Toast.LENGTH_SHORT).show()
+                }
+            }
             PomoPhase.SHORT_BREAK, PomoPhase.LONG_BREAK -> goToWork()
         }
     }
 
+    private fun recordWorkComplete() {
+        val elapsedWorkMs = (workDurationMs - remainingMs).coerceIn(0L, workDurationMs)
+        val minutes = (elapsedWorkMs / 60_000L).toInt().coerceAtLeast(1)
+        completedToday += 1
+        focusMinutesToday += minutes
+        cycleInSet += 1
+        workCompletedInSet = true
+        saveStats()
+        refreshStats()
+    }
+
     private fun onTimerFinished() {
-        stopTicker(keepProgress = false)
-        when (mode) {
+        if (handlingFinish) return
+        handlingFinish = true
+        try {
+            stopTicker(keepProgress = false)
+            when (mode) {
             Mode.STOPWATCH -> Unit
             Mode.COUNTDOWN -> {
                 remainingMs = 0L
@@ -385,11 +443,8 @@ class PomodoroActivity : AppCompatActivity() {
             }
             Mode.POMODORO -> {
                 if (phase == PomoPhase.WORK) {
-                    completedToday += 1
-                    focusMinutesToday += (WORK_MS / 60_000L).toInt()
-                    cycleInSet += 1
-                    saveStats()
-                    refreshStats()
+                    remainingMs = 0L
+                    recordWorkComplete()
                     Toast.makeText(this, "番茄完成！休息一下", Toast.LENGTH_SHORT).show()
                     goToBreak(countAsCompleted = true)
                 } else {
@@ -401,6 +456,9 @@ class PomodoroActivity : AppCompatActivity() {
         }
         renderTimer()
         refreshControls()
+        } finally {
+            handlingFinish = false
+        }
     }
 
     private fun goToBreak(countAsCompleted: Boolean) {
@@ -415,7 +473,8 @@ class PomodoroActivity : AppCompatActivity() {
 
     private fun goToWork() {
         phase = PomoPhase.WORK
-        remainingMs = WORK_MS
+        remainingMs = workDurationMs
+        workCompletedInSet = false
         binding.tvPhase.text = phaseLabel()
         renderPresets()
         renderTimer()
@@ -429,7 +488,7 @@ class PomodoroActivity : AppCompatActivity() {
     }
 
     private fun phaseDuration(p: PomoPhase): Long = when (p) {
-        PomoPhase.WORK -> WORK_MS
+        PomoPhase.WORK -> workDurationMs
         PomoPhase.SHORT_BREAK -> SHORT_BREAK_MS
         PomoPhase.LONG_BREAK -> LONG_BREAK_MS
     }
@@ -471,7 +530,17 @@ class PomodoroActivity : AppCompatActivity() {
             .putString(KEY_DAY, todayKey())
             .putInt(KEY_COUNT, completedToday)
             .putInt(KEY_MINUTES, focusMinutesToday)
-            .apply()
+            .commit()
+    }
+
+    private fun reloadStatsFromPrefs() {
+        val prefs = getSharedPreferences(PREFS, MODE_PRIVATE)
+        val day = prefs.getString(KEY_DAY, "")
+        val today = todayKey()
+        if (day == today) {
+            completedToday = prefs.getInt(KEY_COUNT, 0)
+            focusMinutesToday = prefs.getInt(KEY_MINUTES, 0)
+        }
     }
 
     private fun todayKey(): String {
@@ -486,7 +555,7 @@ class PomodoroActivity : AppCompatActivity() {
     }
 
     private fun formatMs(ms: Long): String {
-        val totalSec = (ms / 1000L).coerceAtLeast(0L)
+        val totalSec = if (ms <= 0L) 0L else (ms + 999L) / 1000L
         val h = totalSec / 3600L
         val m = (totalSec % 3600L) / 60L
         val s = totalSec % 60L
