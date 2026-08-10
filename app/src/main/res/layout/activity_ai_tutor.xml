@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/cream">
+
+    <com.example.notesketch.ScrapbookPaperView
+        android:id="@+id/paperBg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/btnBackRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="40dp"
+            android:paddingBottom="10dp">
+
+            <TextView
+                android:id="@+id/btnBack"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/patrick_hand"
+                android:minHeight="44dp"
+                android:text="‹ 返回"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/tvHeader"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="@font/patrick_hand"
+                android:gravity="end"
+                android:text="AI 导师"
+                android:textSize="22sp" />
+        </LinearLayout>
+
+        <View
+            android:id="@+id/headerLine"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_marginHorizontal="16dp"
+            android:background="#597A6F62" />
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabMode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginTop="8dp"
+            app:tabIndicatorFullWidth="false"
+            app:tabMode="fixed" />
+
+        <!-- API 对话 -->
+        <LinearLayout
+            android:id="@+id/panelApi"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingHorizontal="12dp">
+
+            <TextView
+                android:id="@+id/btnToggleSettings"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/patrick_hand"
+                android:paddingVertical="8dp"
+                android:text="展开 API 设置 ▼"
+                android:textSize="14sp" />
+
+            <LinearLayout
+                android:id="@+id/settingsPanel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <EditText
+                    android:id="@+id/etBaseUrl"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="API Base URL（如 https://api.deepseek.com/v1）"
+                    android:inputType="textUri"
+                    android:textSize="14sp" />
+
+                <EditText
+                    android:id="@+id/etApiKey"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="API Key"
+                    android:inputType="textPassword"
+                    android:textSize="14sp" />
+
+                <EditText
+                    android:id="@+id/etModel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Model（如 deepseek-chat）"
+                    android:inputType="text"
+                    android:textSize="14sp" />
+
+                <EditText
+                    android:id="@+id/etSystemPrompt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="top"
+                    android:hint="System Prompt（可选）"
+                    android:inputType="textMultiLine"
+                    android:minLines="2"
+                    android:textSize="14sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSaveSettings"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="6dp"
+                        android:layout_weight="1"
+                        android:text="保存配置" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnTestApi"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="测试连接" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerChat"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:clipToPadding="false"
+                android:overScrollMode="never"
+                android:paddingBottom="8dp"
+                android:scrollbars="none" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingBottom="12dp">
+
+                <EditText
+                    android:id="@+id/etInput"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="向 AI 导师提问…"
+                    android:inputType="textMultiLine"
+                    android:maxLines="4"
+                    android:textSize="15sp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSend"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="发送" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- 网页访问 -->
+        <LinearLayout
+            android:id="@+id/panelWeb"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingHorizontal="12dp"
+            android:visibility="gone">
+
+            <EditText
+                android:id="@+id/etWebUrl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="AI 网址（如 https://chat.deepseek.com）"
+                android:inputType="textUri"
+                android:textSize="14sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnWebGo"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="4dp"
+                    android:layout_weight="1"
+                    android:text="打开" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnWebBack"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="‹" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnWebForward"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="›" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnWebRefresh"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="↻" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnWebOpenExternal"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="外部" />
+            </LinearLayout>
+
+            <WebView
+                android:id="@+id/webView"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:overScrollMode="never" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPasteToNote"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="8dp"
+                android:text="粘贴剪贴板到新建便签" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

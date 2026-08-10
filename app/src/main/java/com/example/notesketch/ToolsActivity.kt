@@ -29,6 +29,9 @@ class ToolsActivity : AppCompatActivity() {
         binding.btnPomodoro.setOnClickListener {
             startActivity(Intent(this, PomodoroActivity::class.java))
         }
+        binding.btnAiTutor.setOnClickListener {
+            startActivity(Intent(this, AiTutorActivity::class.java))
+        }
         applyChrome()
     }
 
@@ -51,7 +54,8 @@ class ToolsActivity : AppCompatActivity() {
         styleNavItem(binding.btnLedger, binding.tvLedgerTitle, binding.tvLedgerSub, panel, panelInk, panelMuted, d)
         styleNavItem(binding.btnMood, binding.tvMoodTitle, binding.tvMoodSub, panel, panelInk, panelMuted, d)
         styleNavItem(binding.btnPomodoro, binding.tvPomodoroTitle, binding.tvPomodoroSub, panel, panelInk, panelMuted, d)
-        listOf(binding.btnLedger, binding.btnMood, binding.btnPomodoro).forEach { row ->
+        styleNavItem(binding.btnAiTutor, binding.tvAiTutorTitle, binding.tvAiTutorSub, panel, panelInk, panelMuted, d)
+        listOf(binding.btnLedger, binding.btnMood, binding.btnPomodoro, binding.btnAiTutor).forEach { row ->
             row.getChildAt(row.childCount - 1)?.let { chevron ->
                 if (chevron is TextView) chevron.setTextColor(panelMuted)
             }

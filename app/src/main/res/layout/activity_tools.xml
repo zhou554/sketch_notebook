@@ -82,7 +82,7 @@
                 android:paddingHorizontal="20dp"
                 android:paddingTop="2dp"
                 android:paddingBottom="10dp"
-                android:text="记账 · 心情 · 专注"
+                android:text="记账 · 心情 · 专注 · AI"
                 android:textSize="14sp" />
 
             <LinearLayout
@@ -218,6 +218,7 @@
                     android:id="@+id/btnPomodoro"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
                     android:background="?attr/selectableItemBackground"
                     android:clickable="true"
                     android:contentDescription="番茄钟"
@@ -229,13 +230,13 @@
                     android:paddingVertical="10dp">
 
                     <FrameLayout
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:background="#1F7AAB9E">
+                        android:layout_width="62dp"
+                        android:layout_height="62dp"
+                        android:background="#1A1E24">
 
                         <ImageView
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
+                            android:layout_width="56dp"
+                            android:layout_height="56dp"
                             android:layout_gravity="center"
                             android:contentDescription="@null"
                             android:scaleType="fitCenter"
@@ -263,6 +264,66 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/patrick_hand"
                             android:text="专注计时 · 休息提醒"
+                            android:textSize="13sp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/patrick_hand"
+                        android:text="›"
+                        android:textSize="20sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/btnAiTutor"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:contentDescription="AI 导师"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:minHeight="56dp"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="10dp">
+
+                    <FrameLayout
+                        android:layout_width="62dp"
+                        android:layout_height="62dp"
+                        android:background="#1A1E24">
+
+                        <ImageView
+                            android:layout_width="56dp"
+                            android:layout_height="56dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@null"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/ai_tutor_icon" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tvAiTutorTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/patrick_hand"
+                            android:text="AI 导师"
+                            android:textSize="17sp" />
+
+                        <TextView
+                            android:id="@+id/tvAiTutorSub"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/patrick_hand"
+                            android:text="API 对话 · 网页访问 · 存便签"
                             android:textSize="13sp" />
                     </LinearLayout>
 

@@ -53,6 +53,14 @@ class AddNoteActivity : AppCompatActivity() {
 
         applyUi()
         renderColorChips()
+        applyPrefill()
+    }
+
+    private fun applyPrefill() {
+        val title = intent.getStringExtra(EXTRA_PREFILL_TITLE).orEmpty()
+        val content = intent.getStringExtra(EXTRA_PREFILL_CONTENT).orEmpty()
+        if (title.isNotBlank()) binding.etTitle.setText(title)
+        if (content.isNotBlank()) binding.etContent.setText(content)
     }
 
     override fun onResume() {
@@ -151,6 +159,20 @@ class AddNoteActivity : AppCompatActivity() {
         lifecycleScope.launch {
             withContext(Dispatchers.IO) { dao.insert(note) }
             finish()
+        }
+    }
+
+    companion object {
+        const val EXTRA_PREFILL_TITLE = "prefill_title"
+        const val EXTRA_PREFILL_CONTENT = "prefill_content"
+
+        fun prefillIntent(
+            context: android.content.Context,
+            content: String,
+            title: String = ""
+        ) = android.content.Intent(context, AddNoteActivity::class.java).apply {
+            putExtra(EXTRA_PREFILL_CONTENT, content)
+            if (title.isNotBlank()) putExtra(EXTRA_PREFILL_TITLE, title)
         }
     }
 }

@@ -595,6 +595,7 @@
     #view-mood[data-paper="blank"],
     #view-mood-detail[data-paper="blank"],
     #view-pomodoro[data-paper="blank"],
+    #view-ai-tutor[data-paper="blank"],
     #view-add[data-paper="blank"] {
       background-image: none !important;
     }
@@ -606,6 +607,7 @@
     #view-mood[data-paper="lined"],
     #view-mood-detail[data-paper="lined"],
     #view-pomodoro[data-paper="lined"],
+    #view-ai-tutor[data-paper="lined"],
     #view-add[data-paper="lined"] {
       background-image: linear-gradient(var(--grid) 1px, transparent 1px) !important;
       background-size: 100% 18px !important;
@@ -618,6 +620,7 @@
     #view-mood[data-paper="grid"],
     #view-mood-detail[data-paper="grid"],
     #view-pomodoro[data-paper="grid"],
+    #view-ai-tutor[data-paper="grid"],
     #view-add[data-paper="grid"] {
       background-image:
         linear-gradient(var(--grid) 1px, transparent 1px),
@@ -632,6 +635,7 @@
     #view-mood[data-paper="dots"],
     #view-mood-detail[data-paper="dots"],
     #view-pomodoro[data-paper="dots"],
+    #view-ai-tutor[data-paper="dots"],
     #view-add[data-paper="dots"] {
       background-image: radial-gradient(circle, var(--grid) 1.1px, transparent 1.2px) !important;
       background-size: 14px 14px !important;
@@ -904,8 +908,8 @@
     }
     .tools-nav-icon {
       flex-shrink: 0;
-      width: 48px;
-      height: 48px;
+      width: 62px;
+      height: 62px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -913,21 +917,15 @@
       background: rgba(122, 171, 158, 0.12);
     }
     .tools-nav-icon img {
-      width: 36px;
-      height: 36px;
+      width: 56px;
+      height: 56px;
       object-fit: contain;
       display: block;
       pointer-events: none;
     }
-    #tools-ledger-btn .tools-nav-icon,
-    #tools-mood-btn .tools-nav-icon {
-      width: 62px;
-      height: 62px;
-    }
-    #tools-ledger-btn .tools-nav-icon img,
-    #tools-mood-btn .tools-nav-icon img {
-      width: 56px;
-      height: 56px;
+    #tools-ai-tutor-btn .tools-nav-icon,
+    #tools-pomodoro-btn .tools-nav-icon {
+      background: #1a1e24;
     }
     .tools-nav-text {
       flex: 1;
@@ -977,6 +975,29 @@
         linear-gradient(90deg, var(--grid) 1px, transparent 1px);
       background-size: 18px 18px;
     }
+
+    #view-ai-tutor.active { display: flex; }
+    .ai-tutor-body { padding: 0 16px 24px; display: flex; flex-direction: column; gap: 12px; min-height: 100%; }
+    .ai-tutor-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .ai-tutor-tabs button { font-family: inherit; padding: 8px 12px; border: 1.5px solid var(--line); background: var(--surface); border-radius: 10px; cursor: pointer; }
+    .ai-tutor-tabs button.is-on { background: var(--tape-teal); color: #fff; border-color: var(--tape-teal); }
+    .ai-toggle-settings { font-family: inherit; background: none; border: none; text-align: left; padding: 4px 0; cursor: pointer; color: var(--muted); font-size: 14px; }
+    .ai-settings { display: flex; flex-direction: column; gap: 8px; }
+    .ai-field { width: 100%; font-family: inherit; font-size: 14px; padding: 8px 10px; border: 1.5px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); box-sizing: border-box; }
+    .ai-settings-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .ai-chat-list { flex: 1; min-height: 200px; max-height: 42vh; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 4px 0; }
+    .ai-msg { padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(61,52,40,.15); font-size: 14px; line-height: 1.55; white-space: pre-wrap; }
+    .ai-msg--user { background: #E8F0EA; align-self: flex-end; max-width: 92%; }
+    .ai-msg--assistant { background: #FFFEF8; align-self: flex-start; max-width: 92%; }
+    .ai-msg-label { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+    .ai-msg-actions { margin-top: 8px; display: flex; gap: 8px; justify-content: flex-end; }
+    .ai-msg-actions button { font-family: inherit; font-size: 12px; padding: 4px 8px; border: 1px solid var(--line); background: var(--surface); border-radius: 6px; cursor: pointer; }
+    .ai-input-row { display: flex; gap: 8px; align-items: flex-end; }
+    .ai-input { flex: 1; font-family: inherit; font-size: 15px; padding: 8px 10px; border: 1.5px solid var(--line); border-radius: 8px; resize: vertical; min-height: 44px; background: var(--surface); color: var(--ink); }
+    .ai-web-toolbar { display: flex; gap: 8px; flex-wrap: wrap; }
+    .ai-web-frame { width: 100%; min-height: 280px; height: 38vh; border: 1.5px solid var(--line); border-radius: 10px; background: #fff; }
+    .ai-paste-btn { width: 100%; margin-top: 8px; }
+
 
     .pomo-body {
       display: flex;
@@ -2283,7 +2304,7 @@
           <div class="panel-scroll scrollbar-hidden" id="tools-scroll">
             <div class="settings-block">
               <h3>小工具</h3>
-              <p class="sub">记账 · 心情 · 专注</p>
+              <p class="sub">记账 · 心情 · 专注 · AI</p>
               <div class="tools-nav-list" id="tools-nav-list">
                 <button type="button" class="tools-nav-item" id="tools-ledger-btn" aria-label="记账">
                   <span class="tools-nav-icon">
@@ -2307,11 +2328,22 @@
                 </button>
                 <button type="button" class="tools-nav-item" id="tools-pomodoro-btn" aria-label="番茄钟">
                   <span class="tools-nav-icon">
-                    <img src="images/stickers/tomato_fanqie.png" width="36" height="36" alt="" decoding="async" />
+                    <img src="images/stickers/tomato_fanqie.png" width="56" height="56" alt="" decoding="async" />
                   </span>
                   <span class="tools-nav-text">
                     <span class="tools-nav-title">番茄钟</span>
                     <span class="tools-nav-sub">专注计时 · 休息提醒</span>
+                  </span>
+                  <svg class="tools-nav-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6 L15 12 L9 18" /></svg>
+                </button>
+
+                <button type="button" class="tools-nav-item" id="tools-ai-tutor-btn" aria-label="AI 导师">
+                  <span class="tools-nav-icon">
+                    <img src="images/stickers/ai-tutor-icon.png" width="56" height="56" alt="" decoding="async" />
+                  </span>
+                  <span class="tools-nav-text">
+                    <span class="tools-nav-title">AI 导师</span>
+                    <span class="tools-nav-sub">API 对话 · 网页访问 · 存便签</span>
                   </span>
                   <svg class="tools-nav-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6 L15 12 L9 18" /></svg>
                 </button>
@@ -2488,6 +2520,48 @@
           </div>
         </section>
 
+        <section class="view" id="view-ai-tutor">
+          <header class="panel-head panel-head--corner-title" id="ai-tutor-header" tabindex="0" role="button" aria-label="返回">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6 L9 12 L15 18" /></svg>
+            <span class="panel-corner-title">AI 导师</span>
+          </header>
+          <div class="panel-scroll scrollbar-hidden" id="ai-tutor-scroll">
+            <div class="ai-tutor-body">
+              <div class="ai-tutor-tabs" id="ai-tutor-tabs">
+                <button type="button" class="is-on" data-tab="api" id="ai-tab-api">API 对话</button>
+                <button type="button" data-tab="web" id="ai-tab-web">网页访问</button>
+              </div>
+              <div class="ai-tutor-panel" id="ai-panel-api">
+                <button type="button" class="ai-toggle-settings" id="ai-toggle-settings">展开 API 设置 ▼</button>
+                <div class="ai-settings" id="ai-settings" hidden>
+                  <input class="ai-field" id="ai-base-url" type="url" placeholder="API Base URL（如 https://api.deepseek.com/v1）" />
+                  <input class="ai-field" id="ai-api-key" type="password" placeholder="API Key" autocomplete="off" />
+                  <input class="ai-field" id="ai-model" type="text" placeholder="Model（如 deepseek-chat）" />
+                  <textarea class="ai-field" id="ai-system-prompt" rows="2" placeholder="System Prompt（可选）"></textarea>
+                  <div class="ai-settings-actions">
+                    <button type="button" class="set-chip" id="ai-save-settings">保存配置</button>
+                    <button type="button" class="set-chip" id="ai-test-api">测试连接</button>
+                  </div>
+                </div>
+                <div class="ai-chat-list scrollbar-hidden" id="ai-chat-list"></div>
+                <div class="ai-input-row">
+                  <textarea class="ai-input" id="ai-input" rows="2" placeholder="向 AI 导师提问…"></textarea>
+                  <button type="button" class="set-chip" id="ai-send">发送</button>
+                </div>
+              </div>
+              <div class="ai-tutor-panel" id="ai-panel-web" hidden>
+                <input class="ai-field" id="ai-web-url" type="url" placeholder="AI 网址（如 https://chat.deepseek.com）" />
+                <div class="ai-web-toolbar">
+                  <button type="button" class="set-chip" id="ai-web-go">打开</button>
+                  <button type="button" class="set-chip" id="ai-web-open">新窗口</button>
+                </div>
+                <iframe class="ai-web-frame" id="ai-web-frame" title="AI 网页" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+                <button type="button" class="set-chip ai-paste-btn" id="ai-paste-note">粘贴剪贴板到新建便签</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
       </div>
     </div>
   </div>
@@ -2587,6 +2661,28 @@
       moodDetailSave: document.getElementById("mood-detail-save"),
       pomodoroView: document.getElementById("view-pomodoro"),
       toolsPomodoroBtn: document.getElementById("tools-pomodoro-btn"),
+      aiTutorView: document.getElementById("view-ai-tutor"),
+      toolsAiTutorBtn: document.getElementById("tools-ai-tutor-btn"),
+      aiTabApi: document.getElementById("ai-tab-api"),
+      aiTabWeb: document.getElementById("ai-tab-web"),
+      aiPanelApi: document.getElementById("ai-panel-api"),
+      aiPanelWeb: document.getElementById("ai-panel-web"),
+      aiToggleSettings: document.getElementById("ai-toggle-settings"),
+      aiSettings: document.getElementById("ai-settings"),
+      aiBaseUrl: document.getElementById("ai-base-url"),
+      aiApiKey: document.getElementById("ai-api-key"),
+      aiModel: document.getElementById("ai-model"),
+      aiSystemPrompt: document.getElementById("ai-system-prompt"),
+      aiSaveSettings: document.getElementById("ai-save-settings"),
+      aiTestApi: document.getElementById("ai-test-api"),
+      aiChatList: document.getElementById("ai-chat-list"),
+      aiInput: document.getElementById("ai-input"),
+      aiSend: document.getElementById("ai-send"),
+      aiWebUrl: document.getElementById("ai-web-url"),
+      aiWebGo: document.getElementById("ai-web-go"),
+      aiWebOpen: document.getElementById("ai-web-open"),
+      aiWebFrame: document.getElementById("ai-web-frame"),
+      aiPasteNote: document.getElementById("ai-paste-note"),
       pomoPhase: document.getElementById("pomo-phase"),
       pomoTimer: document.getElementById("pomo-timer"),
       pomoPresets: document.getElementById("pomo-presets"),
@@ -2684,6 +2780,7 @@
       if (els.moodView) els.moodView.classList.toggle("active", name === "mood");
       if (els.moodDetailView) els.moodDetailView.classList.toggle("active", name === "mood-detail");
       if (els.pomodoroView) els.pomodoroView.classList.toggle("active", name === "pomodoro");
+      if (els.aiTutorView) els.aiTutorView.classList.toggle("active", name === "ai-tutor");
       const onList = name === "list";
       if (els.settingsFoxBtn) {
         els.settingsFoxBtn.hidden = !onList;
@@ -2887,7 +2984,7 @@
       root.style.setProperty("--muted", theme.muted);
       root.style.setProperty("--tape-teal", theme.accent);
       const paper = uiPrefs.paperType || "grid";
-      [els.spread, els.detailView, els.settingsView, els.toolsView, els.ledgerView, els.moodView, els.moodDetailView, els.pomodoroView, els.addView].forEach((node) => {
+      [els.spread, els.detailView, els.settingsView, els.toolsView, els.ledgerView, els.moodView, els.moodDetailView, els.pomodoroView, els.aiTutorView, els.addView].forEach((node) => {
         if (node) node.dataset.paper = paper;
       });
       if (els.brightnessVeil) {
@@ -3525,6 +3622,230 @@
       }
       renderPomoPresets();
       renderPomoTimer();
+    }
+
+
+    const AI_TUTOR_KEY = "notesketch-scrapbook-ai-tutor-v1";
+    const AI_DEFAULT_SYSTEM = "你是一位耐心、清晰的 AI 学习导师。用简洁的中文回答，必要时给出步骤与例子。";
+    let aiChatMessages = [];
+    let aiSettingsOpen = false;
+
+    function loadAiTutorPrefs() {
+      try {
+        const raw = localStorage.getItem(AI_TUTOR_KEY);
+        if (raw) return JSON.parse(raw);
+      } catch (_) {}
+      return { baseUrl: "", apiKey: "", model: "gpt-4o-mini", webUrl: "", systemPrompt: AI_DEFAULT_SYSTEM };
+    }
+
+    function saveAiTutorPrefs(p) {
+      localStorage.setItem(AI_TUTOR_KEY, JSON.stringify(p));
+    }
+
+    function aiPrefsFromForm() {
+      return {
+        baseUrl: (els.aiBaseUrl?.value || "").trim(),
+        apiKey: (els.aiApiKey?.value || "").trim(),
+        model: (els.aiModel?.value || "").trim(),
+        webUrl: (els.aiWebUrl?.value || "").trim(),
+        systemPrompt: (els.aiSystemPrompt?.value || "").trim() || AI_DEFAULT_SYSTEM,
+      };
+    }
+
+    function applyAiPrefsToForm(p) {
+      if (els.aiBaseUrl) els.aiBaseUrl.value = p.baseUrl || "";
+      if (els.aiApiKey) els.aiApiKey.value = p.apiKey || "";
+      if (els.aiModel) els.aiModel.value = p.model || "gpt-4o-mini";
+      if (els.aiWebUrl) els.aiWebUrl.value = p.webUrl || "";
+      if (els.aiSystemPrompt) els.aiSystemPrompt.value = p.systemPrompt || AI_DEFAULT_SYSTEM;
+    }
+
+    function renderAiChat() {
+      if (!els.aiChatList) return;
+      els.aiChatList.innerHTML = "";
+      aiChatMessages.forEach((msg) => {
+        const wrap = document.createElement("div");
+        wrap.className = "ai-msg ai-msg--" + (msg.role === "user" ? "user" : "assistant");
+        const label = document.createElement("div");
+        label.className = "ai-msg-label";
+        label.textContent = msg.role === "user" ? "我" : "AI 导师";
+        const body = document.createElement("div");
+        body.textContent = msg.content;
+        wrap.appendChild(label);
+        wrap.appendChild(body);
+        if (msg.role === "assistant" && msg.content && !msg.content.startsWith("⚠") && msg.content !== "思考中…") {
+          const actions = document.createElement("div");
+          actions.className = "ai-msg-actions";
+          const saveBtn = document.createElement("button");
+          saveBtn.type = "button";
+          saveBtn.textContent = "存为便签";
+          saveBtn.addEventListener("click", () => openAdd({ title: "AI 笔记", content: msg.content }));
+          const copyBtn = document.createElement("button");
+          copyBtn.type = "button";
+          copyBtn.textContent = "复制";
+          copyBtn.addEventListener("click", async () => {
+            try {
+              await navigator.clipboard.writeText(msg.content);
+            } catch (_) {
+              showFieldHint("复制失败，请手动选择文本");
+            }
+          });
+          actions.appendChild(saveBtn);
+          actions.appendChild(copyBtn);
+          wrap.appendChild(actions);
+        }
+        els.aiChatList.appendChild(wrap);
+      });
+      els.aiChatList.scrollTop = els.aiChatList.scrollHeight;
+    }
+
+    async function aiSendMessage() {
+      const input = (els.aiInput?.value || "").trim();
+      if (!input) return;
+      const prefs = aiPrefsFromForm();
+      saveAiTutorPrefs(prefs);
+      if (!prefs.baseUrl || !prefs.apiKey || !prefs.model) {
+        showFieldHint("请先填写 API Base URL、Key 和 Model");
+        aiSettingsOpen = true;
+        if (els.aiSettings) els.aiSettings.hidden = false;
+        if (els.aiToggleSettings) els.aiToggleSettings.textContent = "收起 API 设置 ▲";
+        return;
+      }
+      els.aiInput.value = "";
+      aiChatMessages.push({ role: "user", content: input });
+      aiChatMessages.push({ role: "assistant", content: "思考中…" });
+      renderAiChat();
+      const messages = [];
+      if (prefs.systemPrompt) messages.push({ role: "system", content: prefs.systemPrompt });
+      aiChatMessages.filter((m) => m.content !== "思考中…").forEach((m) => messages.push(m));
+      const endpoint = prefs.baseUrl.replace(/\/+$/, "").endsWith("/chat/completions")
+        ? prefs.baseUrl.replace(/\/+$/, "")
+        : prefs.baseUrl.replace(/\/+$/, "") + "/chat/completions";
+      try {
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + prefs.apiKey,
+          },
+          body: JSON.stringify({ model: prefs.model, messages }),
+        });
+        const raw = await res.text();
+        if (!res.ok) {
+          let err = "请求失败 (HTTP " + res.status + ")";
+          try {
+            const j = JSON.parse(raw);
+            err = j.error?.message || j.message || err;
+          } catch (_) {}
+          throw new Error(err);
+        }
+        const json = JSON.parse(raw);
+        const content = json.choices?.[0]?.message?.content?.trim() || "";
+        if (!content) throw new Error("响应中没有 AI 回答");
+        if (aiChatMessages.length && aiChatMessages[aiChatMessages.length - 1].content === "思考中…") {
+          aiChatMessages.pop();
+        }
+        aiChatMessages.push({ role: "assistant", content });
+      } catch (e) {
+        if (aiChatMessages.length && aiChatMessages[aiChatMessages.length - 1].content === "思考中…") {
+          aiChatMessages.pop();
+        }
+        aiChatMessages.push({ role: "assistant", content: "⚠ " + (e.message || "网络请求失败") });
+      }
+      renderAiChat();
+    }
+
+    async function aiTestConnection() {
+      const prefs = aiPrefsFromForm();
+      saveAiTutorPrefs(prefs);
+      if (!prefs.baseUrl || !prefs.apiKey || !prefs.model) {
+        showFieldHint("请先填写完整 API 配置");
+        return;
+      }
+      const endpoint = prefs.baseUrl.replace(/\/+$/, "").endsWith("/chat/completions")
+        ? prefs.baseUrl.replace(/\/+$/, "")
+        : prefs.baseUrl.replace(/\/+$/, "") + "/chat/completions";
+      try {
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + prefs.apiKey,
+          },
+          body: JSON.stringify({
+            model: prefs.model,
+            messages: [{ role: "user", content: "回复 OK 两个字母即可" }],
+          }),
+        });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        showFieldHint("连接成功");
+      } catch (e) {
+        showFieldHint(e.message || "连接失败");
+      }
+    }
+
+    function aiShowTab(tab) {
+      const isApi = tab === "api";
+      if (els.aiTabApi) els.aiTabApi.classList.toggle("is-on", isApi);
+      if (els.aiTabWeb) els.aiTabWeb.classList.toggle("is-on", !isApi);
+      if (els.aiPanelApi) els.aiPanelApi.hidden = !isApi;
+      if (els.aiPanelWeb) els.aiPanelWeb.hidden = isApi;
+    }
+
+    function openAiTutor() {
+      applyAiPrefsToForm(loadAiTutorPrefs());
+      aiShowTab("api");
+      showView("ai-tutor");
+    }
+
+    function initAiTutor() {
+      applyAiPrefsToForm(loadAiTutorPrefs());
+      if (els.aiToggleSettings) {
+        els.aiToggleSettings.addEventListener("click", () => {
+          aiSettingsOpen = !aiSettingsOpen;
+          if (els.aiSettings) els.aiSettings.hidden = !aiSettingsOpen;
+          els.aiToggleSettings.textContent = aiSettingsOpen ? "收起 API 设置 ▲" : "展开 API 设置 ▼";
+        });
+      }
+      if (els.aiSaveSettings) {
+        els.aiSaveSettings.addEventListener("click", () => {
+          saveAiTutorPrefs(aiPrefsFromForm());
+          showFieldHint("已保存");
+        });
+      }
+      if (els.aiTestApi) els.aiTestApi.addEventListener("click", aiTestConnection);
+      if (els.aiSend) els.aiSend.addEventListener("click", aiSendMessage);
+      if (els.aiTabApi) els.aiTabApi.addEventListener("click", () => aiShowTab("api"));
+      if (els.aiTabWeb) els.aiTabWeb.addEventListener("click", () => aiShowTab("web"));
+      if (els.aiWebGo) {
+        els.aiWebGo.addEventListener("click", () => {
+          let url = (els.aiWebUrl?.value || "").trim();
+          if (!url) return showFieldHint("请填写 AI 网址");
+          if (!/^https?:\/\//i.test(url)) url = "https://" + url;
+          els.aiWebUrl.value = url;
+          saveAiTutorPrefs(aiPrefsFromForm());
+          if (els.aiWebFrame) els.aiWebFrame.src = url;
+        });
+      }
+      if (els.aiWebOpen) {
+        els.aiWebOpen.addEventListener("click", () => {
+          let url = (els.aiWebUrl?.value || "").trim();
+          if (!url) return showFieldHint("请填写 AI 网址");
+          if (!/^https?:\/\//i.test(url)) url = "https://" + url;
+          window.open(url, "_blank", "noopener,noreferrer");
+        });
+      }
+      if (els.aiPasteNote) {
+        els.aiPasteNote.addEventListener("click", async () => {
+          try {
+            const text = (await navigator.clipboard.readText()).trim();
+            if (!text) return showFieldHint("剪贴板为空，请先在网页中复制 AI 回答");
+            openAdd({ title: "AI 笔记", content: text });
+          } catch (_) {
+            showFieldHint("无法读取剪贴板，请检查浏览器权限");
+          }
+        });
+      }
     }
 
     function openPomodoro() {
@@ -4256,10 +4577,12 @@
       });
     }
 
-    function openAdd() {
+    function openAdd(prefill = {}) {
+      const { title = "", content = "" } = prefill;
       resetListPullState();
-      els.titleInput.value = "";
-      els.contentInput.innerHTML = "";
+      els.titleInput.value = title;
+      if (content) els.contentInput.textContent = content;
+      else els.contentInput.innerHTML = "";
       els.fieldHint.classList.remove("show");
       els.fieldHint.textContent = "";
       addColorId = uiPrefs.themeId || "parchment";
@@ -4536,11 +4859,14 @@
       showView("mood");
     });
     bindBack(document.getElementById("pomodoro-header"), () => showView("tools"));
+    bindBack(document.getElementById("ai-tutor-header"), () => showView("tools"));
     els.settingsFoxBtn.addEventListener("click", openSettings);
     if (els.toolsFoxBtn) els.toolsFoxBtn.addEventListener("click", openTools);
     if (els.toolsLedgerBtn) els.toolsLedgerBtn.addEventListener("click", openLedger);
     if (els.toolsMoodBtn) els.toolsMoodBtn.addEventListener("click", openMood);
     if (els.toolsPomodoroBtn) els.toolsPomodoroBtn.addEventListener("click", openPomodoro);
+    if (els.toolsAiTutorBtn) els.toolsAiTutorBtn.addEventListener("click", openAiTutor);
+    initAiTutor();
     if (els.moodAddBtn) els.moodAddBtn.addEventListener("click", addMoodEntry);
     if (els.ledgerTypeExpense) {
       els.ledgerTypeExpense.addEventListener("click", () => {
