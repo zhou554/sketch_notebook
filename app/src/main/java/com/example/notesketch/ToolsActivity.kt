@@ -22,6 +22,9 @@ class ToolsActivity : AppCompatActivity() {
         binding.btnMood.setOnClickListener {
             startActivity(Intent(this, MoodDiaryActivity::class.java))
         }
+        binding.btnPomodoro.setOnClickListener {
+            startActivity(Intent(this, PomodoroActivity::class.java))
+        }
         applyChrome()
     }
 
@@ -36,7 +39,7 @@ class ToolsActivity : AppCompatActivity() {
         binding.root.setBackgroundColor(theme.bg)
         // 图标文字画在固定浅色的 tools_board 手账图上，须用固定深色而非 theme.ink（深色主题下是浅色）
         val boardInk = Color.parseColor("#3D2818")
-        ThemeUi.colorTexts(boardInk, binding.tvLedgerLabel, binding.tvMoodLabel)
+        ThemeUi.colorTexts(boardInk, binding.tvLedgerLabel, binding.tvMoodLabel, binding.tvPomodoroLabel)
         binding.tvHeader.setTextColor(boardInk)
         ThemeUi.colorTexts(boardInk, binding.btnBack)
     }
