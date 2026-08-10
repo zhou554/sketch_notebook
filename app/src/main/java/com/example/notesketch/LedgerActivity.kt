@@ -127,28 +127,15 @@ class LedgerActivity : AppCompatActivity() {
             cornerRadius = 10 * d
             setStroke((1.5f * d).toInt().coerceAtLeast(2), panelBorder)
         }
-        binding.btnAddEntry.background = GradientDrawable(
-            GradientDrawable.Orientation.TOP_BOTTOM,
-            intArrayOf(
-                Color.parseColor("#8BB8AB"),
-                theme.accent,
-                Color.parseColor("#5F9084")
-            )
-        ).apply { cornerRadius = 10 * d }
-        binding.btnAddEntry.setTextColor(Color.parseColor("#FFFEF8"))
-        binding.typeDivider.setBackgroundColor(Color.parseColor("#3D5C4A"))
+        binding.btnAddEntry.background = ThemeUi.primaryButtonDrawable(theme, 10 * d)
+        binding.btnAddEntry.setTextColor(ThemeUi.primaryOnAccentText(theme))
+        binding.typeDivider.setBackgroundColor(ThemeUi.accentBorder(theme))
     }
 
     private fun refreshTypeUi() {
         val theme = UiPrefs.theme(this)
         val d = resources.displayMetrics.density
-        val fill = Color.parseColor("#FFFEF8")
-        val inkGreen = Color.parseColor("#3D5C4A")
-        binding.typeSegment.background = GradientDrawable().apply {
-            setColor(fill)
-            cornerRadius = 10 * d
-            setStroke((1.5f * d).toInt().coerceAtLeast(2), inkGreen)
-        }
+        binding.typeSegment.background = ThemeUi.outlinePanelDrawable(theme, 10 * d, d)
         styleSegmentHalf(binding.btnExpense, isExpense, theme, d, left = true)
         styleSegmentHalf(binding.btnIncome, !isExpense, theme, d, left = false)
     }
@@ -160,7 +147,10 @@ class LedgerActivity : AppCompatActivity() {
         d: Float,
         left: Boolean
     ) {
-        tv.setTextColor(if (on) Color.parseColor("#FFFEF8") else ThemeUi.contrastText(Color.parseColor("#FFFEF8")))
+        tv.setTextColor(
+            if (on) ThemeUi.primaryOnAccentText(theme)
+            else ThemeUi.contrastText(ThemeUi.lightPanelFill)
+        )
         val r = 10 * d
         val radii = if (left) {
             floatArrayOf(r, r, 0f, 0f, 0f, 0f, r, r)
@@ -168,14 +158,7 @@ class LedgerActivity : AppCompatActivity() {
             floatArrayOf(0f, 0f, r, r, r, r, 0f, 0f)
         }
         tv.background = if (on) {
-            GradientDrawable(
-                GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(
-                    Color.parseColor("#8BB8AB"),
-                    theme.accent,
-                    Color.parseColor("#5F9084")
-                )
-            ).apply { cornerRadii = radii }
+            ThemeUi.segmentSelectedDrawable(theme, radii)
         } else {
             GradientDrawable().apply {
                 setColor(Color.TRANSPARENT)

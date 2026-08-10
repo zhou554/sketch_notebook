@@ -99,15 +99,8 @@ class MoodDiaryActivity : AppCompatActivity() {
         val panelMuted = Color.parseColor("#6F6256")
         styleField(binding.etTitle, panel, panelBorder, panelInk, panelMuted, d)
         styleField(binding.etContent, panel, panelBorder, panelInk, panelMuted, d)
-        binding.btnAddEntry.background = GradientDrawable(
-            GradientDrawable.Orientation.TOP_BOTTOM,
-            intArrayOf(
-                Color.parseColor("#8BB8AB"),
-                theme.accent,
-                Color.parseColor("#5F9084")
-            )
-        ).apply { cornerRadius = 10 * d }
-        binding.btnAddEntry.setTextColor(Color.parseColor("#FFFEF8"))
+        binding.btnAddEntry.background = ThemeUi.primaryButtonDrawable(theme, 10 * d)
+        binding.btnAddEntry.setTextColor(ThemeUi.primaryOnAccentText(theme))
     }
 
     private fun styleField(
@@ -128,7 +121,8 @@ class MoodDiaryActivity : AppCompatActivity() {
     }
 
     private fun bindIconRow() {
-        MoodIcons.bindPicker(binding.iconRow, 48, selectedIcon) { index ->
+        val theme = UiPrefs.theme(this)
+        MoodIcons.bindPicker(binding.iconRow, 48, selectedIcon, theme) { index ->
             selectedIcon = index
             bindIconRow()
         }

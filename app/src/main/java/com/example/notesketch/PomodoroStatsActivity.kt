@@ -163,15 +163,10 @@ class PomodoroStatsActivity : AppCompatActivity() {
     private fun renderRangeUi() {
         val theme = UiPrefs.theme(this)
         val d = resources.displayMetrics.density
-        val fill = Color.parseColor("#FFFEF8")
-        val inkGreen = Color.parseColor("#3D5C4A")
-        binding.rangeSegment.background = GradientDrawable().apply {
-            setColor(fill)
-            cornerRadius = 999 * d
-            setStroke((1.5f * d).toInt().coerceAtLeast(2), inkGreen)
-        }
-        binding.rangeDivider1.setBackgroundColor(inkGreen)
-        binding.rangeDivider2.setBackgroundColor(inkGreen)
+        val border = ThemeUi.accentBorder(theme)
+        binding.rangeSegment.background = ThemeUi.outlinePanelDrawable(theme, 999 * d, d)
+        binding.rangeDivider1.setBackgroundColor(border)
+        binding.rangeDivider2.setBackgroundColor(border)
         styleRangeHalf(binding.btnRangeDay, range == Range.DAY, theme, d, left = true, right = false)
         styleRangeHalf(binding.btnRangeMonth, range == Range.MONTH, theme, d, left = false, right = false)
         styleRangeHalf(binding.btnRangeYear, range == Range.YEAR, theme, d, left = false, right = true)
@@ -185,7 +180,10 @@ class PomodoroStatsActivity : AppCompatActivity() {
         left: Boolean,
         right: Boolean
     ) {
-        tv.setTextColor(if (on) Color.parseColor("#FFFEF8") else ThemeUi.contrastText(Color.parseColor("#FFFEF8")))
+        tv.setTextColor(
+            if (on) ThemeUi.primaryOnAccentText(theme)
+            else ThemeUi.contrastText(ThemeUi.lightPanelFill)
+        )
         val r = 999 * d
         val radii = when {
             left -> floatArrayOf(r, r, 0f, 0f, 0f, 0f, r, r)
@@ -193,14 +191,7 @@ class PomodoroStatsActivity : AppCompatActivity() {
             else -> FloatArray(8) { 0f }
         }
         tv.background = if (on) {
-            GradientDrawable(
-                GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(
-                    Color.parseColor("#8BB8AB"),
-                    theme.accent,
-                    Color.parseColor("#5F9084")
-                )
-            ).apply { cornerRadii = radii }
+            ThemeUi.segmentSelectedDrawable(theme, radii)
         } else {
             GradientDrawable().apply {
                 setColor(Color.TRANSPARENT)

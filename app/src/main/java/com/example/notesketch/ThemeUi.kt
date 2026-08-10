@@ -33,6 +33,62 @@ object ThemeUi {
         if (ColorUtils.calculateLuminance(theme.bg) < 0.45) Color.parseColor("#FFFEF8")
         else theme.surface
 
+    val lightPanelFill = Color.parseColor("#FFFEF8")
+
+    /** 从 accent 降亮度，用于按钮描边与分段分隔线。 */
+    fun accentBorder(theme: ThemePalette): Int {
+        val hsl = FloatArray(3)
+        ColorUtils.colorToHSL(theme.accent, hsl)
+        hsl[2] = (hsl[2] - 0.15f).coerceIn(0.15f, 0.55f)
+        return ColorUtils.HSLToColor(hsl)
+    }
+
+    fun strokeWidth(density: Float, dp: Float = 1.5f): Int =
+        (dp * density).toInt().coerceAtLeast(2)
+
+    fun primaryButtonDrawable(theme: ThemePalette, cornerRadius: Float): GradientDrawable =
+        GradientDrawable().apply {
+            setColor(theme.accent)
+            this.cornerRadius = cornerRadius
+        }
+
+    fun segmentSelectedDrawable(theme: ThemePalette, cornerRadii: FloatArray): GradientDrawable =
+        GradientDrawable().apply {
+            setColor(theme.accent)
+            this.cornerRadii = cornerRadii
+        }
+
+    fun outlinePanelDrawable(
+        theme: ThemePalette,
+        cornerRadius: Float,
+        density: Float,
+        fill: Int = lightPanelFill
+    ): GradientDrawable =
+        GradientDrawable().apply {
+            setColor(fill)
+            this.cornerRadius = cornerRadius
+            setStroke(strokeWidth(density), accentBorder(theme))
+        }
+
+    fun chipDrawable(
+        theme: ThemePalette,
+        selected: Boolean,
+        cornerRadius: Float,
+        density: Float
+    ): GradientDrawable {
+        val fill = if (selected) theme.accent else lightPanelFill
+        return GradientDrawable().apply {
+            setColor(fill)
+            this.cornerRadius = cornerRadius
+            setStroke(
+                strokeWidth(density),
+                if (selected) theme.accent else accentBorder(theme)
+            )
+        }
+    }
+
+    fun primaryOnAccentText(theme: ThemePalette): Int = contrastText(theme.accent)
+
     fun applyWindow(activity: Activity, theme: ThemePalette) {
         val window = activity.window
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)

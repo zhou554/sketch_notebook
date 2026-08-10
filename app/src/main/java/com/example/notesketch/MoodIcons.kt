@@ -25,11 +25,18 @@ object MoodIcons {
     fun colorIdOf(icon: Int): String = COLOR_IDS[icon.coerceIn(0, COLOR_IDS.lastIndex)]
 
     /** 在横排容器里铺开 6 个可点选的狐狸图标，选中的带白底描边高亮 */
-    fun bindPicker(row: LinearLayout, sizeDp: Int, selected: Int, onSelect: (Int) -> Unit) {
+    fun bindPicker(
+        row: LinearLayout,
+        sizeDp: Int,
+        selected: Int,
+        theme: ThemePalette,
+        onSelect: (Int) -> Unit
+    ) {
         row.removeAllViews()
         val d = row.resources.displayMetrics.density
         val size = (sizeDp * d).toInt()
         val pad = (4 * d).toInt()
+        val border = ThemeUi.accentBorder(theme)
         DRAWABLES.forEachIndexed { index, resId ->
             val iv = ImageView(row.context).apply {
                 setImageResource(resId)
@@ -39,8 +46,8 @@ object MoodIcons {
                 background = GradientDrawable().apply {
                     cornerRadius = 10 * d
                     if (index == selected) {
-                        setColor(Color.parseColor("#FFFEF8"))
-                        setStroke((1.5f * d).toInt().coerceAtLeast(2), Color.parseColor("#3D5C4A"))
+                        setColor(ThemeUi.lightPanelFill)
+                        setStroke(ThemeUi.strokeWidth(d), border)
                     } else {
                         setColor(Color.TRANSPARENT)
                     }

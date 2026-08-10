@@ -167,7 +167,8 @@ class MoodDetailActivity : AppCompatActivity() {
     }
 
     private fun bindIconRow() {
-        MoodIcons.bindPicker(binding.iconRow, 40, selectedIcon) { index ->
+        val theme = UiPrefs.theme(this)
+        MoodIcons.bindPicker(binding.iconRow, 40, selectedIcon, theme) { index ->
             selectedIcon = index
             bindIconRow()
             applyPaperColor()

@@ -153,35 +153,19 @@ class PomodoroActivity : AppCompatActivity() {
         val theme = UiPrefs.theme(this)
         val d = resources.displayMetrics.density
         val r = 999 * d
-        binding.btnPrimary.background = GradientDrawable(
-            GradientDrawable.Orientation.TOP_BOTTOM,
-            intArrayOf(
-                Color.parseColor("#8BB8AB"),
-                theme.accent,
-                Color.parseColor("#5F9084")
-            )
-        ).apply { cornerRadius = r }
-        binding.btnPrimary.setTextColor(Color.parseColor("#FFFEF8"))
-        binding.btnReset.background = GradientDrawable().apply {
-            setColor(Color.parseColor("#FFFEF8"))
-            cornerRadius = r
-            setStroke((1.5f * d).toInt().coerceAtLeast(2), Color.parseColor("#3D5C4A"))
-        }
-        binding.btnReset.setTextColor(ThemeUi.contrastText(Color.parseColor("#FFFEF8")))
+        binding.btnPrimary.background = ThemeUi.primaryButtonDrawable(theme, r)
+        binding.btnPrimary.setTextColor(ThemeUi.primaryOnAccentText(theme))
+        binding.btnReset.background = ThemeUi.outlinePanelDrawable(theme, r, d)
+        binding.btnReset.setTextColor(ThemeUi.contrastText(ThemeUi.lightPanelFill))
     }
 
     private fun renderModeUi() {
         val theme = UiPrefs.theme(this)
         val d = resources.displayMetrics.density
-        val fill = Color.parseColor("#FFFEF8")
-        val inkGreen = Color.parseColor("#3D5C4A")
-        binding.modeSegment.background = GradientDrawable().apply {
-            setColor(fill)
-            cornerRadius = 999 * d
-            setStroke((1.5f * d).toInt().coerceAtLeast(2), inkGreen)
-        }
-        binding.modeDivider1.setBackgroundColor(inkGreen)
-        binding.modeDivider2.setBackgroundColor(inkGreen)
+        val border = ThemeUi.accentBorder(theme)
+        binding.modeSegment.background = ThemeUi.outlinePanelDrawable(theme, 999 * d, d)
+        binding.modeDivider1.setBackgroundColor(border)
+        binding.modeDivider2.setBackgroundColor(border)
         styleModeHalf(binding.btnModeStopwatch, mode == Mode.STOPWATCH, theme, d, left = true, right = false)
         styleModeHalf(binding.btnModeCountdown, mode == Mode.COUNTDOWN, theme, d, left = false, right = false)
         styleModeHalf(binding.btnModePomodoro, mode == Mode.POMODORO, theme, d, left = false, right = true)
@@ -195,7 +179,10 @@ class PomodoroActivity : AppCompatActivity() {
         left: Boolean,
         right: Boolean
     ) {
-        tv.setTextColor(if (on) Color.parseColor("#FFFEF8") else ThemeUi.contrastText(Color.parseColor("#FFFEF8")))
+        tv.setTextColor(
+            if (on) ThemeUi.primaryOnAccentText(theme)
+            else ThemeUi.contrastText(ThemeUi.lightPanelFill)
+        )
         val r = 999 * d
         val radii = when {
             left -> floatArrayOf(r, r, 0f, 0f, 0f, 0f, r, r)
@@ -203,14 +190,7 @@ class PomodoroActivity : AppCompatActivity() {
             else -> FloatArray(8) { 0f }
         }
         tv.background = if (on) {
-            GradientDrawable(
-                GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(
-                    Color.parseColor("#8BB8AB"),
-                    theme.accent,
-                    Color.parseColor("#5F9084")
-                )
-            ).apply { cornerRadii = radii }
+            ThemeUi.segmentSelectedDrawable(theme, radii)
         } else {
             GradientDrawable().apply {
                 setColor(Color.TRANSPARENT)
@@ -285,14 +265,10 @@ class PomodoroActivity : AppCompatActivity() {
                     Mode.POMODORO -> isPomoPresetSelected(preset)
                     else -> false
                 }
-                background = GradientDrawable().apply {
-                    setColor(if (selected) theme.accent else Color.parseColor("#FFFEF8"))
-                    cornerRadius = 999 * d
-                    setStroke((1.5f * d).toInt().coerceAtLeast(2), Color.parseColor("#3D5C4A"))
-                }
+                background = ThemeUi.chipDrawable(theme, selected, 999 * d, d)
                 setTextColor(
-                    if (selected) Color.parseColor("#FFFEF8")
-                    else ThemeUi.contrastText(Color.parseColor("#FFFEF8"))
+                    if (selected) ThemeUi.primaryOnAccentText(theme)
+                    else ThemeUi.contrastText(ThemeUi.lightPanelFill)
                 )
                 setOnClickListener {
                     if (running) {
