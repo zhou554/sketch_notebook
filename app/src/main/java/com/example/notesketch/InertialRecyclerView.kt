@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 
 /**
  * 列表惯性滚动：增强向下 fling，便于一次滑到页面底部。
- * 配合 MainActivity 在 [SCROLL_STATE_IDLE] 且已到底时才允许上拉新建。
+ * 配合 MainActivity：列表滚到底后在屏幕上上拉新建。
  */
 class InertialRecyclerView @JvmOverloads constructor(
     context: Context,

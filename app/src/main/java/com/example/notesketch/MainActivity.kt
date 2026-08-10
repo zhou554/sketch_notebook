@@ -37,9 +37,6 @@ class MainActivity : AppCompatActivity() {
     private var pullTriggered = false
     private var pullCooldownUntil = 0L
     private var minPullPx = 0f
-    private var listScrollIdle = true
-    private var listAtBottom = true
-    private var touchStartedAtBottom = false
 
     private val pullTickRunnable = object : Runnable {
         override fun run() {
@@ -75,12 +72,7 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerView.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
         binding.recyclerView.adapter = adapter
         binding.recyclerView.setHasFixedSize(false)
-        binding.recyclerView.scrollIdleListener = { idle ->
-            listScrollIdle = idle
-            if (!idle) resetPull(hideHint = true)
-        }
         binding.recyclerView.atBottomListener = { atBottom ->
-            listAtBottom = atBottom
             if (!atBottom) resetPull(hideHint = true)
         }
         setupPullToAdd()
@@ -108,9 +100,6 @@ class MainActivity : AppCompatActivity() {
                 adapter.submitList(notes)
                 binding.emptyView.visibility =
                     if (notes.isEmpty()) View.VISIBLE else View.GONE
-                binding.recyclerView.post {
-                    listAtBottom = binding.recyclerView.isAtBottom()
-                }
             }
         }
     }
@@ -119,9 +108,6 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         applyUi()
         adapter.notifyDataSetChanged()
-        binding.recyclerView.post {
-            listAtBottom = binding.recyclerView.isAtBottom()
-        }
     }
 
     override fun onDestroy() {
@@ -172,14 +158,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupPullToAdd() {
+        // 不拦截触摸，保证惯性 fling；列表到底后在屏幕上上拉才进入新建。
         binding.recyclerView.setOnTouchListener { _, event ->
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
                     pullStartY = event.y
                     pullTriggered = false
-                    touchStartedAtBottom = binding.recyclerView.isAtBottom()
                     resetPull(hideHint = true)
-                    false
                 }
                 MotionEvent.ACTION_MOVE -> {
                     if (pullTriggered || System.currentTimeMillis() < pullCooldownUntil) {
@@ -189,6 +174,7 @@ class MainActivity : AppCompatActivity() {
                         resetPull(hideHint = true)
                         return@setOnTouchListener false
                     }
+                    // 上拉：手指向上移动（y 减小）
                     val pullY = max(0f, pullStartY - event.y)
                     if (pullY <= 0f) {
                         resetPull(hideHint = true)
@@ -196,24 +182,17 @@ class MainActivity : AppCompatActivity() {
                     }
                     pullDistance = pullY
                     tickHold(pullY)
-                    pullY >= minPullPx * 0.25f
                 }
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                     if (!pullTriggered) resetPull(hideHint = true)
-                    false
                 }
-                else -> false
             }
+            false
         }
     }
 
-    /** 对齐 preview：惯性滚动停稳 + 已在底部 + 本次手势从底部开始，才允许上拉新建。 */
-    private fun canArmPull(): Boolean {
-        if (!listScrollIdle) return false
-        if (!binding.recyclerView.isAtBottom()) return false
-        if (adapter.itemCount > 0 && !touchStartedAtBottom) return false
-        return true
-    }
+    /** 列表已滚到底部时，才允许在屏幕上上拉新建。 */
+    private fun canArmPull(): Boolean = binding.recyclerView.isAtBottom()
 
     private fun tickHold(delta: Float) {
         if (!canArmPull()) {
