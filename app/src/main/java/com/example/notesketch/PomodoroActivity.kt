@@ -9,8 +9,12 @@ import android.os.SystemClock
 import android.view.View
 import android.view.WindowManager
 import android.widget.LinearLayout
+import android.widget.NumberPicker
+import android.widget.RadioButton
+import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import com.example.notesketch.databinding.ActivityPomodoroBinding
@@ -20,22 +24,24 @@ class PomodoroActivity : AppCompatActivity() {
 
     private enum class Mode { STOPWATCH, COUNTDOWN, POMODORO }
     private enum class PomoPhase { WORK, SHORT_BREAK, LONG_BREAK }
+    private enum class PomoPresetKind { WORK, SHORT_BREAK, LONG_BREAK, CUSTOM_WORK, CUSTOM_BREAK }
+
+    private data class PomoPreset(val kind: PomoPresetKind, val minutes: Int?, val label: String)
 
     private lateinit var binding: ActivityPomodoroBinding
 
     private var mode = Mode.POMODORO
     private var running = false
     private var elapsedMs = 0L
-    private var remainingMs = WORK_MS
-    private var workDurationMs = WORK_MS
+    private var remainingMs = DEFAULT_WORK_MS
+    private var workDurationMs = DEFAULT_WORK_MS
+    private var shortBreakDurationMs = DEFAULT_SHORT_BREAK_MS
+    private var longBreakDurationMs = DEFAULT_LONG_BREAK_MS
     private var countdownTotalMs = 5 * 60_000L
     private var phase = PomoPhase.WORK
     private var completedToday = 0
     private var focusMinutesToday = 0
-    private var cycleInSet = 0
     private var handlingFinish = false
-    /** 当前轮次是否已完成专注（完成后才允许休息计时）。 */
-    private var workCompletedInSet = false
 
     private var tickBaseElapsedRealtime = 0L
     private var tickBaseElapsedMs = 0L
@@ -70,6 +76,7 @@ class PomodoroActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         loadStats()
+        loadDurations()
 
         binding.btnBackRow.setOnClickListener { finish() }
         binding.btnBack.setOnClickListener { finish() }
@@ -78,7 +85,6 @@ class PomodoroActivity : AppCompatActivity() {
         binding.btnModePomodoro.setOnClickListener { switchMode(Mode.POMODORO) }
         binding.btnPrimary.setOnClickListener { toggleRun() }
         binding.btnReset.setOnClickListener { resetTimer() }
-        binding.btnSkip.setOnClickListener { skipPhase() }
 
         applyUi()
         switchMode(Mode.POMODORO, force = true)
@@ -88,6 +94,7 @@ class PomodoroActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         reloadStatsFromPrefs()
+        loadDurations()
         applyUi()
         renderModeUi()
         renderPresets()
@@ -113,7 +120,7 @@ class PomodoroActivity : AppCompatActivity() {
         binding.root.setBackgroundColor(theme.bg)
         binding.contentPanel.setBackgroundColor(Color.TRANSPARENT)
         ThemeUi.colorTexts(theme.ink, binding.tvHeader)
-        ThemeUi.colorTexts(theme.muted, binding.btnBack, binding.btnSkip)
+        ThemeUi.colorTexts(theme.muted, binding.btnBack)
         ThemeUi.colorLines(0x597A6F62, binding.headerLine)
         val d = resources.displayMetrics.density
         val card = ThemeUi.stickerPanelColor(theme)
@@ -213,19 +220,15 @@ class PomodoroActivity : AppCompatActivity() {
             Mode.STOPWATCH -> {
                 elapsedMs = 0L
                 binding.tvPhase.text = "正计时"
-                binding.btnSkip.visibility = View.GONE
             }
             Mode.COUNTDOWN -> {
                 remainingMs = countdownTotalMs
                 binding.tvPhase.text = "倒计时"
-                binding.btnSkip.visibility = View.GONE
             }
             Mode.POMODORO -> {
                 phase = PomoPhase.WORK
-                workDurationMs = WORK_MS
                 remainingMs = workDurationMs
                 binding.tvPhase.text = phaseLabel()
-                binding.btnSkip.visibility = View.VISIBLE
             }
         }
         renderModeUi()
@@ -243,31 +246,36 @@ class PomodoroActivity : AppCompatActivity() {
         val theme = UiPrefs.theme(this)
         val d = resources.displayMetrics.density
         val items = if (mode == Mode.COUNTDOWN) {
-            listOf(1 to "1 分", 5 to "5 分", 10 to "10 分", 15 to "15 分", 25 to "25 分", 45 to "45 分")
+            listOf(
+                PomoPreset(PomoPresetKind.WORK, 1, "1 分"),
+                PomoPreset(PomoPresetKind.WORK, 5, "5 分"),
+                PomoPreset(PomoPresetKind.WORK, 10, "10 分"),
+                PomoPreset(PomoPresetKind.WORK, 15, "15 分"),
+                PomoPreset(PomoPresetKind.WORK, 25, "25 分"),
+                PomoPreset(PomoPresetKind.WORK, 45, "45 分")
+            )
         } else {
             listOf(
-                1 to "专注 1",
-                25 to "专注 25",
-                5 to "短休 5",
-                15 to "长休 15"
+                PomoPreset(PomoPresetKind.WORK, 25, "专注 25"),
+                PomoPreset(PomoPresetKind.SHORT_BREAK, 5, "短休 5"),
+                PomoPreset(PomoPresetKind.LONG_BREAK, 15, "长休 15"),
+                PomoPreset(PomoPresetKind.CUSTOM_WORK, null, customWorkChipLabel()),
+                PomoPreset(PomoPresetKind.CUSTOM_BREAK, null, customBreakChipLabel())
             )
         }
 
-        items.forEachIndexed { index, (minutes, label) ->
+        items.forEach { preset ->
+            val minutes = preset.minutes
             val chip = TextView(this).apply {
-                text = label
+                text = preset.label
                 textSize = 14f
                 typeface = ResourcesCompat.getFont(this@PomodoroActivity, R.font.patrick_hand)
                 gravity = android.view.Gravity.CENTER
                 setPadding((14 * d).toInt(), (8 * d).toInt(), (14 * d).toInt(), (8 * d).toInt())
-                val targetWorkMs = minutes * 60_000L
+                val targetWorkMs = minutes?.times(60_000L)
                 val selected = when (mode) {
-                    Mode.COUNTDOWN -> countdownTotalMs == targetWorkMs
-                    Mode.POMODORO -> when (index) {
-                        0, 1 -> phase == PomoPhase.WORK && workDurationMs == targetWorkMs && !running
-                        2 -> phase == PomoPhase.SHORT_BREAK
-                        else -> phase == PomoPhase.LONG_BREAK
-                    }
+                    Mode.COUNTDOWN -> targetWorkMs != null && countdownTotalMs == targetWorkMs
+                    Mode.POMODORO -> isPomoPresetSelected(preset)
                     else -> false
                 }
                 background = GradientDrawable().apply {
@@ -284,37 +292,17 @@ class PomodoroActivity : AppCompatActivity() {
                         Toast.makeText(this@PomodoroActivity, "计时中，请先暂停或重置", Toast.LENGTH_SHORT).show()
                         return@setOnClickListener
                     }
-                    if (mode == Mode.COUNTDOWN) {
-                        countdownTotalMs = minutes * 60_000L
-                        remainingMs = countdownTotalMs
-                    } else {
-                        if (index >= 2 && !workCompletedInSet) {
-                            Toast.makeText(
-                                this@PomodoroActivity,
-                                "请先完成专注阶段，休息不计入番茄数",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            return@setOnClickListener
+                    when (mode) {
+                        Mode.COUNTDOWN -> {
+                            if (minutes == null) return@setOnClickListener
+                            countdownTotalMs = minutes * 60_000L
+                            remainingMs = countdownTotalMs
+                            renderPresets()
+                            renderTimer()
                         }
-                        when (index) {
-                            0, 1 -> {
-                                phase = PomoPhase.WORK
-                                workDurationMs = targetWorkMs
-                                remainingMs = workDurationMs
-                            }
-                            2 -> {
-                                phase = PomoPhase.SHORT_BREAK
-                                remainingMs = SHORT_BREAK_MS
-                            }
-                            else -> {
-                                phase = PomoPhase.LONG_BREAK
-                                remainingMs = LONG_BREAK_MS
-                            }
-                        }
-                        binding.tvPhase.text = phaseLabel()
+                        Mode.POMODORO -> applyPomoPreset(preset)
+                        else -> Unit
                     }
-                    renderPresets()
-                    renderTimer()
                 }
             }
             val lp = LinearLayout.LayoutParams(
@@ -323,6 +311,182 @@ class PomodoroActivity : AppCompatActivity() {
             ).apply { marginEnd = (8 * d).toInt() }
             binding.presetRow.addView(chip, lp)
         }
+    }
+
+    private fun isPomoPresetSelected(preset: PomoPreset): Boolean = when (preset.kind) {
+        PomoPresetKind.WORK -> {
+            val m = preset.minutes
+            m != null && phase == PomoPhase.WORK && workDurationMs == m * 60_000L && !running
+        }
+        PomoPresetKind.SHORT_BREAK ->
+            phase == PomoPhase.SHORT_BREAK && shortBreakDurationMs == (preset.minutes ?: 0) * 60_000L
+        PomoPresetKind.LONG_BREAK ->
+            phase == PomoPhase.LONG_BREAK && longBreakDurationMs == (preset.minutes ?: 0) * 60_000L
+        PomoPresetKind.CUSTOM_WORK ->
+            phase == PomoPhase.WORK && !isPresetWorkMinutes(workMinutes()) && !running
+        PomoPresetKind.CUSTOM_BREAK ->
+            (phase == PomoPhase.SHORT_BREAK && !isPresetShortBreakMinutes(shortBreakMinutes())) ||
+                (phase == PomoPhase.LONG_BREAK && !isPresetLongBreakMinutes(longBreakMinutes()))
+    }
+
+    private fun applyPomoPreset(preset: PomoPreset) {
+        when (preset.kind) {
+            PomoPresetKind.CUSTOM_WORK -> showCustomWorkDialog()
+            PomoPresetKind.CUSTOM_BREAK -> showCustomBreakDialog()
+            PomoPresetKind.WORK -> {
+                val minutes = preset.minutes ?: return
+                phase = PomoPhase.WORK
+                workDurationMs = minutes * 60_000L
+                remainingMs = workDurationMs
+                binding.tvPhase.text = phaseLabel()
+                saveDurations()
+                renderPresets()
+                renderTimer()
+            }
+            PomoPresetKind.SHORT_BREAK, PomoPresetKind.LONG_BREAK -> {
+                if (preset.kind == PomoPresetKind.SHORT_BREAK) {
+                    phase = PomoPhase.SHORT_BREAK
+                    shortBreakDurationMs = (preset.minutes ?: 5) * 60_000L
+                    remainingMs = shortBreakDurationMs
+                } else {
+                    phase = PomoPhase.LONG_BREAK
+                    longBreakDurationMs = (preset.minutes ?: 15) * 60_000L
+                    remainingMs = longBreakDurationMs
+                }
+                binding.tvPhase.text = phaseLabel()
+                saveDurations()
+                renderPresets()
+                renderTimer()
+            }
+        }
+    }
+
+    private fun customWorkChipLabel(): String {
+        val m = workMinutes()
+        return if (isPresetWorkMinutes(m)) "自定义专注" else "专注 $m"
+    }
+
+    private fun customBreakChipLabel(): String {
+        val short = shortBreakMinutes()
+        val long = longBreakMinutes()
+        return when {
+            !isPresetShortBreakMinutes(short) && !isPresetLongBreakMinutes(long) ->
+                "短休 $short · 长休 $long"
+            !isPresetShortBreakMinutes(short) -> "短休 $short"
+            !isPresetLongBreakMinutes(long) -> "长休 $long"
+            else -> "自定义休息"
+        }
+    }
+
+    private fun workMinutes(): Int = (workDurationMs / 60_000L).toInt().coerceAtLeast(1)
+    private fun shortBreakMinutes(): Int = (shortBreakDurationMs / 60_000L).toInt().coerceAtLeast(1)
+    private fun longBreakMinutes(): Int = (longBreakDurationMs / 60_000L).toInt().coerceAtLeast(1)
+
+    private fun isPresetWorkMinutes(minutes: Int): Boolean = minutes == 25
+    private fun isPresetShortBreakMinutes(minutes: Int): Boolean = minutes == 5
+    private fun isPresetLongBreakMinutes(minutes: Int): Boolean = minutes == 15
+
+    private fun showCustomWorkDialog() {
+        val picker = NumberPicker(this).apply {
+            minValue = 1
+            maxValue = 180
+            value = workMinutes().coerceIn(minValue, maxValue)
+            wrapSelectorWheel = false
+        }
+        AlertDialog.Builder(this)
+            .setTitle("自定义专注时长（分钟）")
+            .setView(picker)
+            .setPositiveButton("确定") { _, _ ->
+                phase = PomoPhase.WORK
+                workDurationMs = picker.value * 60_000L
+                remainingMs = workDurationMs
+                binding.tvPhase.text = phaseLabel()
+                saveDurations()
+                renderPresets()
+                renderTimer()
+            }
+            .setNegativeButton("取消", null)
+            .show()
+    }
+
+    private fun showCustomBreakDialog() {
+        val d = resources.displayMetrics.density
+        val pad = (16 * d).toInt()
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(pad, pad, pad, 0)
+        }
+        val typeGroup = RadioGroup(this).apply {
+            orientation = RadioGroup.HORIZONTAL
+        }
+        val shortRadio = RadioButton(this).apply {
+            id = View.generateViewId()
+            text = "短休"
+            isChecked = phase != PomoPhase.LONG_BREAK
+        }
+        val longRadio = RadioButton(this).apply {
+            id = View.generateViewId()
+            text = "长休"
+            isChecked = phase == PomoPhase.LONG_BREAK
+        }
+        typeGroup.addView(shortRadio)
+        typeGroup.addView(longRadio)
+        val picker = NumberPicker(this).apply {
+            minValue = 1
+            maxValue = 60
+            value = if (shortRadio.isChecked) shortBreakMinutes() else longBreakMinutes()
+            wrapSelectorWheel = false
+        }
+        typeGroup.setOnCheckedChangeListener { _, checkedId ->
+            picker.value = if (checkedId == shortRadio.id) {
+                shortBreakMinutes()
+            } else {
+                longBreakMinutes()
+            }.coerceIn(picker.minValue, picker.maxValue)
+        }
+        container.addView(typeGroup)
+        container.addView(picker)
+
+        AlertDialog.Builder(this)
+            .setTitle("自定义休息时长（分钟）")
+            .setView(container)
+            .setPositiveButton("确定") { _, _ ->
+                val minutes = picker.value
+                val isShort = typeGroup.checkedRadioButtonId == shortRadio.id
+                if (isShort) {
+                    shortBreakDurationMs = minutes * 60_000L
+                    phase = PomoPhase.SHORT_BREAK
+                    remainingMs = shortBreakDurationMs
+                } else {
+                    longBreakDurationMs = minutes * 60_000L
+                    phase = PomoPhase.LONG_BREAK
+                    remainingMs = longBreakDurationMs
+                }
+                binding.tvPhase.text = phaseLabel()
+                saveDurations()
+                renderPresets()
+                renderTimer()
+            }
+            .setNegativeButton("取消", null)
+            .show()
+    }
+
+    private fun loadDurations() {
+        val prefs = getSharedPreferences(PREFS, MODE_PRIVATE)
+        workDurationMs = prefs.getInt(KEY_WORK_MIN, 25).coerceIn(1, 180) * 60_000L
+        shortBreakDurationMs = prefs.getInt(KEY_SHORT_MIN, 5).coerceIn(1, 60) * 60_000L
+        longBreakDurationMs = prefs.getInt(KEY_LONG_MIN, 15).coerceIn(1, 60) * 60_000L
+        if (::binding.isInitialized && mode == Mode.POMODORO && !running) {
+            remainingMs = phaseDuration(phase)
+        }
+    }
+
+    private fun saveDurations() {
+        getSharedPreferences(PREFS, MODE_PRIVATE).edit()
+            .putInt(KEY_WORK_MIN, workMinutes())
+            .putInt(KEY_SHORT_MIN, shortBreakMinutes())
+            .putInt(KEY_LONG_MIN, longBreakMinutes())
+            .apply()
     }
 
     private fun toggleRun() {
@@ -376,9 +540,7 @@ class PomodoroActivity : AppCompatActivity() {
             Mode.STOPWATCH -> elapsedMs = 0L
             Mode.COUNTDOWN -> remainingMs = countdownTotalMs
             Mode.POMODORO -> {
-                phase = PomoPhase.WORK
-                workDurationMs = WORK_MS
-                remainingMs = workDurationMs
+                remainingMs = phaseDuration(phase)
                 binding.tvPhase.text = phaseLabel()
             }
         }
@@ -387,44 +549,11 @@ class PomodoroActivity : AppCompatActivity() {
         refreshControls()
     }
 
-    private fun syncRemainingTimeIfRunning() {
-        if (!running) return
-        val now = SystemClock.elapsedRealtime()
-        when (mode) {
-            Mode.STOPWATCH -> elapsedMs = tickBaseElapsedMs + (now - tickBaseElapsedRealtime)
-            Mode.COUNTDOWN, Mode.POMODORO ->
-                remainingMs = (tickBaseRemainingMs - (now - tickBaseElapsedRealtime)).coerceAtLeast(0L)
-            else -> Unit
-        }
-    }
-
-    private fun skipPhase() {
-        if (mode != Mode.POMODORO) return
-        syncRemainingTimeIfRunning()
-        stopTicker(keepProgress = false)
-        when (phase) {
-            PomoPhase.WORK -> {
-                if (remainingMs <= 0L) {
-                    onTimerFinished()
-                } else if (remainingMs < workDurationMs - 2_000L) {
-                    recordWorkComplete()
-                    Toast.makeText(this, "番茄完成！休息一下", Toast.LENGTH_SHORT).show()
-                    goToBreak(countAsCompleted = true)
-                } else {
-                    Toast.makeText(this, "请先开始专注计时，完成后才会计入番茄", Toast.LENGTH_SHORT).show()
-                }
-            }
-            PomoPhase.SHORT_BREAK, PomoPhase.LONG_BREAK -> goToWork()
-        }
-    }
-
     private fun recordWorkComplete() {
         val elapsedWorkMs = (workDurationMs - remainingMs).coerceIn(0L, workDurationMs)
         val minutes = (elapsedWorkMs / 60_000L).toInt().coerceAtLeast(1)
         completedToday += 1
         focusMinutesToday += minutes
-        cycleInSet += 1
-        workCompletedInSet = true
         saveStats()
         refreshStats()
     }
@@ -445,12 +574,16 @@ class PomodoroActivity : AppCompatActivity() {
                 if (phase == PomoPhase.WORK) {
                     remainingMs = 0L
                     recordWorkComplete()
-                    Toast.makeText(this, "番茄完成！休息一下", Toast.LENGTH_SHORT).show()
-                    goToBreak(countAsCompleted = true)
+                    Toast.makeText(this, "专注完成", Toast.LENGTH_SHORT).show()
+                    remainingMs = workDurationMs
                 } else {
-                    Toast.makeText(this, "休息结束，继续专注", Toast.LENGTH_SHORT).show()
-                    goToWork()
+                    Toast.makeText(this, "休息结束", Toast.LENGTH_SHORT).show()
+                    remainingMs = phaseDuration(phase)
                 }
+                binding.tvPhase.text = phaseLabel()
+                renderPresets()
+                renderTimer()
+                refreshControls()
                 return
             }
         }
@@ -461,26 +594,6 @@ class PomodoroActivity : AppCompatActivity() {
         }
     }
 
-    private fun goToBreak(countAsCompleted: Boolean) {
-        val n = if (countAsCompleted) cycleInSet else cycleInSet + 1
-        phase = if (n > 0 && n % 4 == 0) PomoPhase.LONG_BREAK else PomoPhase.SHORT_BREAK
-        remainingMs = phaseDuration(phase)
-        binding.tvPhase.text = phaseLabel()
-        renderPresets()
-        renderTimer()
-        refreshControls()
-    }
-
-    private fun goToWork() {
-        phase = PomoPhase.WORK
-        remainingMs = workDurationMs
-        workCompletedInSet = false
-        binding.tvPhase.text = phaseLabel()
-        renderPresets()
-        renderTimer()
-        refreshControls()
-    }
-
     private fun phaseLabel(): String = when (phase) {
         PomoPhase.WORK -> "专注中 · 第 ${completedToday + 1} 个番茄"
         PomoPhase.SHORT_BREAK -> "短休息"
@@ -489,8 +602,8 @@ class PomodoroActivity : AppCompatActivity() {
 
     private fun phaseDuration(p: PomoPhase): Long = when (p) {
         PomoPhase.WORK -> workDurationMs
-        PomoPhase.SHORT_BREAK -> SHORT_BREAK_MS
-        PomoPhase.LONG_BREAK -> LONG_BREAK_MS
+        PomoPhase.SHORT_BREAK -> shortBreakDurationMs
+        PomoPhase.LONG_BREAK -> longBreakDurationMs
     }
 
     private fun renderTimer() {
@@ -504,7 +617,6 @@ class PomodoroActivity : AppCompatActivity() {
 
     private fun refreshControls() {
         binding.btnPrimary.text = if (running) "暂停" else "开始"
-        binding.btnSkip.visibility = if (mode == Mode.POMODORO) View.VISIBLE else View.GONE
     }
 
     private fun refreshStats() {
@@ -571,8 +683,11 @@ class PomodoroActivity : AppCompatActivity() {
         private const val KEY_DAY = "day"
         private const val KEY_COUNT = "count"
         private const val KEY_MINUTES = "minutes"
-        private const val WORK_MS = 25 * 60_000L
-        private const val SHORT_BREAK_MS = 5 * 60_000L
-        private const val LONG_BREAK_MS = 15 * 60_000L
+        private const val KEY_WORK_MIN = "work_min"
+        private const val KEY_SHORT_MIN = "short_min"
+        private const val KEY_LONG_MIN = "long_min"
+        private const val DEFAULT_WORK_MS = 25 * 60_000L
+        private const val DEFAULT_SHORT_BREAK_MS = 5 * 60_000L
+        private const val DEFAULT_LONG_BREAK_MS = 15 * 60_000L
     }
 }

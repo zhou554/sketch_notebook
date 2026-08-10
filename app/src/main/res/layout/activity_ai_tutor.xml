@@ -243,22 +243,9 @@
                     android:layout_marginEnd="6dp"
                     android:layout_weight="1"
                     android:minHeight="40dp"
-                    android:text="打开网页"
+                    android:text="打开"
                     android:textColor="#3D3428"
                     android:textSize="13sp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnWebBack"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="4dp"
-                    android:minWidth="52dp"
-                    android:minHeight="40dp"
-                    android:text="后退"
-                    android:textColor="#3D3428"
-                    android:textSize="12sp"
-                    android:contentDescription="后退一页" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnWebForward"
@@ -272,6 +259,19 @@
                     android:textColor="#3D3428"
                     android:textSize="12sp"
                     android:contentDescription="前进一页" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnWebBack"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="4dp"
+                    android:minWidth="52dp"
+                    android:minHeight="40dp"
+                    android:text="后退"
+                    android:textColor="#3D3428"
+                    android:textSize="12sp"
+                    android:contentDescription="后退一页" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnWebRefresh"
@@ -290,7 +290,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="在上方输入 AI 网址，点「打开网页」即可在应用内浏览"
+                android:text="在上方输入 AI 网址，点「打开」即可在应用内浏览"
                 android:textColor="#7A6F62"
                 android:textSize="12sp" />
 

@@ -210,18 +210,6 @@
                         android:textSize="18sp" />
                 </LinearLayout>
 
-                <TextView
-                    android:id="@+id/btnSkip"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:fontFamily="@font/patrick_hand"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="6dp"
-                    android:text="跳过当前阶段"
-                    android:textSize="14sp"
-                    android:visibility="gone" />
-
                 <LinearLayout
                     android:id="@+id/statsCard"
                     android:layout_width="match_parent"
