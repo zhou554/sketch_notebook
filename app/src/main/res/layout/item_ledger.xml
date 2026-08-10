@@ -68,7 +68,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/patrick_hand"
             android:paddingStart="10dp"
-            android:text="撕掉"
+            android:text="删除"
             android:textColor="@color/muted"
             android:textSize="15sp" />
     </LinearLayout>

@@ -85,6 +85,7 @@
             android:importantForAutofill="no"
             android:inputType="textMultiLine"
             android:lineSpacingExtra="4dp"
+            android:nestedScrollingEnabled="true"
             android:overScrollMode="never"
             android:padding="4dp"
             android:scrollbars="none"

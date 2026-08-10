@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <ScrollView
+    <com.example.notesketch.InertialScrollView
         android:id="@+id/contentPanel"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -60,6 +60,81 @@
                 android:layout_width="match_parent"
                 android:layout_height="2dp"
                 android:layout_marginHorizontal="16dp"
+                android:background="#597A6F62" />
+
+            <!-- 数据备份 -->
+            <TextView
+                android:id="@+id/sectionBackup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/patrick_hand"
+                android:paddingHorizontal="20dp"
+                android:paddingTop="18dp"
+                android:text="数据备份"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/labelBackup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/patrick_hand"
+                android:paddingHorizontal="20dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="8dp"
+                android:text="导出 JSON · 换机或更新后恢复"
+                android:textSize="13sp" />
+
+            <LinearLayout
+                android:id="@+id/backupActions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp">
+
+                <TextView
+                    android:id="@+id/backupExportBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:fontFamily="@font/patrick_hand"
+                    android:gravity="center"
+                    android:minHeight="40dp"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="8dp"
+                    android:text="导出备份"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/backupImportBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/patrick_hand"
+                    android:gravity="center"
+                    android:minHeight="40dp"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="8dp"
+                    android:text="从备份恢复"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/backupStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/patrick_hand"
+                android:paddingHorizontal="20dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="6dp"
+                android:textSize="13sp"
+                android:visibility="gone" />
+
+            <View
+                android:id="@+id/backupDivider"
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="4dp"
                 android:background="#597A6F62" />
 
             <!-- 页面亮度 -->
@@ -255,5 +330,5 @@
                 android:layout_height="0dp"
                 android:visibility="gone" />
         </LinearLayout>
-    </ScrollView>
+    </com.example.notesketch.InertialScrollView>
 </FrameLayout>

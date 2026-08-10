@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -11,191 +10,270 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- 彩色手账铺满全屏 -->
-    <ImageView
-        android:id="@+id/boardBg"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:contentDescription="@null"
-        android:scaleType="fitXY"
-        android:src="@drawable/tools_board" />
-
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <com.example.notesketch.InertialScrollView
         android:id="@+id/contentPanel"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:overScrollMode="never"
+        android:scrollbars="none">
 
-        <TextView
-            android:id="@+id/btnBack"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/patrick_hand"
-            android:gravity="center_vertical"
-            android:minHeight="44dp"
-            android:paddingHorizontal="16dp"
-            android:paddingTop="40dp"
-            android:paddingBottom="8dp"
-            android:text="‹ 返回"
-            android:textSize="18sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guidePaperStart"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.12" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guidePaperEnd"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.88" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guidePaperTop"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.14" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guidePaperBottom"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.76" />
-
-        <GridLayout
-            android:id="@+id/toolsGrid"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:alignmentMode="alignBounds"
-            android:columnCount="3"
-            android:useDefaultMargins="false"
-            app:layout_constraintBottom_toTopOf="@id/guidePaperBottom"
-            app:layout_constraintEnd_toStartOf="@id/guidePaperEnd"
-            app:layout_constraintStart_toStartOf="@id/guidePaperStart"
-            app:layout_constraintTop_toTopOf="@id/guidePaperTop">
+            android:paddingBottom="28dp">
 
             <LinearLayout
-                android:id="@+id/btnLedger"
-                android:layout_width="0dp"
+                android:id="@+id/btnBackRow"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_columnWeight="1"
-                android:layout_gravity="fill_horizontal|top"
-                android:background="?attr/selectableItemBackgroundBorderless"
                 android:clickable="true"
-                android:contentDescription="记账"
                 android:focusable="true"
-                android:gravity="center_horizontal"
-                android:orientation="vertical"
-                android:paddingTop="2dp"
-                android:paddingBottom="6dp">
-
-                <ImageView
-                    android:layout_width="72dp"
-                    android:layout_height="72dp"
-                    android:contentDescription="@null"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/fox_deco" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp"
+                android:paddingTop="40dp"
+                android:paddingBottom="10dp">
 
                 <TextView
-                    android:id="@+id/tvLedgerLabel"
+                    android:id="@+id/btnBack"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="-4dp"
                     android:fontFamily="@font/patrick_hand"
-                    android:includeFontPadding="false"
-                    android:text="记账"
-                    android:textSize="15sp" />
+                    android:gravity="center_vertical"
+                    android:minHeight="44dp"
+                    android:text="‹ 返回"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/tvHeader"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/patrick_hand"
+                    android:gravity="end"
+                    android:text="工具"
+                    android:textSize="22sp" />
             </LinearLayout>
+
+            <View
+                android:id="@+id/headerLine"
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginHorizontal="16dp"
+                android:background="#597A6F62" />
+
+            <TextView
+                android:id="@+id/sectionTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/patrick_hand"
+                android:paddingHorizontal="20dp"
+                android:paddingTop="18dp"
+                android:text="小工具"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/sectionSub"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/patrick_hand"
+                android:paddingHorizontal="20dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="10dp"
+                android:text="记账 · 心情 · 专注"
+                android:textSize="14sp" />
 
             <LinearLayout
-                android:id="@+id/btnMood"
-                android:layout_width="0dp"
+                android:id="@+id/toolsNavList"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_columnWeight="1"
-                android:layout_gravity="fill_horizontal|top"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:clickable="true"
-                android:contentDescription="心情日记"
-                android:focusable="true"
-                android:gravity="center_horizontal"
                 android:orientation="vertical"
-                android:paddingTop="2dp"
-                android:paddingBottom="6dp">
+                android:paddingHorizontal="16dp">
 
-                <ImageView
-                    android:layout_width="72dp"
-                    android:layout_height="72dp"
-                    android:contentDescription="@null"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/fox_deco" />
-
-                <TextView
-                    android:id="@+id/tvMoodLabel"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:id="@+id/btnLedger"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="-4dp"
-                    android:fontFamily="@font/patrick_hand"
-                    android:includeFontPadding="false"
-                    android:text="心情日记"
-                    android:textSize="15sp" />
-            </LinearLayout>
+                    android:layout_marginBottom="8dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:contentDescription="记账"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:minHeight="56dp"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="10dp">
 
-            <LinearLayout
-                android:id="@+id/btnPomodoro"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_columnWeight="1"
-                android:layout_gravity="fill_horizontal|top"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:clickable="true"
-                android:contentDescription="番茄钟"
-                android:focusable="true"
-                android:gravity="center_horizontal"
-                android:orientation="vertical"
-                android:paddingTop="2dp"
-                android:paddingBottom="6dp">
+                    <FrameLayout
+                        android:layout_width="62dp"
+                        android:layout_height="62dp"
+                        android:background="#1F7AAB9E">
 
-                <ImageView
-                    android:layout_width="72dp"
-                    android:layout_height="72dp"
-                    android:contentDescription="@null"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/tomato_fanqie" />
+                        <ImageView
+                            android:layout_width="56dp"
+                            android:layout_height="56dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@null"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/fox_deco" />
+                    </FrameLayout>
 
-                <TextView
-                    android:id="@+id/tvPomodoroLabel"
-                    android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tvLedgerTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/patrick_hand"
+                            android:text="记账"
+                            android:textSize="17sp" />
+
+                        <TextView
+                            android:id="@+id/tvLedgerSub"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/patrick_hand"
+                            android:text="记收支 · 看结余"
+                            android:textSize="13sp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/patrick_hand"
+                        android:text="›"
+                        android:textSize="20sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/btnMood"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="-4dp"
-                    android:fontFamily="@font/patrick_hand"
-                    android:includeFontPadding="false"
-                    android:text="番茄钟"
-                    android:textSize="15sp" />
-            </LinearLayout>
-        </GridLayout>
+                    android:layout_marginBottom="8dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:contentDescription="心情日记"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:minHeight="56dp"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="10dp">
 
-        <!-- 「工具」：原 22sp，移入橙色贴纸中央并与贴纸同向倾斜 -->
-        <TextView
-            android:id="@+id/tvHeader"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/patrick_hand"
-            android:includeFontPadding="false"
-            android:rotation="-22"
-            android:text="工具"
-            android:textColor="#3D2818"
-            android:textSize="22sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.72"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.855" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+                    <FrameLayout
+                        android:layout_width="62dp"
+                        android:layout_height="62dp"
+                        android:background="#1F7AAB9E">
+
+                        <ImageView
+                            android:layout_width="56dp"
+                            android:layout_height="56dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@null"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/fox_deco" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tvMoodTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/patrick_hand"
+                            android:text="心情日记"
+                            android:textSize="17sp" />
+
+                        <TextView
+                            android:id="@+id/tvMoodSub"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/patrick_hand"
+                            android:text="记录今天的心情"
+                            android:textSize="13sp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/patrick_hand"
+                        android:text="›"
+                        android:textSize="20sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/btnPomodoro"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:contentDescription="番茄钟"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:minHeight="56dp"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="10dp">
+
+                    <FrameLayout
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="#1F7AAB9E">
+
+                        <ImageView
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@null"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/tomato_fanqie" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tvPomodoroTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/patrick_hand"
+                            android:text="番茄钟"
+                            android:textSize="17sp" />
+
+                        <TextView
+                            android:id="@+id/tvPomodoroSub"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/patrick_hand"
+                            android:text="专注计时 · 休息提醒"
+                            android:textSize="13sp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/patrick_hand"
+                        android:text="›"
+                        android:textSize="20sp" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </com.example.notesketch.InertialScrollView>
 </FrameLayout>

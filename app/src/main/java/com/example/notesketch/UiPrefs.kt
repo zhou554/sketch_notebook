@@ -282,6 +282,90 @@ object UiPrefs {
         prefs(context).edit().putString(KEY_PAPER_TYPE, type.id).apply()
     }
 
+    fun exportToJson(context: Context): JSONObject {
+        val arr = JSONArray()
+        customThemes(context).forEach { t ->
+            arr.put(
+                JSONObject()
+                    .put("id", t.id)
+                    .put("label", t.label)
+                    .put("bg", t.bg)
+            )
+        }
+        return JSONObject()
+            .put("brightness", brightness(context))
+            .put("themeId", prefs(context).getString(KEY_THEME, "forest") ?: "forest")
+            .put("paperType", paperType(context).id)
+            .put("customThemes", arr)
+            .put("hiddenThemes", JSONArray(hiddenThemeIds(context).toList()))
+    }
+
+    fun applyImportedPrefs(context: Context, incoming: JSONObject, replace: Boolean) {
+        val current = if (replace) JSONObject() else exportToJson(context)
+        val out = mergePrefsJson(current, incoming)
+        setBrightness(context, out.optInt("brightness", 100))
+        out.optString("themeId").takeIf { it.isNotBlank() }?.let { setTheme(context, it) }
+        out.optString("paperType").takeIf { it.isNotBlank() }?.let { id ->
+            PaperPattern.fromId(id).let { setPaperType(context, it) }
+        }
+        val customArr = out.optJSONArray("customThemes") ?: JSONArray()
+        val customList = buildList {
+            for (i in 0 until customArr.length()) {
+                val o = customArr.optJSONObject(i) ?: continue
+                val id = o.optString("id")
+                if (id.isBlank()) continue
+                add(
+                    ThemePalette.fromCustomBg(
+                        id,
+                        o.optString("label", "自定义色"),
+                        o.optInt("bg", Color.parseColor("#F6F0E4"))
+                    )
+                )
+            }
+        }
+        saveCustomThemes(context, customList)
+        val hiddenArr = out.optJSONArray("hiddenThemes") ?: JSONArray()
+        val hidden = buildSet {
+            for (i in 0 until hiddenArr.length()) {
+                hiddenArr.optString(i).takeIf { it.isNotBlank() }?.let { add(it) }
+            }
+        }
+        prefs(context).edit().putString(KEY_HIDDEN_THEMES, hidden.joinToString(",")).apply()
+    }
+
+    private fun mergePrefsJson(local: JSONObject, incoming: JSONObject): JSONObject {
+        val out = JSONObject()
+        out.put("brightness", if (incoming.has("brightness")) incoming.optInt("brightness") else local.optInt("brightness", 100))
+        out.put("themeId", incoming.optString("themeId").ifBlank { local.optString("themeId", "forest") })
+        out.put("paperType", incoming.optString("paperType").ifBlank { local.optString("paperType", "grid") })
+        val byId = linkedMapOf<String, JSONObject>()
+        local.optJSONArray("customThemes")?.let { arr ->
+            for (i in 0 until arr.length()) {
+                val o = arr.optJSONObject(i) ?: continue
+                byId[o.optString("id")] = o
+            }
+        }
+        incoming.optJSONArray("customThemes")?.let { arr ->
+            for (i in 0 until arr.length()) {
+                val o = arr.optJSONObject(i) ?: continue
+                val id = o.optString("id")
+                if (id.isNotBlank()) byId[id] = o
+            }
+        }
+        val customOut = JSONArray()
+        byId.values.forEach { customOut.put(it) }
+        out.put("customThemes", customOut)
+        val hidden = linkedSetOf<String>()
+        local.optJSONArray("hiddenThemes")?.let { arr ->
+            for (i in 0 until arr.length()) hidden.add(arr.optString(i))
+        }
+        incoming.optJSONArray("hiddenThemes")?.let { arr ->
+            for (i in 0 until arr.length()) hidden.add(arr.optString(i))
+        }
+        out.put("hiddenThemes", JSONArray(hidden.toList()))
+        return out
+    }
+
     fun contentOpacity(context: Context) = prefs(context).getInt(KEY_OPACITY, 100)
     fun setContentOpacity(context: Context, v: Int) =
         prefs(context).edit().putInt(KEY_OPACITY, v.coerceIn(20, 100)).apply()

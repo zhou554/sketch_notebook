@@ -107,11 +107,20 @@ class PomodoroActivity : AppCompatActivity() {
         ThemeUi.applyScrapbook(this, binding.paperBg)
         binding.root.setBackgroundColor(theme.bg)
         binding.contentPanel.setBackgroundColor(Color.TRANSPARENT)
-        ThemeUi.colorTexts(theme.ink, binding.tvHeader, binding.tvTimer, binding.tvStatsTitle, binding.tvStats)
-        ThemeUi.colorTexts(theme.muted, binding.btnBack, binding.tvPhase, binding.btnSkip)
+        ThemeUi.colorTexts(theme.ink, binding.tvHeader)
+        ThemeUi.colorTexts(theme.muted, binding.btnBack, binding.btnSkip)
         ThemeUi.colorLines(0x597A6F62, binding.headerLine)
         val d = resources.displayMetrics.density
         val card = ThemeUi.stickerPanelColor(theme)
+        val panelInk = Color.parseColor("#3D3428")
+        val panelMuted = Color.parseColor("#6F6256")
+        binding.timerCard.background = GradientDrawable().apply {
+            setColor(Color.parseColor("#FFFEF8"))
+            cornerRadius = 12 * d
+            setStroke((2 * d).toInt().coerceAtLeast(1), Color.parseColor("#2E3D3428"))
+        }
+        binding.tvPhase.setTextColor(panelMuted)
+        binding.tvTimer.setTextColor(panelInk)
         binding.statsCard.background = GradientDrawable().apply {
             setColor(card)
             setStroke((2 * d).toInt().coerceAtLeast(1), 0x403D3428)

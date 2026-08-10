@@ -33,8 +33,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/patrick_hand"
-                android:minHeight="44dp"
                 android:gravity="center_vertical"
+                android:minHeight="44dp"
                 android:text="‹ 返回"
                 android:textSize="18sp" />
 
@@ -56,256 +56,278 @@
             android:layout_marginHorizontal="16dp"
             android:background="#597A6F62" />
 
-        <!-- 汇总 -->
-        <LinearLayout
-            android:id="@+id/summaryCard"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="14dp"
-            android:background="@drawable/bg_detail_paper"
-            android:elevation="2dp"
-            android:orientation="horizontal"
-            android:padding="14dp">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/labelBalance"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/patrick_hand"
-                    android:text="结余"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:id="@+id/tvBalance"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/patrick_hand"
-                    android:text="¥0.00"
-                    android:textSize="18sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/labelIncome"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/patrick_hand"
-                    android:text="收入"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:id="@+id/tvIncome"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/patrick_hand"
-                    android:text="¥0.00"
-                    android:textSize="18sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/labelExpense"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/patrick_hand"
-                    android:text="支出"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:id="@+id/tvExpense"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/patrick_hand"
-                    android:text="¥0.00"
-                    android:textSize="18sp" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- 记一笔 -->
-        <TextView
-            android:id="@+id/sectionAdd"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/patrick_hand"
-            android:paddingHorizontal="20dp"
-            android:paddingTop="14dp"
-            android:text="记一笔"
-            android:textSize="17sp" />
-
-        <LinearLayout
-            android:id="@+id/typeSegment"
-            android:layout_width="wrap_content"
-            android:layout_height="28dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="6dp"
-            android:orientation="horizontal"
-            android:padding="0dp">
-
-            <TextView
-                android:id="@+id/btnExpense"
-                android:layout_width="56dp"
-                android:layout_height="match_parent"
-                android:fontFamily="@font/patrick_hand"
-                android:gravity="center"
-                android:includeFontPadding="false"
-                android:text="支出"
-                android:textSize="14sp" />
-
-            <View
-                android:id="@+id/typeDivider"
-                android:layout_width="1.5dp"
-                android:layout_height="match_parent"
-                android:background="#3D5C4A" />
-
-            <TextView
-                android:id="@+id/btnIncome"
-                android:layout_width="56dp"
-                android:layout_height="match_parent"
-                android:fontFamily="@font/patrick_hand"
-                android:gravity="center"
-                android:includeFontPadding="false"
-                android:text="收入"
-                android:textSize="14sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
-            android:layout_marginTop="8dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <EditText
-                android:id="@+id/etAmount"
-                android:layout_width="0dp"
-                android:layout_height="30dp"
-                android:layout_weight="1"
-                android:background="@drawable/bg_gild_frame"
-                android:fontFamily="@font/patrick_hand"
-                android:gravity="center"
-                android:hint="金额"
-                android:importantForAutofill="no"
-                android:includeFontPadding="false"
-                android:inputType="numberDecimal"
-                android:maxLines="1"
-                android:paddingHorizontal="14dp"
-                android:paddingVertical="0dp"
-                android:textSize="15sp" />
-
-            <TextView
-                android:id="@+id/btnTag"
-                android:layout_width="wrap_content"
-                android:layout_height="30dp"
-                android:layout_marginStart="8dp"
-                android:fontFamily="@font/patrick_hand"
-                android:gravity="center"
-                android:includeFontPadding="false"
-                android:minWidth="64dp"
-                android:paddingHorizontal="12dp"
-                android:text="用途"
-                android:textSize="14sp" />
-        </LinearLayout>
-
-        <EditText
-            android:id="@+id/etMemo"
-            android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:layout_marginHorizontal="20dp"
-            android:layout_marginTop="6dp"
-            android:background="@drawable/bg_gild_frame"
-            android:fontFamily="@font/patrick_hand"
-            android:gravity="center_vertical"
-            android:hint="备注（写点什么…）"
-            android:importantForAutofill="no"
-            android:includeFontPadding="false"
-            android:inputType="text"
-            android:maxLines="1"
-            android:paddingHorizontal="14dp"
-            android:textSize="14sp"
-            android:visibility="gone" />
-
-        <LinearLayout
-            android:id="@+id/btnAddEntry"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="4dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingVertical="4dp"
-            android:paddingEnd="8dp">
-
-            <ImageView
-                android:layout_width="88dp"
-                android:layout_height="88dp"
-                android:contentDescription="@null"
-                android:scaleType="fitCenter"
-                android:src="@drawable/fox_deco" />
-
-            <TextView
-                android:id="@+id/tvSaveLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="2dp"
-                android:fontFamily="@font/patrick_hand"
-                android:includeFontPadding="false"
-                android:text="保存"
-                android:textSize="15sp" />
-        </LinearLayout>
-        <TextView
-            android:id="@+id/sectionList"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/patrick_hand"
-            android:paddingHorizontal="20dp"
-            android:paddingTop="14dp"
-            android:paddingBottom="6dp"
-            android:text="流水"
-            android:textSize="17sp" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
+        <com.example.notesketch.InertialNestedScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:clipToPadding="false"
-            android:paddingHorizontal="16dp"
-            android:paddingBottom="20dp"
-            android:scrollbars="none" />
+            android:fillViewport="true"
+            android:overScrollMode="never"
+            android:scrollbars="none">
 
-        <TextView
-            android:id="@+id/emptyView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/patrick_hand"
-            android:gravity="center"
-            android:padding="24dp"
-            android:text="还没有记账\n写下第一笔吧"
-            android:textSize="16sp"
-            android:visibility="gone" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="24dp">
+
+                <LinearLayout
+                    android:id="@+id/summaryCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginTop="14dp"
+                    android:orientation="horizontal"
+                    android:padding="14dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/labelBalance"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/patrick_hand"
+                            android:text="结余"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:id="@+id/tvBalance"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/patrick_hand"
+                            android:text="¥0.00"
+                            android:textSize="18sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/labelIncome"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/patrick_hand"
+                            android:text="收入"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:id="@+id/tvIncome"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/patrick_hand"
+                            android:text="¥0.00"
+                            android:textSize="18sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/labelExpense"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/patrick_hand"
+                            android:text="支出"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:id="@+id/tvExpense"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/patrick_hand"
+                            android:text="¥0.00"
+                            android:textSize="18sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/sectionAdd"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/patrick_hand"
+                    android:paddingHorizontal="20dp"
+                    android:paddingTop="14dp"
+                    android:text="记一笔"
+                    android:textSize="17sp" />
+
+                <LinearLayout
+                    android:id="@+id/typeSegment"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/btnExpense"
+                        android:layout_width="72dp"
+                        android:layout_height="match_parent"
+                        android:fontFamily="@font/patrick_hand"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:text="支出"
+                        android:textSize="15sp" />
+
+                    <View
+                        android:id="@+id/typeDivider"
+                        android:layout_width="1.5dp"
+                        android:layout_height="match_parent"
+                        android:background="#3D5C4A" />
+
+                    <TextView
+                        android:id="@+id/btnIncome"
+                        android:layout_width="72dp"
+                        android:layout_height="match_parent"
+                        android:fontFamily="@font/patrick_hand"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:text="收入"
+                        android:textSize="15sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/labelAmount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/patrick_hand"
+                    android:paddingHorizontal="20dp"
+                    android:paddingTop="12dp"
+                    android:text="金额"
+                    android:textSize="14sp" />
+
+                <LinearLayout
+                    android:id="@+id/amountHero"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="20dp"
+                    android:layout_marginTop="6dp"
+                    android:gravity="center_vertical"
+                    android:minHeight="52dp"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="8dp">
+
+                    <TextView
+                        android:id="@+id/tvCurrency"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/patrick_hand"
+                        android:text="¥"
+                        android:textSize="24sp" />
+
+                    <EditText
+                        android:id="@+id/etAmount"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@android:color/transparent"
+                        android:fontFamily="@font/patrick_hand"
+                        android:hint="0.00"
+                        android:importantForAutofill="no"
+                        android:includeFontPadding="false"
+                        android:inputType="numberDecimal"
+                        android:maxLines="1"
+                        android:paddingHorizontal="4dp"
+                        android:textSize="28sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/labelCategory"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/patrick_hand"
+                    android:paddingHorizontal="20dp"
+                    android:paddingTop="14dp"
+                    android:text="分类"
+                    android:textSize="14sp" />
+
+                <LinearLayout
+                    android:id="@+id/tagChipWrap"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="20dp"
+                    android:layout_marginTop="8dp"
+                    android:orientation="vertical" />
+
+                <TextView
+                    android:id="@+id/labelMemo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/patrick_hand"
+                    android:paddingHorizontal="20dp"
+                    android:paddingTop="12dp"
+                    android:text="备注"
+                    android:textSize="14sp" />
+
+                <EditText
+                    android:id="@+id/etMemo"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_marginHorizontal="20dp"
+                    android:layout_marginTop="6dp"
+                    android:fontFamily="@font/patrick_hand"
+                    android:gravity="center_vertical"
+                    android:hint="可选，写点什么…"
+                    android:importantForAutofill="no"
+                    android:includeFontPadding="false"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:paddingHorizontal="12dp"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/btnAddEntry"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_marginHorizontal="20dp"
+                    android:layout_marginTop="14dp"
+                    android:fontFamily="@font/patrick_hand"
+                    android:gravity="center"
+                    android:text="记一笔"
+                    android:textSize="17sp" />
+
+                <TextView
+                    android:id="@+id/sectionList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/patrick_hand"
+                    android:paddingHorizontal="20dp"
+                    android:paddingTop="18dp"
+                    android:paddingBottom="6dp"
+                    android:text="流水"
+                    android:textSize="17sp" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    android:paddingHorizontal="16dp"
+                    android:scrollbars="none" />
+
+                <TextView
+                    android:id="@+id/emptyView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/patrick_hand"
+                    android:gravity="center"
+                    android:padding="24dp"
+                    android:text="还没有记录\n记第一笔，从这里开始"
+                    android:textSize="16sp"
+                    android:visibility="gone" />
+            </LinearLayout>
+        </com.example.notesketch.InertialNestedScrollView>
     </LinearLayout>
 </FrameLayout>

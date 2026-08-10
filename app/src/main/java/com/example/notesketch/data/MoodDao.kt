@@ -24,4 +24,13 @@ interface MoodDao {
 
     @Query("SELECT * FROM mood_entries ORDER BY createdAt DESC")
     fun observeAll(): Flow<List<MoodEntry>>
+
+    @Insert(onConflict = androidx.room.OnConflictStrategy.REPLACE)
+    suspend fun insertAll(entries: List<MoodEntry>)
+
+    @Query("DELETE FROM mood_entries")
+    suspend fun deleteAll()
+
+    @Query("SELECT * FROM mood_entries ORDER BY createdAt DESC")
+    suspend fun getAllOnce(): List<MoodEntry>
 }

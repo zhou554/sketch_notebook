@@ -22,6 +22,15 @@ interface NoteDao {
     @Query("SELECT * FROM notes ORDER BY createdAt ASC")
     fun observeAll(): Flow<List<Note>>
 
+    @Insert(onConflict = androidx.room.OnConflictStrategy.REPLACE)
+    suspend fun insertAll(notes: List<Note>)
+
+    @Query("DELETE FROM notes")
+    suspend fun deleteAll()
+
+    @Query("SELECT * FROM notes ORDER BY createdAt ASC")
+    suspend fun getAllOnce(): List<Note>
+
     @Query("SELECT * FROM notes WHERE id = :id LIMIT 1")
     suspend fun getById(id: Long): Note?
 }

@@ -5,17 +5,79 @@ import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
 import android.view.Window
 import android.widget.SeekBar
+import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import com.example.notesketch.data.AppDatabase
 import com.example.notesketch.databinding.ActivitySettingsBinding
 import com.example.notesketch.databinding.DialogCustomColorBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class SettingsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySettingsBinding
+
+    private val exportLauncher = registerForActivityResult(
+        ActivityResultContracts.CreateDocument("application/json")
+    ) { uri ->
+        if (uri == null) return@registerForActivityResult
+        lifecycleScope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    BackupManager.writeToUri(this@SettingsActivity, uri)
+                }
+                val summary = withContext(Dispatchers.IO) {
+                    BackupManager.exportSummary(this@SettingsActivity)
+                }
+                showBackupStatus(
+                    "已导出 ${summary.noteCount} 条便签、${summary.ledgerCount} 条账本、${summary.moodCount} 条心情（约 ${BackupManager.formatBytes(summary.approxBytes)}）"
+                )
+            } catch (e: Exception) {
+                showBackupStatus(e.message ?: "导出失败", true)
+            }
+        }
+    }
+
+    private val importLauncher = registerForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri == null) return@registerForActivityResult
+        lifecycleScope.launch {
+            try {
+                val doc = withContext(Dispatchers.IO) {
+                    BackupManager.readFromUri(this@SettingsActivity, uri)
+                }
+                BackupManager.validate(doc)
+                val summary = BackupManager.importSummary(doc)
+                val sizeHint = BackupManager.formatBytes(summary.approxBytes)
+                AlertDialog.Builder(this@SettingsActivity)
+                    .setTitle("从备份恢复")
+                    .setMessage(
+                        "备份含 ${summary.noteCount} 条便签、${summary.ledgerCount} 条账本、${summary.moodCount} 条心情（约 $sizeHint）。\n\n确定 = 与本机合并\n取消 = 选择覆盖导入"
+                    )
+                    .setPositiveButton("合并") { _, _ ->
+                        runImport(doc, BackupManager.ImportMode.MERGE)
+                    }
+                    .setNegativeButton("覆盖") { _, _ ->
+                        confirmReplaceImport(doc)
+                    }
+                    .setNeutralButton("取消") { _, _ ->
+                        showBackupStatus("已取消导入")
+                    }
+                    .show()
+            } catch (e: Exception) {
+                showBackupStatus(e.message ?: "导入失败", true)
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,10 +85,84 @@ class SettingsActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.btnBack.setOnClickListener { finish() }
+        binding.backupExportBtn.setOnClickListener {
+            exportLauncher.launch(BackupManager.defaultExportFileName())
+        }
+        binding.backupImportBtn.setOnClickListener {
+            importLauncher.launch(arrayOf("application/json", "*/*"))
+        }
         setupBrightness()
         applyChrome()
         renderThemes()
         renderPaperTypes()
+        styleBackupButtons()
+    }
+
+    private fun confirmReplaceImport(doc: org.json.JSONObject) {
+        AlertDialog.Builder(this)
+            .setTitle("覆盖导入")
+            .setMessage("用备份完全替换本机数据？\n本机便签、设置、账本与心情将被覆盖，建议先导出一份当前备份。")
+            .setPositiveButton("覆盖") { _, _ ->
+                runImport(doc, BackupManager.ImportMode.REPLACE)
+            }
+            .setNegativeButton("取消") { _, _ ->
+                showBackupStatus("已取消导入")
+            }
+            .show()
+    }
+
+    private fun runImport(doc: org.json.JSONObject, mode: BackupManager.ImportMode) {
+        lifecycleScope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    BackupManager.applyImport(this@SettingsActivity, doc, mode)
+                }
+                applyChrome()
+                renderThemes()
+                renderPaperTypes()
+                styleBackupButtons()
+                val notes = withContext(Dispatchers.IO) {
+                    AppDatabase.get(this@SettingsActivity).noteDao().getAllOnce().size
+                }
+                val ledger = withContext(Dispatchers.IO) {
+                    AppDatabase.get(this@SettingsActivity).ledgerDao().getAllOnce().size
+                }
+                val mood = withContext(Dispatchers.IO) {
+                    AppDatabase.get(this@SettingsActivity).moodDao().getAllOnce().size
+                }
+                val msg = if (mode == BackupManager.ImportMode.REPLACE) {
+                    "已覆盖恢复：$notes 条便签、$ledger 条账本、$mood 条心情"
+                } else {
+                    "已合并：$notes 条便签、$ledger 条账本、$mood 条心情"
+                }
+                showBackupStatus(msg)
+            } catch (e: Exception) {
+                showBackupStatus(e.message ?: "导入失败", true)
+            }
+        }
+    }
+
+    private fun showBackupStatus(msg: String, isError: Boolean = false) {
+        binding.backupStatus.visibility = if (msg.isBlank()) View.GONE else View.VISIBLE
+        binding.backupStatus.text = msg
+        val theme = UiPrefs.theme(this)
+        binding.backupStatus.setTextColor(
+            if (isError) theme.due else ThemeUi.contrastMuted(ThemeUi.stickerPanelColor(theme))
+        )
+    }
+
+    private fun styleBackupButtons() {
+        val theme = UiPrefs.theme(this)
+        val d = resources.displayMetrics.density
+        listOf(binding.backupExportBtn, binding.backupImportBtn).forEach { btn ->
+            val fill = Color.parseColor("#FFFEF8")
+            btn.background = GradientDrawable().apply {
+                setColor(fill)
+                cornerRadius = 999 * d
+                setStroke((1.5f * d).toInt().coerceAtLeast(2), Color.parseColor("#483D3428"))
+            }
+            btn.setTextColor(ThemeUi.contrastText(fill))
+        }
     }
 
     private fun setupBrightness() {
@@ -56,6 +192,7 @@ class SettingsActivity : AppCompatActivity() {
         ThemeUi.colorTexts(
             theme.ink,
             binding.tvHeader,
+            binding.sectionBackup,
             binding.sectionBrightness,
             binding.sectionLook,
             binding.sectionPaper,
@@ -64,12 +201,13 @@ class SettingsActivity : AppCompatActivity() {
         ThemeUi.colorTexts(
             theme.muted,
             binding.btnBack,
+            binding.labelBackup,
             binding.labelBrightness,
             binding.labelTheme,
             binding.labelPaper,
             binding.hintOpacity
         )
-        ThemeUi.colorLines(0x597A6F62, binding.headerLine)
+        ThemeUi.colorLines(0x597A6F62, binding.headerLine, binding.backupDivider)
         binding.labelTheme.text = "点选应用 · 长按删除任意颜色 · 点「自定义」色谱选色"
     }
 
@@ -94,6 +232,7 @@ class SettingsActivity : AppCompatActivity() {
                 renderThemes()
                 renderPaperTypes()
                 applyChrome()
+                styleBackupButtons()
                 Toast.makeText(this, "背景「${theme.label}」", Toast.LENGTH_SHORT).show()
             }
             chip.setOnLongClickListener {
@@ -159,6 +298,7 @@ class SettingsActivity : AppCompatActivity() {
             renderThemes()
             renderPaperTypes()
             applyChrome()
+            styleBackupButtons()
             Toast.makeText(this, "已添加「${added.label}」", Toast.LENGTH_SHORT).show()
         }
         dialog.show()
@@ -181,6 +321,7 @@ class SettingsActivity : AppCompatActivity() {
                 renderThemes()
                 renderPaperTypes()
                 applyChrome()
+                styleBackupButtons()
                 Toast.makeText(this, "已删除", Toast.LENGTH_SHORT).show()
             }
             .setNegativeButton("取消", null)

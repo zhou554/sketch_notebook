@@ -6,14 +6,12 @@ import android.os.Handler
 import android.os.Looper
 import android.view.MotionEvent
 import android.view.View
-import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnLayout
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.notesketch.data.AppDatabase
 import com.example.notesketch.data.Note
 import com.example.notesketch.databinding.ActivityMainBinding
@@ -39,10 +37,17 @@ class MainActivity : AppCompatActivity() {
     private var pullTriggered = false
     private var pullCooldownUntil = 0L
     private var minPullPx = 0f
+    private var listScrollIdle = true
+    private var listAtBottom = true
+    private var touchStartedAtBottom = false
 
     private val pullTickRunnable = object : Runnable {
         override fun run() {
             if (pullTriggered || !pullArmed) return
+            if (!canArmPull()) {
+                resetPull(hideHint = true)
+                return
+            }
             val progress = ((System.currentTimeMillis() - pullHoldStartAt).toFloat() / HOLD_MS)
                 .coerceIn(0f, 1f)
             updatePullVisual(pullDistance, progress)
@@ -67,9 +72,17 @@ class MainActivity : AppCompatActivity() {
             onClick = { openDetail(it) },
             onDelete = { deleteNote(it) }
         )
-        binding.recyclerView.layoutManager = LinearLayoutManager(this)
+        binding.recyclerView.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
         binding.recyclerView.adapter = adapter
         binding.recyclerView.setHasFixedSize(false)
+        binding.recyclerView.scrollIdleListener = { idle ->
+            listScrollIdle = idle
+            if (!idle) resetPull(hideHint = true)
+        }
+        binding.recyclerView.atBottomListener = { atBottom ->
+            listAtBottom = atBottom
+            if (!atBottom) resetPull(hideHint = true)
+        }
         setupPullToAdd()
         setupForestPeeps()
 
@@ -95,6 +108,9 @@ class MainActivity : AppCompatActivity() {
                 adapter.submitList(notes)
                 binding.emptyView.visibility =
                     if (notes.isEmpty()) View.VISIBLE else View.GONE
+                binding.recyclerView.post {
+                    listAtBottom = binding.recyclerView.isAtBottom()
+                }
             }
         }
     }
@@ -103,6 +119,9 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         applyUi()
         adapter.notifyDataSetChanged()
+        binding.recyclerView.post {
+            listAtBottom = binding.recyclerView.isAtBottom()
+        }
     }
 
     override fun onDestroy() {
@@ -118,7 +137,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /** 对齐预览：宽约 46% 屏宽、高约 21% 屏高，贴紧左右底边。 */
     private fun layoutForestPeeps() {
         val root = binding.root
         if (root.width <= 0 || root.height <= 0) return
@@ -133,7 +151,7 @@ class MainActivity : AppCompatActivity() {
         val edgePull = (6 * d).roundToInt()
 
         fun place(iv: ImageView, startSide: Boolean) {
-            val lp = (iv.layoutParams as FrameLayout.LayoutParams).apply {
+            val lp = (iv.layoutParams as android.widget.FrameLayout.LayoutParams).apply {
                 width = forestW
                 height = forestH
                 gravity = if (startSide) {
@@ -159,29 +177,52 @@ class MainActivity : AppCompatActivity() {
                 MotionEvent.ACTION_DOWN -> {
                     pullStartY = event.y
                     pullTriggered = false
+                    touchStartedAtBottom = binding.recyclerView.isAtBottom()
                     resetPull(hideHint = true)
+                    false
                 }
                 MotionEvent.ACTION_MOVE -> {
                     if (pullTriggered || System.currentTimeMillis() < pullCooldownUntil) {
                         return@setOnTouchListener false
                     }
-                    if (!isListAtBottom()) {
+                    if (!canArmPull()) {
                         resetPull(hideHint = true)
                         return@setOnTouchListener false
                     }
                     val pullY = max(0f, pullStartY - event.y)
+                    if (pullY <= 0f) {
+                        resetPull(hideHint = true)
+                        return@setOnTouchListener false
+                    }
                     pullDistance = pullY
                     tickHold(pullY)
+                    pullY >= minPullPx * 0.25f
                 }
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                     if (!pullTriggered) resetPull(hideHint = true)
+                    false
                 }
+                else -> false
             }
-            false
         }
     }
 
+    /** 对齐 preview：惯性滚动停稳 + 已在底部 + 本次手势从底部开始，才允许上拉新建。 */
+    private fun canArmPull(): Boolean {
+        if (!listScrollIdle) return false
+        if (!binding.recyclerView.isAtBottom()) return false
+        if (adapter.itemCount > 0 && !touchStartedAtBottom) return false
+        return true
+    }
+
     private fun tickHold(delta: Float) {
+        if (!canArmPull()) {
+            pullHoldStartAt = 0L
+            pullArmed = false
+            pullHandler.removeCallbacks(pullTickRunnable)
+            updatePullVisual(delta, 0f)
+            return
+        }
         if (delta < minPullPx) {
             pullHoldStartAt = 0L
             pullArmed = false
@@ -215,12 +256,6 @@ class MainActivity : AppCompatActivity() {
             dist >= minPullPx -> "$HINT_PROGRESS ${(p * 100).roundToInt()}%"
             else -> HINT_BASE
         }
-    }
-
-    private fun isListAtBottom(): Boolean {
-        val rv = binding.recyclerView
-        if (rv.adapter?.itemCount == 0) return true
-        return !rv.canScrollVertically(1)
     }
 
     private fun resetPull(hideHint: Boolean) {
@@ -264,7 +299,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val HOLD_MS = 700L
-        private const val COOLDOWN_MS = 900L
+        private const val COOLDOWN_MS = 800L
         private const val TICK_MS = 32L
         private const val HINT_BASE = "滑到底后，继续上拉并按住片刻"
         private const val HINT_PROGRESS = "继续按住…"

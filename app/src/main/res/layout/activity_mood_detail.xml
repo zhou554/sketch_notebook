@@ -49,7 +49,7 @@
 
         </LinearLayout>
 
-        <ScrollView
+        <com.example.notesketch.InertialScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
@@ -256,7 +256,7 @@
                     </LinearLayout>
                 </FrameLayout>
             </LinearLayout>
-        </ScrollView>
+        </com.example.notesketch.InertialScrollView>
     </LinearLayout>
 
     <!-- 右下角装饰花枝：与复习详情页一致 -->

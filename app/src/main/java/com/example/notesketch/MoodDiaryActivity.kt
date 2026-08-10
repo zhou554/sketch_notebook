@@ -82,7 +82,9 @@ class MoodDiaryActivity : AppCompatActivity() {
             binding.tvHeader,
             binding.sectionAdd,
             binding.sectionList,
-            binding.tvSaveLabel
+            binding.labelIcon,
+            binding.labelTitle,
+            binding.labelContent
         )
         ThemeUi.colorTexts(
             theme.muted,
@@ -91,22 +93,37 @@ class MoodDiaryActivity : AppCompatActivity() {
         )
         ThemeUi.colorLines(0x597A6F62, binding.headerLine)
         val d = resources.displayMetrics.density
-        val inkGreen = Color.parseColor("#3D5C4A")
-        val fill = Color.parseColor("#FFFEF8")
-        val stroke = (1.5f * d).toInt().coerceAtLeast(2)
-        binding.etTitle.setTextColor(ThemeUi.contrastText(fill))
-        binding.etTitle.setHintTextColor(ThemeUi.contrastMuted(fill))
-        binding.etTitle.background = GradientDrawable().apply {
-            setColor(fill)
-            cornerRadius = 999 * d
-            setStroke(stroke, inkGreen)
-        }
-        binding.etContent.setTextColor(ThemeUi.contrastText(fill))
-        binding.etContent.setHintTextColor(ThemeUi.contrastMuted(fill))
-        binding.etContent.background = GradientDrawable().apply {
-            setColor(fill)
-            cornerRadius = 999 * d
-            setStroke(stroke, inkGreen)
+        val panel = Color.parseColor("#FFFEF8")
+        val panelBorder = Color.parseColor("#483D3428")
+        val panelInk = Color.parseColor("#3D3428")
+        val panelMuted = Color.parseColor("#6F6256")
+        styleField(binding.etTitle, panel, panelBorder, panelInk, panelMuted, d)
+        styleField(binding.etContent, panel, panelBorder, panelInk, panelMuted, d)
+        binding.btnAddEntry.background = GradientDrawable(
+            GradientDrawable.Orientation.TOP_BOTTOM,
+            intArrayOf(
+                Color.parseColor("#8BB8AB"),
+                theme.accent,
+                Color.parseColor("#5F9084")
+            )
+        ).apply { cornerRadius = 10 * d }
+        binding.btnAddEntry.setTextColor(Color.parseColor("#FFFEF8"))
+    }
+
+    private fun styleField(
+        et: android.widget.EditText,
+        panel: Int,
+        border: Int,
+        ink: Int,
+        muted: Int,
+        d: Float
+    ) {
+        et.setTextColor(ink)
+        et.setHintTextColor(muted)
+        et.background = GradientDrawable().apply {
+            setColor(panel)
+            cornerRadius = 10 * d
+            setStroke((1.5f * d).toInt().coerceAtLeast(2), border)
         }
     }
 
@@ -130,7 +147,7 @@ class MoodDiaryActivity : AppCompatActivity() {
             withContext(Dispatchers.IO) { dao.insert(entry) }
             binding.etTitle.setText("")
             binding.etContent.setText("")
-            Toast.makeText(this@MoodDiaryActivity, "已贴上", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this@MoodDiaryActivity, "已保存", Toast.LENGTH_SHORT).show()
         }
     }
 

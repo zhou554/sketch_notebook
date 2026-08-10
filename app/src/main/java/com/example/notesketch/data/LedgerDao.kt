@@ -21,6 +21,12 @@ interface LedgerDao {
     @Query("SELECT COALESCE(SUM(CASE WHEN isExpense = 0 THEN amountCents ELSE 0 END), 0) FROM ledger_entries")
     suspend fun sumIncomeCents(): Long
 
-    @Query("SELECT COALESCE(SUM(CASE WHEN isExpense = 1 THEN amountCents ELSE 0 END), 0) FROM ledger_entries")
-    suspend fun sumExpenseCents(): Long
+    @Insert(onConflict = androidx.room.OnConflictStrategy.REPLACE)
+    suspend fun insertAll(entries: List<LedgerEntry>)
+
+    @Query("DELETE FROM ledger_entries")
+    suspend fun deleteAll()
+
+    @Query("SELECT * FROM ledger_entries ORDER BY createdAt DESC")
+    suspend fun getAllOnce(): List<LedgerEntry>
 }

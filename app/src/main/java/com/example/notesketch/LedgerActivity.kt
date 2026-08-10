@@ -3,10 +3,11 @@ package com.example.notesketch
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
+import android.view.Gravity
 import android.view.View
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -47,15 +48,14 @@ class LedgerActivity : AppCompatActivity() {
             isExpense = true
             selectedCategory = EXPENSE_CATS.first()
             refreshTypeUi()
-            refreshTagBtn()
+            renderTagChips()
         }
         binding.btnIncome.setOnClickListener {
             isExpense = false
             selectedCategory = INCOME_CATS.first()
             refreshTypeUi()
-            refreshTagBtn()
+            renderTagChips()
         }
-        binding.btnTag.setOnClickListener { showTagPicker() }
         binding.btnAddEntry.setOnClickListener { addEntry() }
 
         lifecycleScope.launch {
@@ -69,14 +69,14 @@ class LedgerActivity : AppCompatActivity() {
 
         applyUi()
         refreshTypeUi()
-        refreshTagBtn()
+        renderTagChips()
     }
 
     override fun onResume() {
         super.onResume()
         applyUi()
         refreshTypeUi()
-        refreshTagBtn()
+        renderTagChips()
     }
 
     private fun applyUi() {
@@ -92,14 +92,16 @@ class LedgerActivity : AppCompatActivity() {
             binding.tvHeader,
             binding.sectionAdd,
             binding.sectionList,
-            binding.tvSaveLabel
+            binding.labelAmount,
+            binding.labelCategory,
+            binding.labelMemo
         )
         ThemeUi.colorTexts(
             theme.muted,
             binding.btnBack,
             binding.emptyView
         )
-        ThemeUi.colorTexts(cardInk, binding.tvBalance, binding.labelBalance, binding.btnTag)
+        ThemeUi.colorTexts(cardInk, binding.tvBalance, binding.labelBalance, binding.tvCurrency)
         ThemeUi.colorTexts(cardMuted, binding.labelIncome, binding.labelExpense)
         ThemeUi.colorTexts(theme.accent, binding.tvIncome)
         ThemeUi.colorTexts(theme.due, binding.tvExpense)
@@ -109,29 +111,32 @@ class LedgerActivity : AppCompatActivity() {
         binding.etMemo.setHintTextColor(cardMuted)
         ThemeUi.colorLines(0x597A6F62, binding.headerLine)
         val d = resources.displayMetrics.density
-        val inkGreen = Color.parseColor("#3D5C4A")
+        val panel = Color.parseColor("#FFFEF8")
+        val panelBorder = Color.parseColor("#2E3D3428")
         binding.summaryCard.background = GradientDrawable().apply {
             setColor(card)
             setStroke((2 * d).toInt().coerceAtLeast(1), 0x403D3428)
         }
-        val fill = Color.parseColor("#FFFEF8")
-        val stroke = (1.5f * d).toInt().coerceAtLeast(2)
-        binding.etAmount.background = GradientDrawable().apply {
-            setColor(fill)
-            cornerRadius = 999 * d
-            setStroke(stroke, inkGreen)
-        }
-        binding.btnTag.background = GradientDrawable().apply {
-            setColor(fill)
-            cornerRadius = 999 * d
-            setStroke(stroke, inkGreen)
+        binding.amountHero.background = GradientDrawable().apply {
+            setColor(panel)
+            cornerRadius = 12 * d
+            setStroke((2 * d).toInt().coerceAtLeast(1), panelBorder)
         }
         binding.etMemo.background = GradientDrawable().apply {
-            setColor(fill)
-            cornerRadius = 999 * d
-            setStroke(stroke, inkGreen)
+            setColor(panel)
+            cornerRadius = 10 * d
+            setStroke((1.5f * d).toInt().coerceAtLeast(2), panelBorder)
         }
-        binding.typeDivider.setBackgroundColor(inkGreen)
+        binding.btnAddEntry.background = GradientDrawable(
+            GradientDrawable.Orientation.TOP_BOTTOM,
+            intArrayOf(
+                Color.parseColor("#8BB8AB"),
+                theme.accent,
+                Color.parseColor("#5F9084")
+            )
+        ).apply { cornerRadius = 10 * d }
+        binding.btnAddEntry.setTextColor(Color.parseColor("#FFFEF8"))
+        binding.typeDivider.setBackgroundColor(Color.parseColor("#3D5C4A"))
     }
 
     private fun refreshTypeUi() {
@@ -141,7 +146,7 @@ class LedgerActivity : AppCompatActivity() {
         val inkGreen = Color.parseColor("#3D5C4A")
         binding.typeSegment.background = GradientDrawable().apply {
             setColor(fill)
-            cornerRadius = 999 * d
+            cornerRadius = 10 * d
             setStroke((1.5f * d).toInt().coerceAtLeast(2), inkGreen)
         }
         styleSegmentHalf(binding.btnExpense, isExpense, theme, d, left = true)
@@ -156,7 +161,7 @@ class LedgerActivity : AppCompatActivity() {
         left: Boolean
     ) {
         tv.setTextColor(if (on) Color.parseColor("#FFFEF8") else ThemeUi.contrastText(Color.parseColor("#FFFEF8")))
-        val r = 999 * d
+        val r = 10 * d
         val radii = if (left) {
             floatArrayOf(r, r, 0f, 0f, 0f, 0f, r, r)
         } else {
@@ -181,43 +186,76 @@ class LedgerActivity : AppCompatActivity() {
 
     private fun currentCats(): List<String> = if (isExpense) EXPENSE_CATS else INCOME_CATS
 
-    private fun refreshTagBtn() {
+    private fun renderTagChips() {
+        binding.tagChipWrap.removeAllViews()
         val cats = currentCats()
         if (selectedCategory !in cats) selectedCategory = cats.first()
-        binding.btnTag.text = selectedCategory
-        refreshMemoField(focus = false)
+        val theme = UiPrefs.theme(this)
+        val d = resources.displayMetrics.density
+        val maxRowWidth = (resources.displayMetrics.widthPixels - (40 * d).toInt()).coerceAtLeast(1)
+        var row = newChipRow()
+        var rowWidth = 0
+        cats.forEach { cat ->
+            val chip = makeTagChip(cat, cat == selectedCategory, theme, d)
+            chip.measure(
+                View.MeasureSpec.makeMeasureSpec(maxRowWidth, View.MeasureSpec.AT_MOST),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            )
+            val chipWidth = chip.measuredWidth + (8 * d).toInt()
+            if (rowWidth > 0 && rowWidth + chipWidth > maxRowWidth) {
+                binding.tagChipWrap.addView(row)
+                row = newChipRow()
+                rowWidth = 0
+            }
+            row.addView(chip)
+            rowWidth += chipWidth
+        }
+        if (row.childCount > 0) binding.tagChipWrap.addView(row)
     }
 
-    private fun refreshMemoField(focus: Boolean) {
-        val show = selectedCategory == "其他"
-        binding.etMemo.visibility = if (show) View.VISIBLE else View.GONE
-        if (!show) {
-            binding.etMemo.setText("")
-            return
+    private fun newChipRow(): LinearLayout =
+        LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
         }
-        if (focus) {
-            binding.etMemo.requestFocus()
-            binding.etMemo.post {
-                val imm = getSystemService(INPUT_METHOD_SERVICE) as? android.view.inputmethod.InputMethodManager
-                imm?.showSoftInput(binding.etMemo, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
-            }
-        }
-    }
 
-    private fun showTagPicker() {
-        val cats = currentCats().toTypedArray()
-        val title = if (isExpense) "选择用途" else "选择来源"
-        val checked = cats.indexOf(selectedCategory).coerceAtLeast(0)
-        AlertDialog.Builder(this)
-            .setTitle(title)
-            .setSingleChoiceItems(cats, checked) { dialog, which ->
-                selectedCategory = cats[which]
-                refreshTagBtn()
-                if (selectedCategory == "其他") refreshMemoField(focus = true)
-                dialog.dismiss()
+    private fun makeTagChip(label: String, selected: Boolean, theme: ThemePalette, d: Float): TextView {
+        val fill = if (selected) theme.accent else Color.parseColor("#FFFEF8")
+        return TextView(this).apply {
+            text = label
+            setTextColor(if (selected) Color.parseColor("#FFFEF8") else ThemeUi.contrastText(fill))
+            textSize = 14f
+            gravity = Gravity.CENTER
+            setPadding((12 * d).toInt(), (6 * d).toInt(), (12 * d).toInt(), (6 * d).toInt())
+            background = GradientDrawable().apply {
+                setColor(fill)
+                cornerRadius = 999 * d
+                setStroke(
+                    (1.5f * d).toInt().coerceAtLeast(2),
+                    if (selected) theme.accent else Color.parseColor("#483D3428")
+                )
             }
-            .setNegativeButton("取消", null)
-            .show()
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).also {
+                it.marginEnd = (8 * d).toInt()
+                it.bottomMargin = (8 * d).toInt()
+            }
+            minHeight = (36 * d).toInt()
+            isClickable = true
+            isFocusable = true
+            setOnClickListener {
+                selectedCategory = label
+                renderTagChips()
+                if (label == "其他") {
+                    binding.etMemo.requestFocus()
+                }
+            }
+        }
     }
 
     private fun refreshSummary(list: List<LedgerEntry>) {
@@ -226,10 +264,9 @@ class LedgerActivity : AppCompatActivity() {
         list.forEach { e ->
             if (e.isExpense) expense += e.amountCents else income += e.amountCents
         }
-        val balance = income - expense
         binding.tvIncome.text = formatYuan(income)
         binding.tvExpense.text = formatYuan(expense)
-        binding.tvBalance.text = formatYuan(balance)
+        binding.tvBalance.text = formatYuan(income - expense)
     }
 
     private fun addEntry() {
@@ -240,11 +277,7 @@ class LedgerActivity : AppCompatActivity() {
             return
         }
         val cents = Math.round(yuan * 100.0)
-        val memo = if (selectedCategory == "其他") {
-            binding.etMemo.text?.toString()?.trim().orEmpty()
-        } else {
-            ""
-        }
+        val memo = binding.etMemo.text?.toString()?.trim().orEmpty()
         val entry = LedgerEntry(
             amountCents = cents,
             isExpense = isExpense,

@@ -919,6 +919,16 @@
       display: block;
       pointer-events: none;
     }
+    #tools-ledger-btn .tools-nav-icon,
+    #tools-mood-btn .tools-nav-icon {
+      width: 62px;
+      height: 62px;
+    }
+    #tools-ledger-btn .tools-nav-icon img,
+    #tools-mood-btn .tools-nav-icon img {
+      width: 56px;
+      height: 56px;
+    }
     .tools-nav-text {
       flex: 1;
       min-width: 0;
@@ -1269,6 +1279,9 @@
       overflow-y: auto;
       scrollbar-width: none;
       -ms-overflow-style: none;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      touch-action: pan-y;
     }
 
     .add-editor__body::-webkit-scrollbar {
@@ -1773,6 +1786,8 @@
       scrollbar-width: none;
       -ms-overflow-style: none;
       -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      touch-action: pan-y;
     }
     .detail-edit-body::-webkit-scrollbar {
       display: none;
@@ -2268,11 +2283,11 @@
           <div class="panel-scroll scrollbar-hidden" id="tools-scroll">
             <div class="settings-block">
               <h3>小工具</h3>
-              <p class="sub">记一记、算一算</p>
+              <p class="sub">记账 · 心情 · 专注</p>
               <div class="tools-nav-list" id="tools-nav-list">
                 <button type="button" class="tools-nav-item" id="tools-ledger-btn" aria-label="记账">
                   <span class="tools-nav-icon">
-                    <img src="images/stickers/fox-deco-transparent.png" width="36" height="36" alt="" decoding="async" />
+                    <img src="images/stickers/fox-deco-transparent.png" width="56" height="56" alt="" decoding="async" />
                   </span>
                   <span class="tools-nav-text">
                     <span class="tools-nav-title">记账</span>
@@ -2282,7 +2297,7 @@
                 </button>
                 <button type="button" class="tools-nav-item" id="tools-mood-btn" aria-label="心情日记">
                   <span class="tools-nav-icon">
-                    <img src="images/stickers/fox-deco-transparent.png" width="36" height="36" alt="" decoding="async" />
+                    <img src="images/stickers/fox-deco-transparent.png" width="56" height="56" alt="" decoding="async" />
                   </span>
                   <span class="tools-nav-text">
                     <span class="tools-nav-title">心情日记</span>
@@ -3546,6 +3561,12 @@
       });
     }
 
+    const baseShowView = showView;
+    showView = function (name) {
+      if (pomoRunning && name !== "pomodoro") pausePomo();
+      baseShowView(name);
+    };
+
     function addMoodEntry() {
       const title = (els.moodTitle?.value || "").trim() || MOOD_DEFAULT_TITLE;
       const content = (els.moodContent?.value || "").trim();
@@ -3899,6 +3920,152 @@
           }
         },
         { passive: false }
+      );
+    }
+
+    function wireInertialScroll(el, opts = {}) {
+      if (!el) return;
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      if (window.matchMedia("(hover: none) and (pointer: coarse)").matches) return;
+
+      const friction = opts.friction ?? 0.92;
+      const minV = opts.minVelocity ?? 0.3;
+      const maxV = opts.maxVelocity ?? 40;
+      const sampleWindow = opts.sampleWindow ?? 100;
+      const flingThreshold = opts.flingThreshold ?? minV;
+
+      let rafId = 0;
+      let velocity = 0;
+      let samples = [];
+      let tracking = false;
+      let lastY = 0;
+      let lastT = 0;
+      let activePointerId = null;
+
+      function canScroll() {
+        return el.scrollHeight > el.clientHeight + 1;
+      }
+
+      function maxScroll() {
+        return Math.max(0, el.scrollHeight - el.clientHeight);
+      }
+
+      function stopInertia() {
+        if (rafId) cancelAnimationFrame(rafId);
+        rafId = 0;
+        velocity = 0;
+      }
+
+      function clampV(v) {
+        return Math.max(-maxV, Math.min(maxV, v));
+      }
+
+      function pushSample(y, t) {
+        if (lastT) {
+          const dt = t - lastT;
+          if (dt > 0) {
+            samples.push({ v: ((lastY - y) / dt) * (1000 / 60), t });
+          }
+        }
+        lastY = y;
+        lastT = t;
+        const cutoff = t - sampleWindow;
+        samples = samples.filter((s) => s.t >= cutoff);
+      }
+
+      function releaseVelocity() {
+        if (!samples.length) return 0;
+        const recent = samples.slice(-5);
+        return clampV(recent.reduce((sum, s) => sum + s.v, 0) / recent.length);
+      }
+
+      function tick() {
+        velocity *= friction;
+        if (Math.abs(velocity) < minV) {
+          stopInertia();
+          return;
+        }
+        const max = maxScroll();
+        const next = el.scrollTop + velocity;
+        if (next <= 0) {
+          el.scrollTop = 0;
+          stopInertia();
+          return;
+        }
+        if (next >= max) {
+          el.scrollTop = max;
+          stopInertia();
+          return;
+        }
+        el.scrollTop = next;
+        rafId = requestAnimationFrame(tick);
+      }
+
+      function startInertia(v) {
+        if (!canScroll() || Math.abs(v) < flingThreshold) return;
+        stopInertia();
+        velocity = v;
+        rafId = requestAnimationFrame(tick);
+      }
+
+      function beginTrack(y, pointerId) {
+        stopInertia();
+        tracking = true;
+        activePointerId = pointerId;
+        lastY = y;
+        lastT = performance.now();
+        samples = [];
+      }
+
+      function trackMove(y) {
+        if (!tracking) return;
+        pushSample(y, performance.now());
+      }
+
+      function endTrack() {
+        if (!tracking) return;
+        tracking = false;
+        activePointerId = null;
+        startInertia(releaseVelocity());
+        samples = [];
+        lastT = 0;
+      }
+
+      el.addEventListener(
+        "pointerdown",
+        (e) => {
+          if (e.button !== 0 && e.pointerType === "mouse") return;
+          if (!canScroll()) return;
+          beginTrack(e.clientY, e.pointerId);
+        },
+        { passive: true }
+      );
+
+      el.addEventListener(
+        "pointermove",
+        (e) => {
+          if (!tracking || e.pointerId !== activePointerId) return;
+          trackMove(e.clientY);
+        },
+        { passive: true }
+      );
+
+      el.addEventListener(
+        "pointerup",
+        (e) => {
+          if (e.pointerId !== activePointerId) return;
+          endTrack();
+        },
+        { passive: true }
+      );
+
+      el.addEventListener(
+        "pointercancel",
+        (e) => {
+          if (e.pointerId !== activePointerId) return;
+          endTrack();
+        },
+        { passive: true }
       );
     }
 
@@ -4425,6 +4592,8 @@
 
     initListPageScroll();
     initListPullToAdd();
+    wireInertialScroll(els.contentInput);
+    wireInertialScroll(els.detailEditBody);
     applyUiPrefs();
     renderList();
     showView("list");

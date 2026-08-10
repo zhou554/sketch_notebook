@@ -6,42 +6,26 @@ import android.view.MotionEvent
 import android.view.VelocityTracker
 import android.view.ViewConfiguration
 import android.widget.OverScroller
-import androidx.appcompat.widget.AppCompatEditText
-import kotlin.math.abs
-import kotlin.math.max
+import androidx.appcompat.widget.AppCompatTextView
 
 /**
- * 便签正文编辑：记住光标位置 + 增强惯性滚动（对齐 preview 编辑区 fling 手感）。
+ * 便签只读正文：增强惯性滚动（详情页浏览模式）。
  */
-class CursorRememberEditText @JvmOverloads constructor(
+class InertialTextView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
-    defStyleAttr: Int = android.R.attr.editTextStyle
-) : AppCompatEditText(context, attrs, defStyleAttr) {
-
-    /** 最近一次有效的插入点（选区末端）；-1 表示尚未记录。 */
-    var lastCursor: Int = -1
-        private set
+    defStyleAttr: Int = android.R.attr.textViewStyle
+) : AppCompatTextView(context, attrs, defStyleAttr) {
 
     private val velocityTracker = VelocityTracker.obtain()
     private val fallbackScroller = OverScroller(context)
     private val maxFlingVelocity =
         ViewConfiguration.get(context).scaledMaximumFlingVelocity.toFloat()
 
-    private var touchSelStart = 0
-    private var touchSelEnd = 0
     private var useFallbackScroller = false
 
     init {
         isVerticalScrollBarEnabled = false
-        setHorizontallyScrolling(false)
-    }
-
-    override fun onSelectionChanged(selStart: Int, selEnd: Int) {
-        super.onSelectionChanged(selStart, selEnd)
-        if (selStart >= 0 && selEnd >= 0) {
-            lastCursor = max(selStart, selEnd)
-        }
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -49,8 +33,6 @@ class CursorRememberEditText @JvmOverloads constructor(
             MotionEvent.ACTION_DOWN -> {
                 velocityTracker.clear()
                 velocityTracker.addMovement(event)
-                touchSelStart = selectionStart
-                touchSelEnd = selectionEnd
                 fallbackScroller.abortAnimation()
             }
             MotionEvent.ACTION_MOVE -> velocityTracker.addMovement(event)
@@ -81,20 +63,12 @@ class CursorRememberEditText @JvmOverloads constructor(
         if (range <= 0) return
         if (!canScrollVertically(1) && !canScrollVertically(-1)) return
 
-        // 选区变化说明用户在拖选文字，不做惯性滚动
-        if (selectionStart != selectionEnd &&
-            (selectionStart != touchSelStart || selectionEnd != touchSelEnd)
-        ) {
-            return
-        }
-
         velocityTracker.computeCurrentVelocity(1000, maxFlingVelocity)
         val vy = velocityTracker.yVelocity
         val min = InertialFling.minVelocity(context)
-        if (abs(vy) <= min) return
+        if (kotlin.math.abs(vy) <= min) return
 
         val boosted = InertialFling.boost(context, vy.toInt())
-        // 与 TextView 内部一致：第 4 参数为 -yVelocity
         val scrollerVy = -boosted
 
         TextViewScrollerHelper.abort(this)
@@ -113,26 +87,5 @@ class CursorRememberEditText @JvmOverloads constructor(
         val textLayout = layout ?: return 0
         val range = textLayout.height + compoundPaddingTop + compoundPaddingBottom - height
         return range.coerceAtLeast(0)
-    }
-
-    /** 在打开系统选择器前主动快照当前选区。 */
-    fun snapshotCursor() {
-        val s = selectionStart
-        val e = selectionEnd
-        if (s >= 0 && e >= 0) {
-            lastCursor = max(s, e)
-        }
-    }
-
-    fun insertPos(fallbackToEnd: Boolean = true): Int {
-        val len = text?.length ?: 0
-        val live = max(selectionStart, selectionEnd)
-        val pos = when {
-            live >= 0 -> live
-            lastCursor in 0..len -> lastCursor
-            fallbackToEnd -> len
-            else -> 0
-        }
-        return pos.coerceIn(0, len)
     }
 }

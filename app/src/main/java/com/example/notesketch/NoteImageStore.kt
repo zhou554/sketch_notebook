@@ -79,6 +79,25 @@ object NoteImageStore {
         fileFor(context, relativeName)?.delete()
     }
 
+    /** 从网页备份的 data URL / base64 写入 note_images，返回相对文件名。 */
+    fun importFromDataUrl(context: Context, dataUrl: String): String? {
+        val payload = when {
+            dataUrl.startsWith("data:", ignoreCase = true) -> {
+                val comma = dataUrl.indexOf(',')
+                if (comma < 0) return null
+                dataUrl.substring(comma + 1)
+            }
+            else -> dataUrl
+        }
+        val bytes = try {
+            android.util.Base64.decode(payload, android.util.Base64.DEFAULT)
+        } catch (_: Exception) {
+            return null
+        }
+        val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return null
+        return persistBitmap(context, toSoftware(bitmap))
+    }
+
     private fun persistBitmap(context: Context, bitmap: Bitmap): String {
         val name = "${UUID.randomUUID()}.jpg"
         val outFile = File(dir(context), name)

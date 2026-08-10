@@ -32,13 +32,13 @@ class LedgerAdapter(
         val d = holder.itemView.resources.displayMetrics.density
         with(holder.binding) {
             val kind = if (entry.isExpense) "支出" else "收入"
-            tvCategory.text = "${entry.category} · $kind"
+            tvCategory.text = entry.category
             val fill = ThemeUi.stickerPanelColor(theme)
             val ink = ThemeUi.contrastText(fill)
             val muted = ThemeUi.contrastMuted(fill)
             tvCategory.setTextColor(ink)
             val time = fmt.format(Date(entry.createdAt))
-            tvMemo.text = if (entry.memo.isNotBlank()) "${entry.memo} · $time" else time
+            tvMemo.text = if (entry.memo.isNotBlank()) "${entry.memo} · $time" else "$kind · $time"
             tvMemo.setTextColor(muted)
             tvTime.visibility = View.GONE
             val yuan = entry.amountCents / 100.0
