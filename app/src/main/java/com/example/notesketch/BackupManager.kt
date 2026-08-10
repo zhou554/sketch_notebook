@@ -25,6 +25,9 @@ object BackupManager {
     private const val POMO_DAY = "day"
     private const val POMO_COUNT = "count"
     private const val POMO_MINUTES = "minutes"
+    private const val POMO_WORK_MIN = "work_min"
+    private const val POMO_SHORT_MIN = "short_min"
+    private const val POMO_LONG_MIN = "long_min"
 
     data class ExportSummary(
         val noteCount: Int,
@@ -51,14 +54,16 @@ object BackupManager {
         val db = AppDatabase.get(context)
         val notes = db.noteDao().getAllOnce().map { noteToJson(context, it) }
         val ledger = db.ledgerDao().getAllOnce().map { ledgerToJson(it) }
-        val mood = db.moodDao().getAllOnce().map { moodToJson(it) }
+        val mood = db.moodDao().getAllOnce().map { moodToJson(context, it) }
         val prefs = UiPrefs.exportToJson(context)
+        val aiTutor = AiTutorPrefs.exportToJson(context)
         val pomodoro = readPomodoroStats(context)
         val data = JSONObject()
             .put("notes", JSONArray(notes))
             .put("prefs", prefs)
             .put("ledger", JSONArray(ledger))
             .put("mood", JSONArray(mood))
+            .put("aiTutor", aiTutor)
             .put("pomodoro", pomodoro)
         val envelope = JSONObject()
             .put("format", FORMAT)
@@ -137,6 +142,9 @@ object BackupManager {
         if (data.has("mood") && data.opt("mood") !is JSONArray) {
             throw BackupError.Invalid("备份 mood 格式错误")
         }
+        if (data.has("aiTutor") && data.opt("aiTutor") !is JSONObject) {
+            throw BackupError.Invalid("备份 aiTutor 格式错误")
+        }
         return doc
     }
 
@@ -158,6 +166,7 @@ object BackupManager {
         val incomingMood = parseMood(context, data.optJSONArray("mood") ?: JSONArray())
         val incomingPrefs = data.optJSONObject("prefs")
         val incomingPomodoro = data.optJSONObject("pomodoro")
+        val incomingAiTutor = data.optJSONObject("aiTutor")
 
         if (mode == ImportMode.REPLACE) {
             db.noteDao().deleteAll()
@@ -169,8 +178,11 @@ object BackupManager {
                 if (incomingMood.isNotEmpty()) db.moodDao().insertAll(incomingMood)
             }
             incomingPrefs?.let { UiPrefs.applyImportedPrefs(context, it, replace = true) }
+            if (data.has("aiTutor") && incomingAiTutor != null) {
+                AiTutorPrefs.applyImported(context, incomingAiTutor, replace = true)
+            }
             if (data.has("pomodoro") && incomingPomodoro != null) {
-                writePomodoroStats(context, incomingPomodoro)
+                writePomodoroStats(context, incomingPomodoro, replaceHistory = true)
             }
             return
         }
@@ -185,7 +197,8 @@ object BackupManager {
         db.moodDao().deleteAll()
         if (mergedMood.isNotEmpty()) db.moodDao().insertAll(mergedMood)
         incomingPrefs?.let { UiPrefs.applyImportedPrefs(context, it, replace = false) }
-        incomingPomodoro?.let { writePomodoroStats(context, it) }
+        incomingAiTutor?.let { AiTutorPrefs.applyImported(context, it, replace = false) }
+        incomingPomodoro?.let { writePomodoroStats(context, it, replaceHistory = false) }
     }
 
     fun defaultExportFileName(): String {
@@ -229,7 +242,20 @@ object BackupManager {
         (data.optJSONArray("notes")?.toString()?.length ?: 0) +
             (data.optJSONObject("prefs")?.toString()?.length ?: 0) +
             (data.optJSONArray("ledger")?.toString()?.length ?: 0) +
-            (data.optJSONArray("mood")?.toString()?.length ?: 0)
+            (data.optJSONArray("mood")?.toString()?.length ?: 0) +
+            (data.optJSONObject("aiTutor")?.toString()?.length ?: 0) +
+            (data.optJSONObject("pomodoro")?.toString()?.length ?: 0)
+
+    private fun inlineImagesToJson(context: Context, content: String): JSONObject? {
+        val images = JSONObject()
+        NoteInlineImages.listedImages(content).forEach { fileName ->
+            val file = NoteImageStore.fileFor(context, fileName) ?: return@forEach
+            val bytes = file.readBytes()
+            val b64 = Base64.encodeToString(bytes, Base64.NO_WRAP)
+            images.put(fileName, "data:image/jpeg;base64,$b64")
+        }
+        return if (images.length() > 0) images else null
+    }
 
     private fun noteToJson(context: Context, note: Note): JSONObject {
         val obj = JSONObject()
@@ -242,14 +268,7 @@ object BackupManager {
             .put("nextReviewTime", note.nextReviewTime)
             .put("finished", note.finished)
             .put("colorId", note.colorId)
-        val images = JSONObject()
-        NoteInlineImages.listedImages(note.content).forEach { fileName ->
-            val file = NoteImageStore.fileFor(context, fileName) ?: return@forEach
-            val bytes = file.readBytes()
-            val b64 = Base64.encodeToString(bytes, Base64.NO_WRAP)
-            images.put(fileName, "data:image/jpeg;base64,$b64")
-        }
-        if (images.length() > 0) obj.put("images", images)
+        inlineImagesToJson(context, note.content)?.let { obj.put("images", it) }
         return obj
     }
 
@@ -263,14 +282,17 @@ object BackupManager {
             .put("createdAt", entry.createdAt)
             .put("updatedAt", entry.createdAt)
 
-    private fun moodToJson(entry: MoodEntry): JSONObject =
-        JSONObject()
+    private fun moodToJson(context: Context, entry: MoodEntry): JSONObject {
+        val obj = JSONObject()
             .put("id", entry.id)
             .put("mood", entry.mood)
             .put("icon", entry.icon)
             .put("content", entry.content)
             .put("createdAt", entry.createdAt)
             .put("updatedAt", entry.createdAt)
+        inlineImagesToJson(context, entry.content)?.let { obj.put("images", it) }
+        return obj
+    }
 
     private suspend fun parseNotes(context: Context, arr: JSONArray): List<Note> {
         val out = mutableListOf<Note>()
@@ -422,14 +444,26 @@ object BackupManager {
             .put("day", prefs.getString(POMO_DAY, "") ?: "")
             .put("count", prefs.getInt(POMO_COUNT, 0))
             .put("minutes", prefs.getInt(POMO_MINUTES, 0))
+            .put("workMin", prefs.getInt(POMO_WORK_MIN, 25))
+            .put("shortMin", prefs.getInt(POMO_SHORT_MIN, 5))
+            .put("longMin", prefs.getInt(POMO_LONG_MIN, 15))
+            .put("history", PomodoroStatsStore.exportToJson(context))
     }
 
-    private fun writePomodoroStats(context: Context, obj: JSONObject) {
+    private fun writePomodoroStats(context: Context, obj: JSONObject, replaceHistory: Boolean) {
         context.getSharedPreferences(POMO_PREFS, Context.MODE_PRIVATE).edit()
             .putString(POMO_DAY, obj.optString("day", todayKey()))
             .putInt(POMO_COUNT, obj.optInt("count", 0))
             .putInt(POMO_MINUTES, obj.optInt("minutes", 0))
+            .putInt(POMO_WORK_MIN, obj.optInt("workMin", 25).coerceIn(1, 180))
+            .putInt(POMO_SHORT_MIN, obj.optInt("shortMin", 5).coerceIn(1, 60))
+            .putInt(POMO_LONG_MIN, obj.optInt("longMin", 15).coerceIn(1, 60))
             .apply()
+        PomodoroStatsStore.applyImported(
+            context,
+            obj.optJSONObject("history"),
+            replace = replaceHistory
+        )
     }
 
     private fun todayKey(): String {

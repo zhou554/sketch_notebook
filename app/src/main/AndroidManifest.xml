@@ -58,6 +58,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".PomodoroStatsActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".AiTutorActivity"
             android:exported="false"
             android:hardwareAccelerated="true"

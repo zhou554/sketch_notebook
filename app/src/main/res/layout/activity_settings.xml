@@ -81,7 +81,7 @@
                 android:paddingHorizontal="20dp"
                 android:paddingTop="2dp"
                 android:paddingBottom="8dp"
-                android:text="导出 JSON · 换机或更新后恢复"
+                android:text="导出便签、记账、心情、外观设置、AI 导师与番茄钟（JSON）。备份含 API Key，请妥善保管"
                 android:textSize="13sp" />
 
             <LinearLayout

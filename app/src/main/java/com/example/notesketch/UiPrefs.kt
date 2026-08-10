@@ -296,6 +296,10 @@ object UiPrefs {
             .put("brightness", brightness(context))
             .put("themeId", prefs(context).getString(KEY_THEME, "forest") ?: "forest")
             .put("paperType", paperType(context).id)
+            .put("contentOpacity", contentOpacity(context))
+            .put("seaHeight", seaHeight(context))
+            .put("seaAmp", seaAmp(context))
+            .put("shellFreq", shellFreq(context))
             .put("customThemes", arr)
             .put("hiddenThemes", JSONArray(hiddenThemeIds(context).toList()))
     }
@@ -331,6 +335,10 @@ object UiPrefs {
             }
         }
         prefs(context).edit().putString(KEY_HIDDEN_THEMES, hidden.joinToString(",")).apply()
+        setContentOpacity(context, out.optInt("contentOpacity", 100))
+        setSeaHeight(context, out.optInt("seaHeight", 50))
+        setSeaAmp(context, out.optInt("seaAmp", 45))
+        setShellFreq(context, out.optInt("shellFreq", 45))
     }
 
     private fun mergePrefsJson(local: JSONObject, incoming: JSONObject): JSONObject {
@@ -338,6 +346,26 @@ object UiPrefs {
         out.put("brightness", if (incoming.has("brightness")) incoming.optInt("brightness") else local.optInt("brightness", 100))
         out.put("themeId", incoming.optString("themeId").ifBlank { local.optString("themeId", "forest") })
         out.put("paperType", incoming.optString("paperType").ifBlank { local.optString("paperType", "grid") })
+        out.put(
+            "contentOpacity",
+            if (incoming.has("contentOpacity")) incoming.optInt("contentOpacity")
+            else local.optInt("contentOpacity", 100)
+        )
+        out.put(
+            "seaHeight",
+            if (incoming.has("seaHeight")) incoming.optInt("seaHeight")
+            else local.optInt("seaHeight", 50)
+        )
+        out.put(
+            "seaAmp",
+            if (incoming.has("seaAmp")) incoming.optInt("seaAmp")
+            else local.optInt("seaAmp", 45)
+        )
+        out.put(
+            "shellFreq",
+            if (incoming.has("shellFreq")) incoming.optInt("shellFreq")
+            else local.optInt("shellFreq", 45)
+        )
         val byId = linkedMapOf<String, JSONObject>()
         local.optJSONArray("customThemes")?.let { arr ->
             for (i in 0 until arr.length()) {

@@ -188,19 +188,6 @@ class AiTutorActivity : AppCompatActivity() {
         webTabActive = index == 1
         binding.panelApi.visibility = if (index == 0) View.VISIBLE else View.GONE
         binding.panelWeb.visibility = if (index == 1) View.VISIBLE else View.GONE
-        // #region agent log
-        DebugLog.log(
-            this, "AiTutorActivity.kt:showTab", "tab switched",
-            "H2", mapOf(
-                "index" to index,
-                "webTabActive" to webTabActive,
-                "panelWebVisible" to (binding.panelWeb.visibility == View.VISIBLE),
-                "webViewVisible" to binding.webView.visibility,
-                "webViewW" to binding.webView.width,
-                "webViewH" to binding.webView.height
-            )
-        )
-        // #endregion
         if (index == 1) {
             binding.webView.visibility = View.VISIBLE
             binding.webView.onResume()
@@ -244,27 +231,10 @@ class AiTutorActivity : AppCompatActivity() {
 
             override fun onPageStarted(view: WebView, url: String?, favicon: android.graphics.Bitmap?) {
                 updateWebProgress(5)
-                // #region agent log
-                DebugLog.log(
-                    this@AiTutorActivity, "AiTutorActivity.kt:onPageStarted", "page started",
-                    "H4", mapOf(
-                        "url" to url,
-                        "webViewVisible" to view.visibility,
-                        "webViewW" to view.width,
-                        "webViewH" to view.height
-                    )
-                )
-                // #endregion
             }
 
             override fun onPageFinished(view: WebView, url: String?) {
                 updateWebProgress(100)
-                // #region agent log
-                DebugLog.log(
-                    this@AiTutorActivity, "AiTutorActivity.kt:onPageFinished", "page finished",
-                    "H4", mapOf("url" to url, "canGoBack" to view.canGoBack())
-                )
-                // #endregion
                 val current = url?.trim().orEmpty()
                 if (current.isNotBlank() && current != "about:blank") {
                     lastLoadedWebUrl = current
@@ -281,16 +251,6 @@ class AiTutorActivity : AppCompatActivity() {
             ) {
                 if (request.isForMainFrame) {
                     updateWebProgress(100)
-                    // #region agent log
-                    DebugLog.log(
-                        this@AiTutorActivity, "AiTutorActivity.kt:onReceivedError", "main frame error",
-                        "H3", mapOf(
-                            "url" to request.url?.toString(),
-                            "errorCode" to error.errorCode,
-                            "description" to error.description?.toString()
-                        )
-                    )
-                    // #endregion
                     Toast.makeText(
                         this@AiTutorActivity,
                         "页面加载失败，请检查网址或网络",
@@ -343,45 +303,35 @@ class AiTutorActivity : AppCompatActivity() {
         binding.btnWebForward.isEnabled = binding.webView.canGoForward()
     }
 
+    /** 所有网页链接尽量留在应用内 WebView 打开，不跳转系统浏览器。 */
     private fun handleInAppLink(view: WebView, url: String): Boolean {
         if (url.isBlank()) return true
         val uri = Uri.parse(url)
-        val scheme = uri.scheme?.lowercase()
-        val override = when (scheme) {
-            "http", "https", "about" -> false
+        when (uri.scheme?.lowercase()) {
+            "http", "https", "about" -> return false
             "intent" -> {
                 try {
                     val intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME)
                     val fallback = intent.getStringExtra("browser_fallback_url")
                     if (!fallback.isNullOrBlank()) {
                         view.loadUrl(fallback)
-                        true
-                    } else if (intent.resolveActivity(packageManager) != null) {
+                        return true
+                    }
+                    if (intent.resolveActivity(packageManager) != null) {
                         startActivity(intent)
-                        true
                     } else {
                         Toast.makeText(this, "该操作需要在应用内网页完成", Toast.LENGTH_SHORT).show()
-                        true
                     }
                 } catch (_: Exception) {
                     Toast.makeText(this, "无法打开链接", Toast.LENGTH_SHORT).show()
-                    true
                 }
+                return true
             }
             else -> {
                 Toast.makeText(this, "该链接暂不支持，请尝试在网页内操作", Toast.LENGTH_SHORT).show()
-                true
+                return true
             }
         }
-        // #region agent log
-        if (override) {
-            DebugLog.log(
-                this, "AiTutorActivity.kt:handleInAppLink", "url overridden",
-                "H5", mapOf("url" to url, "scheme" to scheme)
-            )
-        }
-        // #endregion
-        return override
     }
 
     private fun maybeAutoLoadWeb() {
@@ -390,22 +340,6 @@ class AiTutorActivity : AppCompatActivity() {
         val effectiveCurrent = current.ifBlank { lastLoadedWebUrl.orEmpty() }
         val needsLoad = target.isNotBlank() &&
             (effectiveCurrent.isBlank() || effectiveCurrent == "about:blank" || !urlsEquivalent(effectiveCurrent, target))
-        // #region agent log
-        DebugLog.log(
-            this, "AiTutorActivity.kt:maybeAutoLoadWeb", "auto load check",
-            "H1", mapOf(
-                "runId" to "post-fix",
-                "target" to target,
-                "current" to current,
-                "lastLoaded" to lastLoadedWebUrl,
-                "urlFieldFocused" to binding.etWebUrl.hasFocus(),
-                "webViewVisible" to binding.webView.visibility,
-                "webViewW" to binding.webView.width,
-                "webViewH" to binding.webView.height,
-                "willLoad" to needsLoad
-            )
-        )
-        // #endregion
         if (target.isBlank()) return
         if (needsLoad) {
             loadWebUrl()
@@ -533,40 +467,8 @@ class AiTutorActivity : AppCompatActivity() {
         }
         binding.etWebUrl.setText(url)
         AiTutorPrefs.setWebUrl(this, url)
-        val loadStart = System.currentTimeMillis()
         prepareWebViewForLoad()
-        // #region agent log
-        DebugLog.log(
-            this, "AiTutorActivity.kt:loadWebUrl", "load requested",
-            "H1", mapOf(
-                "runId" to "post-fix",
-                "url" to url,
-                "urlFieldFocused" to binding.etWebUrl.hasFocus(),
-                "webViewVisible" to binding.webView.visibility,
-                "webViewW" to binding.webView.width,
-                "webViewH" to binding.webView.height,
-                "panelWebVisible" to (binding.panelWeb.visibility == View.VISIBLE)
-            )
-        )
-        // #endregion
         binding.webView.loadUrl(url)
-        // #region agent log
-        binding.webView.post {
-            DebugLog.log(
-                this, "AiTutorActivity.kt:loadWebUrl", "post-load webview state",
-                "H1", mapOf(
-                    "runId" to "post-fix",
-                    "url" to url,
-                    "elapsedMs" to (System.currentTimeMillis() - loadStart),
-                    "urlFieldFocused" to binding.etWebUrl.hasFocus(),
-                    "webViewVisible" to binding.webView.visibility,
-                    "webViewW" to binding.webView.width,
-                    "webViewH" to binding.webView.height,
-                    "currentUrl" to binding.webView.url
-                )
-            )
-        }
-        // #endregion
     }
 
     private fun pasteClipboardToNote() {

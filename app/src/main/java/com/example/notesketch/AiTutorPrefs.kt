@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
+import org.json.JSONObject
 
 object AiTutorPrefs {
 
@@ -74,6 +75,38 @@ object AiTutorPrefs {
         return apiBaseUrl(context).isNotBlank() &&
             apiKey(context).isNotBlank() &&
             apiModel(context).isNotBlank()
+    }
+
+    fun exportToJson(context: Context): JSONObject =
+        JSONObject()
+            .put("baseUrl", apiBaseUrl(context))
+            .put("apiKey", apiKey(context))
+            .put("model", apiModel(context))
+            .put("webUrl", webUrl(context))
+            .put("systemPrompt", systemPrompt(context))
+
+    fun applyImported(context: Context, incoming: JSONObject, replace: Boolean) {
+        val current = if (replace) JSONObject() else exportToJson(context)
+        val out = mergeJson(current, incoming)
+        setApiBaseUrl(context, out.optString("baseUrl", ""))
+        setApiKey(context, out.optString("apiKey", ""))
+        setApiModel(context, out.optString("model", "gpt-4o-mini"))
+        setWebUrl(context, out.optString("webUrl", ""))
+        val prompt = out.optString("systemPrompt", DEFAULT_SYSTEM_PROMPT)
+        setSystemPrompt(context, if (prompt.isBlank()) DEFAULT_SYSTEM_PROMPT else prompt)
+    }
+
+    private fun mergeJson(local: JSONObject, incoming: JSONObject): JSONObject {
+        fun pick(key: String, default: String = ""): String {
+            return if (incoming.has(key)) incoming.optString(key, default)
+            else local.optString(key, default)
+        }
+        return JSONObject()
+            .put("baseUrl", pick("baseUrl"))
+            .put("apiKey", pick("apiKey"))
+            .put("model", pick("model", "gpt-4o-mini"))
+            .put("webUrl", pick("webUrl"))
+            .put("systemPrompt", pick("systemPrompt", DEFAULT_SYSTEM_PROMPT))
     }
 
     const val DEFAULT_SYSTEM_PROMPT =

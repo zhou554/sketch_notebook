@@ -38,7 +38,8 @@ class SettingsActivity : AppCompatActivity() {
                     BackupManager.exportSummary(this@SettingsActivity)
                 }
                 showBackupStatus(
-                    "已导出 ${summary.noteCount} 条便签、${summary.ledgerCount} 条账本、${summary.moodCount} 条心情（约 ${BackupManager.formatBytes(summary.approxBytes)}）"
+                    "已导出 ${summary.noteCount} 条便签、${summary.ledgerCount} 条记账、${summary.moodCount} 条心情，" +
+                        "以及外观设置、AI 导师配置、番茄钟数据（约 ${BackupManager.formatBytes(summary.approxBytes)}）"
                 )
             } catch (e: Exception) {
                 showBackupStatus(e.message ?: "导出失败", true)
@@ -61,7 +62,9 @@ class SettingsActivity : AppCompatActivity() {
                 AlertDialog.Builder(this@SettingsActivity)
                     .setTitle("从备份恢复")
                     .setMessage(
-                        "备份含 ${summary.noteCount} 条便签、${summary.ledgerCount} 条账本、${summary.moodCount} 条心情（约 $sizeHint）。\n\n确定 = 与本机合并\n取消 = 选择覆盖导入"
+                        "备份含 ${summary.noteCount} 条便签、${summary.ledgerCount} 条记账、${summary.moodCount} 条心情，" +
+                            "以及外观设置、AI 导师配置、番茄钟数据（约 $sizeHint）。\n\n" +
+                            "确定 = 与本机合并\n取消 = 选择覆盖导入"
                     )
                     .setPositiveButton("合并") { _, _ ->
                         runImport(doc, BackupManager.ImportMode.MERGE)
@@ -101,7 +104,7 @@ class SettingsActivity : AppCompatActivity() {
     private fun confirmReplaceImport(doc: org.json.JSONObject) {
         AlertDialog.Builder(this)
             .setTitle("覆盖导入")
-            .setMessage("用备份完全替换本机数据？\n本机便签、设置、账本与心情将被覆盖，建议先导出一份当前备份。")
+            .setMessage("用备份完全替换本机数据？\n本机便签、记账、心情、外观设置、AI 导师与番茄钟数据将被覆盖，建议先导出一份当前备份。")
             .setPositiveButton("覆盖") { _, _ ->
                 runImport(doc, BackupManager.ImportMode.REPLACE)
             }

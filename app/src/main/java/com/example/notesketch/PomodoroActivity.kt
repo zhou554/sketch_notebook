@@ -85,6 +85,9 @@ class PomodoroActivity : AppCompatActivity() {
         binding.btnModePomodoro.setOnClickListener { switchMode(Mode.POMODORO) }
         binding.btnPrimary.setOnClickListener { toggleRun() }
         binding.btnReset.setOnClickListener { resetTimer() }
+        binding.btnStatsEntry.setOnClickListener {
+            startActivity(PomodoroStatsActivity.intent(this))
+        }
 
         applyUi()
         switchMode(Mode.POMODORO, force = true)
@@ -137,7 +140,11 @@ class PomodoroActivity : AppCompatActivity() {
             setColor(card)
             setStroke((2 * d).toInt().coerceAtLeast(1), 0x403D3428)
         }
-        ThemeUi.colorTexts(ThemeUi.contrastText(card), binding.tvStatsTitle, binding.tvStats)
+        binding.btnStatsEntry.background = GradientDrawable().apply {
+            setColor(card)
+            setStroke((2 * d).toInt().coerceAtLeast(1), 0x403D3428)
+        }
+        ThemeUi.colorTexts(ThemeUi.contrastText(card), binding.tvStatsTitle, binding.tvStats, binding.btnStatsEntry)
         stylePrimaryButtons()
         renderModeUi()
     }
@@ -628,6 +635,14 @@ class PomodoroActivity : AppCompatActivity() {
         val day = prefs.getString(KEY_DAY, "")
         val today = todayKey()
         if (day != today) {
+            if (!day.isNullOrBlank()) {
+                PomodoroStatsStore.archiveDay(
+                    this,
+                    day,
+                    prefs.getInt(KEY_COUNT, 0),
+                    prefs.getInt(KEY_MINUTES, 0)
+                )
+            }
             completedToday = 0
             focusMinutesToday = 0
             prefs.edit().putString(KEY_DAY, today).putInt(KEY_COUNT, 0).putInt(KEY_MINUTES, 0).apply()
@@ -635,6 +650,7 @@ class PomodoroActivity : AppCompatActivity() {
             completedToday = prefs.getInt(KEY_COUNT, 0)
             focusMinutesToday = prefs.getInt(KEY_MINUTES, 0)
         }
+        PomodoroStatsStore.syncToday(this, completedToday, focusMinutesToday)
     }
 
     private fun saveStats() {
@@ -643,6 +659,7 @@ class PomodoroActivity : AppCompatActivity() {
             .putInt(KEY_COUNT, completedToday)
             .putInt(KEY_MINUTES, focusMinutesToday)
             .commit()
+        PomodoroStatsStore.syncToday(this, completedToday, focusMinutesToday)
     }
 
     private fun reloadStatsFromPrefs() {
